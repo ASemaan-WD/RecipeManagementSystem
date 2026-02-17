@@ -26,7 +26,7 @@
 ## Mandatory Process (Follow in Order)
 
 ### Step 1: Consult the Roadmap
-- **First**, check `ROADMAP.md` at the project root.
+- **First**, check `docs/ROADMAP.md` at the project root.
 - If not found, search broadly for any roadmap-related files (`roadmap`, `phases`, `milestones`, `plan`).
 - Identify:
   - What phase are we currently in?
@@ -45,10 +45,10 @@
 
 ### Step 3: Consult Project Documentation
 - Read the relevant documentation files to understand architectural decisions, constraints, and conventions:
-  - `CTO_SPECS.md` — Technical architecture, technology choices, infrastructure decisions, and non-negotiable technical constraints.
-  - `PRODUCT_MANAGER.md` — Feature requirements, user stories, acceptance criteria, and product priorities.
-  - `SENIOR_DEVELOPER.md` — Implementation patterns, coding conventions, best practices, and development workflow.
-  - `GENERAL_SPECS.md` — Project overview, scope, and general requirements.
+  - `docs/CTO_SPECS.md` — Technical architecture, technology choices, infrastructure decisions, and non-negotiable technical constraints.
+  - `docs/PRODUCT_MANAGER.md` — Feature requirements, user stories, acceptance criteria, and product priorities.
+  - `docs/SENIOR_DEVELOPER.md` — Implementation patterns, coding conventions, best practices, and development workflow.
+  - `docs/GENERAL_SPECS.md` — Project overview, scope, and general requirements.
 - Extract anything relevant to the task at hand: patterns to follow, constraints to respect, conventions to maintain.
 
 ### Step 4: Conduct External Research (If Necessary)
@@ -57,7 +57,7 @@
   - Official documentation for libraries/frameworks used in the project.
   - Best practices for the specific pattern or approach being implemented.
   - Known issues or gotchas relevant to the task.
-- **Do NOT adopt a new approach just because it's popular** — it must align with the project's established stack and conventions as documented in `CTO_SPECS.md` and `SENIOR_DEVELOPER.md`.
+- **Do NOT adopt a new approach just because it's popular** — it must align with the project's established stack and conventions as documented in `docs/CTO_SPECS.md` and `docs/SENIOR_DEVELOPER.md`.
 
 ### Step 5: Define the Expected Outcome
 - Before writing the task, articulate clearly:
@@ -75,7 +75,7 @@
   - **Blocks**: Any future tasks that depend on this task's completion.
 
 ### Step 7: Create the Task File
-- Using the **task-template-skill**, produce the task file and place it in `docs/tasks/`.
+- Using the **task-template-skill**, produce the task file and place it in `docs/phases/phase<n>/` where `<n>` is the phase number.
 - The task file must reflect everything gathered in Steps 1-6.
 
 ---
@@ -85,7 +85,7 @@
 Follow this escalation chain:
 
 1. **Check the code** — the source of truth is always the codebase itself.
-2. **Check the documentation** — `CTO_SPECS.md`, `PRODUCT_MANAGER.md`, `SENIOR_DEVELOPER.md`, `GENERAL_SPECS.md`, `ROADMAP.md`.
+2. **Check the documentation** — `docs/CTO_SPECS.md`, `docs/PRODUCT_MANAGER.md`, `docs/SENIOR_DEVELOPER.md`, `docs/GENERAL_SPECS.md`, `docs/ROADMAP.md`.
 3. **Check online resources** — official docs, relevant guides.
 4. **Ask the user** — if none of the above resolves the uncertainty, **always ask**. Never guess. Never assume. A wrong assumption costs more than a clarifying question.
 

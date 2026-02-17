@@ -16,7 +16,7 @@ task-<phase_number>.<task_number>-<hyphen-separated-task-brief-description>.md
 - `task-2.5-implement-recipe-search-api-endpoint.md`
 
 **Rules:**
-- Phase number matches the phase from `ROADMAP.md`.
+- Phase number matches the phase from `docs/ROADMAP.md`.
 - Task number is sequential within the phase.
 - Description is lowercase, hyphen-separated, and brief (3-8 words).
 - No special characters beyond hyphens.
@@ -25,11 +25,13 @@ task-<phase_number>.<task_number>-<hyphen-separated-task-brief-description>.md
 
 ## File Location
 
-All task files are placed in:
+Task files are organized by phase under:
 
 ```
-docs/tasks/
+docs/phases/phase<n>/
 ```
+
+Where `<n>` is the phase number. For example, Phase 1 tasks go in `docs/phases/phase1/`, Phase 2 tasks go in `docs/phases/phase2/`, etc.
 
 Create the directory if it does not exist.
 
@@ -110,7 +112,7 @@ created_at: "<YYYY-MM-DD>"
 - <Requirement 2>
 
 **Patterns to follow**:
-- <Reference to existing code patterns, conventions from SENIOR_DEVELOPER.md, or CTO_SPECS.md>
+- <Reference to existing code patterns, conventions from docs/SENIOR_DEVELOPER.md, or docs/CTO_SPECS.md>
 
 ---
 
@@ -146,7 +148,7 @@ created_at: "<YYYY-MM-DD>"
 - [ ] <Specific testable behavior 3>
 
 ### Code Quality Checks
-- [ ] New code follows patterns established in `SENIOR_DEVELOPER.md`
+- [ ] New code follows patterns established in `docs/SENIOR_DEVELOPER.md`
 - [ ] No hardcoded values that should be configuration
 - [ ] No TODO/FIXME comments left unresolved within this task's scope
 
@@ -186,7 +188,7 @@ created_at: "<YYYY-MM-DD>"
 ### On Implementation Details
 - Each section should map to a **logical unit of change** (e.g., a database schema change, a new API route, a UI component).
 - Always point to **where context lives** — don't expect the executor to search for it.
-- Reference specific patterns from `SENIOR_DEVELOPER.md` or `CTO_SPECS.md` when dictating how something should be built.
+- Reference specific patterns from `docs/SENIOR_DEVELOPER.md` or `docs/CTO_SPECS.md` when dictating how something should be built.
 
 ### On Verification
 - Always include build verification — the project must compile and run after the task.
