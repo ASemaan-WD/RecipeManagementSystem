@@ -150,4 +150,8 @@ created_at: "2026-02-17"
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- *(Empty until task execution begins)*
+- **Discrepancy: `@neondatabase/serverless`** — The Senior Developer specs (`docs/SENIOR_DEVELOPER.md`, Phase 1 step 2, Database Layer) include `@neondatabase/serverless` in the install command, but this task file does not list it. Since the CTO specs confirm Neon as the database provider, this package will likely be needed in Phase 2 when the database layer is configured. Should be added to the relevant Phase 2 task.
+- **Discrepancy: AI SDK packages** — The Senior Developer specs say `npm install ai openai`, but this task file specifies `ai` and `@ai-sdk/openai`. The task file's version (`@ai-sdk/openai`) is the correct Vercel AI SDK provider package for current versions. The Senior Developer specs may be outdated on this point.
+- **Discrepancy: `bcryptjs`** — The ROADMAP mentions `bcryptjs` as optional ("if needed for token hashing") but this task file does not include it. If token hashing is needed later, it can be installed at that time.
+- **Zod version** — Zod installed at v4.3.6, which is a major version ahead of the minimum v3.0+ specified in the ROADMAP's Appendix A. This is fine — v4 is the current latest and is backwards-compatible for our use case (schema validation with React Hook Form).
+- **18 moderate npm audit vulnerabilities** — Present after installation. These appear to be pre-existing across the dependency tree, not specific to any single package we installed. Worth monitoring but not actionable in this task's scope.
