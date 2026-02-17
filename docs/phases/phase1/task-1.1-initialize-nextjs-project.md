@@ -166,4 +166,9 @@ created_at: "2026-02-17"
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- *(Empty until task execution begins)*
+- **Tailwind CSS v4**: `create-next-app@latest` (v16.1.6) now scaffolds with Tailwind CSS v4, which does **not** generate a `tailwind.config.ts` file. Instead, Tailwind is configured via `@import "tailwindcss"` in `globals.css` and the `@tailwindcss/postcss` PostCSS plugin. The acceptance criterion mentioning `tailwind.config.ts` reflects Tailwind v3 conventions. Future tasks referencing `tailwind.config.ts` (e.g., task-1.6 for theme customization) will need to use Tailwind v4's CSS-based configuration approach instead.
+- **Next.js 16.1.6**: The scaffolded version is Next.js 16 (not 14+). The App Router and all expected features are present. The task spec referenced "Next.js 14+" which is satisfied.
+- **Geist font**: `create-next-app` uses the Geist font family (Geist Sans + Geist Mono) instead of Inter. Kept as-is per task scope ("Keep the Inter font or whatever default font is used").
+- **ESLint config**: The generated ESLint config is `eslint.config.mjs` (flat config format, ESLint v9+) rather than `.eslintrc.json`. Task 1.8 will need to account for this format.
+- **Folder naming**: The directory `RecipeManagementSystem` contains capital letters which npm rejects as a package name. The `package.json` name was set to `recipe-management-system` (lowercase, hyphenated).
+- **React Compiler**: `create-next-app` now asks about React Compiler support — declined per task scope (no extras beyond what's specified).
