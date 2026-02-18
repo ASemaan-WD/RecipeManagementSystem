@@ -130,4 +130,5 @@ created_at: "2026-02-17"
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- *(Empty until task execution begins)*
+- No new TypeScript errors were introduced by the stricter settings. The existing shadcn/ui components and utility code are already compatible with `noUncheckedIndexedAccess` and `forceConsistentCasingInFileNames`.
+- Build completed successfully with Next.js 16.1.6 (Turbopack) — compiled in ~2s, no warnings.
