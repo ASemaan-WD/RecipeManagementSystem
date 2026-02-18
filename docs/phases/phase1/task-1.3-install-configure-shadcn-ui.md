@@ -140,4 +140,9 @@ created_at: "2026-02-17"
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- *(Empty until task execution begins)*
+- **CLI name change**: Used `npx shadcn@latest` (not `npx shadcn-ui@latest`). The `shadcn-ui` package is deprecated; the modern CLI is `shadcn` (v3.8.5 at time of execution).
+- **`toast` component deprecated**: The `toast` component has been removed from the shadcn registry in v3. `sonner` is the official replacement and was installed. The task originally listed 27 components; 26 were installed (all except `toast`, which is covered by `sonner`).
+- **No `tailwind.config.ts`**: The project uses Tailwind CSS v4 with CSS-based configuration. There is no `tailwind.config.ts` file and the shadcn CLI correctly detected Tailwind v4, configuring CSS variables directly in `globals.css`. The acceptance criterion "`tailwind.config.ts` includes shadcn/ui configuration extensions" is satisfied by the CSS variable definitions and `@theme inline` block in `globals.css`.
+- **`--style` flag removed**: shadcn CLI v3 no longer accepts a `--style` flag. The "New York" style is now the default and only style. The CLI used `--base-color slate --css-variables --yes`.
+- **TooltipProvider requirement**: The CLI noted that `TooltipProvider` should wrap the app in `layout.tsx`. This is out of scope for task 1.3 and should be addressed in a future layout/provider setup task.
+- **Downstream impact on task 1.6**: Task 1.6 references modifying `tailwind.config.ts` for dark mode and custom colors. With Tailwind v4, dark mode is configured via `@custom-variant dark (&:is(.dark *))` in `globals.css` (already present after shadcn init). Task 1.6 will need to adapt its approach for Tailwind v4 CSS-based configuration.
