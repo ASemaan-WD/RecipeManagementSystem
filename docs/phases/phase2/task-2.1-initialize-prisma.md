@@ -3,7 +3,7 @@ task_id: 'task-2.1'
 title: 'Initialize Prisma'
 phase: 2
 task_number: 1
-status: 'pending'
+status: 'done'
 priority: 'high'
 dependencies:
   - 'task-1.2'
@@ -180,4 +180,6 @@ datasource db {
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- **Prisma 7.x changes**: `npx prisma init` with Prisma 7.4.0 generates a `prisma.config.ts` file (in addition to `prisma/schema.prisma`) that handles datasource URL configuration externally. The generator provider is now `"prisma-client"` (not `"prisma-client-js"`) and outputs to `src/generated/prisma`. The `url` field is no longer placed inline in `schema.prisma` — it lives in `prisma.config.ts` instead. Future tasks referencing `env("DATABASE_URL")` in the schema should use `prisma.config.ts` instead.
+- **dotenv dependency**: `prisma.config.ts` requires `dotenv` to load environment variables. Installed as a dev dependency. Configured to load from `.env.local` (Next.js convention) rather than `.env`.
+- **Generated .env file**: `prisma init` creates a `.env` file with a local Prisma Postgres URL. Deleted it since the project uses `.env.local`. Already covered by `.gitignore`.
