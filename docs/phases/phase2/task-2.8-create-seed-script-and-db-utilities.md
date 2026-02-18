@@ -1,38 +1,38 @@
 ---
-task_id: 'task-2.15'
-title: 'Create Seed Script'
+task_id: 'task-2.8'
+title: 'Create Seed Script & DB Utilities'
 phase: 2
-task_number: 15
+task_number: 8
 status: 'pending'
 priority: 'medium'
 dependencies:
-  - 'task-2.12'
-  - 'task-2.13'
+  - 'task-2.6'
 blocks: []
 created_at: '2026-02-18'
 ---
 
-# Create Seed Script
+# Create Seed Script & DB Utilities
 
 ## Current State
 
-> Tasks 2.1–2.14 have defined the full database schema, run the initial migration, set up full-text search, and configured the Prisma client singleton. The database exists but has no data. The application needs seed data for development and demo purposes.
+> Tasks 2.1–2.7 have defined the full database schema, run the initial migration, set up full-text search, and configured the Prisma client singleton. The database exists but has no data, and there are no convenience scripts for database operations.
 
-- **What exists**: All database tables, indexes, and full-text search infrastructure; `src/lib/db.ts` Prisma client singleton; no `prisma/seed.ts` file
-- **What is missing**: `prisma/seed.ts` with seed data; `prisma` seed configuration in `package.json`
+- **What exists**: All database tables, indexes, and full-text search infrastructure; `src/lib/db.ts` Prisma client singleton; standard Next.js scripts in `package.json`
+- **What is missing**: `prisma/seed.ts` with seed data; `prisma` seed configuration in `package.json`; convenience `db:*` scripts in `package.json`
 - **Relevant code**:
-  - [docs/ROADMAP.md](docs/ROADMAP.md) — Task 2.15: full seed requirements
+  - [docs/ROADMAP.md](docs/ROADMAP.md) — Tasks 2.15 and 2.16
   - [docs/SENIOR_DEVELOPER.md](docs/SENIOR_DEVELOPER.md) — Phase 8: seed data outline
   - [docs/CTO_SPECS.md](docs/CTO_SPECS.md) — File structure shows `prisma/seed.ts`
   - `prisma/schema.prisma` — all model definitions that the seed script must populate
+  - `package.json` — target file for script additions
 
 ---
 
 ## Desired Outcome
 
-- **End state**: `prisma/seed.ts` creates a system user, test users, dietary tags, 15–20 diverse recipes with full data (ingredients, steps, images, dietary tags, nutrition data), and sample ratings/comments. `package.json` is configured to run the seed via `npx prisma db seed`.
+- **End state**: `prisma/seed.ts` creates a system user, test users, dietary tags, 15–20 diverse recipes with full data (ingredients, steps, images, dietary tags, nutrition data), and sample ratings/comments. `package.json` includes the Prisma seed configuration and 5 convenience `db:*` scripts.
 - **User-facing changes**: None (seed data is for development/demo)
-- **Developer-facing changes**: `npx prisma db seed` populates the database with realistic demo data
+- **Developer-facing changes**: `npx prisma db seed` populates the database; `npm run db:push/migrate/seed/studio/reset` convenience scripts available
 
 ---
 
@@ -42,7 +42,8 @@ created_at: '2026-02-18'
 
 - Create `prisma/seed.ts` with all seed data
 - Configure `package.json` with the Prisma seed command
-- Install `tsx` as a dev dependency for running TypeScript seed scripts (preferred over `ts-node` for ESM compatibility)
+- Install `tsx` as a dev dependency for running TypeScript seed scripts
+- Add 5 database utility scripts to `package.json`
 - Seed the following data:
   - System user "RecipeApp" for seeded recipes
   - 2–3 test user accounts
@@ -53,27 +54,25 @@ created_at: '2026-02-18'
 
 ### Out of Scope
 
-- Running the seed script (that is part of the verification step, not a deliverable)
 - Creating shopping list seed data
 - Creating share/saved recipe seed data
 - Adding AI-generated content to seed recipes
 
 ### Dependencies
 
-- Task 2.12 (Prisma client singleton must exist)
-- Task 2.13 (Initial migration must be complete — all tables must exist)
+- Task 2.6 (Prisma client singleton must exist; initial migration must be complete)
 
 ---
 
 ## Implementation Details
 
-### Section 1: Configure Seed Command
+### Section 1: Install tsx and Configure Seed Command
 
 **What to do**: Add the Prisma seed configuration to `package.json` and install `tsx`.
 
 **Where to find context**:
 
-- [docs/ROADMAP.md](docs/ROADMAP.md) — Task 2.15: `"prisma": { "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts" }`
+- [docs/ROADMAP.md](docs/ROADMAP.md) — Task 2.15
 - Prisma docs on seeding
 
 **Specific requirements**:
@@ -86,11 +85,47 @@ created_at: '2026-02-18'
   }
   ```
 
-**Note**: ROADMAP suggests `ts-node` with CommonJS compiler options. However, `tsx` is the modern, simpler alternative that handles ESM and TypeScript natively without configuration. Use `tsx` instead of `ts-node` for cleaner setup.
+**Note**: ROADMAP suggests `ts-node` with CommonJS compiler options. Use `tsx` instead for cleaner ESM/TypeScript support.
 
 ---
 
-### Section 2: Create Seed Script
+### Section 2: Add Database Utility Scripts
+
+**What to do**: Add 5 convenience scripts to the `scripts` section of `package.json`.
+
+**Where to find context**:
+
+- [docs/ROADMAP.md](docs/ROADMAP.md) — Task 2.16
+
+**Specific requirements**:
+
+Add the following scripts:
+
+```json
+{
+  "scripts": {
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset"
+  }
+}
+```
+
+**Script purposes**:
+
+- `db:push` — Pushes schema to DB without creating a migration file (rapid prototyping)
+- `db:migrate` — Creates and applies a new migration
+- `db:seed` — Runs the seed script
+- `db:studio` — Opens Prisma Studio GUI on `localhost:5555`
+- `db:reset` — Resets the database (destructive — development only)
+
+**Placement**: Add after the existing `prepare` script, grouped together.
+
+---
+
+### Section 3: Create Seed Script
 
 **What to do**: Create `prisma/seed.ts` with comprehensive seed data.
 
@@ -98,18 +133,18 @@ created_at: '2026-02-18'
 
 - [docs/ROADMAP.md](docs/ROADMAP.md) — Task 2.15
 - [docs/SENIOR_DEVELOPER.md](docs/SENIOR_DEVELOPER.md) — Phase 8 seed outline
-- `prisma/schema.prisma` — model definitions for all seeded entities
+- `prisma/schema.prisma` — model definitions
 
 **Specific requirements**:
 
-#### 2a: Imports and Setup
+#### 3a: Imports and Setup
 
 - Import `PrismaClient` from `@prisma/client`
 - Create a new `PrismaClient` instance (do NOT use the singleton from `src/lib/db.ts` — seed scripts run outside the Next.js context)
 - Wrap the main logic in an async `main()` function
 - Add proper error handling with disconnect in a `finally` block
 
-#### 2b: System User
+#### 3b: System User
 
 - Create a system user with:
   - `name`: "RecipeApp"
@@ -118,19 +153,19 @@ created_at: '2026-02-18'
   - `image`: a placeholder avatar URL
 - Use `upsert` to make the seed script idempotent
 
-#### 2c: Test Users
+#### 3c: Test Users
 
 - Create 2–3 test users for development:
   - e.g., "Alice Chef" (alice_chef), "Bob Baker" (bob_baker)
   - Each with a name, username, email, and image
 - Use `upsert` for idempotency
 
-#### 2d: Dietary Tags
+#### 3d: Dietary Tags
 
 - Seed all dietary tags: Vegetarian, Vegan, Gluten-Free, Dairy-Free, Nut-Free, Keto, Paleo, Halal, Low-Carb
 - Use `upsert` (matching on `name`) for idempotency
 
-#### 2e: Recipes (15–20)
+#### 3e: Recipes (15–20)
 
 - Create diverse recipes across multiple cuisines:
   - 3–4 Italian (e.g., Pasta Carbonara, Margherita Pizza, Risotto, Tiramisu)
@@ -149,17 +184,17 @@ created_at: '2026-02-18'
   - `authorId`: system user's ID
   - `ingredients`: full list with quantities via `RecipeIngredient` + `Ingredient`
   - `steps`: 4–8 step-by-step instructions with timers where appropriate
-  - `images`: at least one image URL per recipe (use placeholder URLs from Unsplash food category, e.g., `https://images.unsplash.com/photo-XXXXX?w=800`)
+  - `images`: at least one image URL per recipe (use placeholder URLs from Unsplash food category)
   - `dietaryTags`: appropriate dietary tags via `RecipeDietaryTag` + `DietaryTag`
   - `nutritionData`: pre-calculated JSON (calories, protein, carbs, fat, fiber)
 
-#### 2f: Ratings and Comments
+#### 3f: Ratings and Comments
 
 - Add sample ratings (2–5 per recipe) from test users
 - Add sample comments (1–3 per recipe) from test users
 - Update `avgRating` and `ratingCount` on each rated recipe
 
-#### 2g: Idempotency
+#### 3g: Idempotency
 
 - The entire seed script should be safe to run multiple times
 - Use `upsert` for users, dietary tags, and ingredients
@@ -182,6 +217,7 @@ created_at: '2026-02-18'
 - [ ] No new TypeScript/linting errors introduced
 - [ ] `tsx` is installed as a dev dependency
 - [ ] `prisma.seed` is configured in `package.json`
+- [ ] `package.json` is valid JSON with all 5 `db:*` scripts
 
 ### Functional Verification
 
@@ -196,13 +232,17 @@ created_at: '2026-02-18'
 - [ ] Sample ratings and comments exist
 - [ ] `avgRating` and `ratingCount` are correctly set on rated recipes
 - [ ] Running the seed script a second time does not create duplicates (idempotent)
+- [ ] `npm run db:push` runs without errors
+- [ ] `npm run db:seed` runs without errors
+- [ ] `npm run db:studio` launches Prisma Studio
 
 ### Code Quality Checks
 
 - [ ] Seed data is realistic and diverse
 - [ ] No hardcoded database IDs (use `cuid()` or let Prisma generate)
-- [ ] No TODO/FIXME comments left unresolved within this task's scope
 - [ ] Proper error handling with `finally` disconnect
+- [ ] All 5 scripts match the ROADMAP specification
+- [ ] No TODO/FIXME comments left unresolved within this task's scope
 
 ---
 

@@ -141,163 +141,60 @@
 - Configure the Neon connection string in `DATABASE_URL`
 - Set up Prisma client generation with appropriate preview features
 
-### Task 2.2 — Define Enums
+### Task 2.2 — Define Core Models & Enums
 
-- Define all enums in `schema.prisma`:
-  - `Difficulty`: `EASY`, `MEDIUM`, `HARD`
-  - `Visibility`: `PRIVATE`, `SHARED`, `PUBLIC`
-  - `TagStatus`: `FAVORITE`, `TO_TRY`, `MADE_BEFORE`
-  - `ImageSource`: `UPLOAD`, `URL`, `AI_GENERATED`
+- Define all enums in `schema.prisma`: `Difficulty`, `Visibility`, `TagStatus`, `ImageSource`
+- Create `User` model with all fields per CTO_SPECS.md plus NextAuth adapter fields (`emailVerified`, `accounts`, `sessions`)
+- Create `Account` model (OAuth provider data) per Auth.js v5 Prisma adapter requirements
+- Create `Session` model per Auth.js v5 Prisma adapter requirements
+- Create `VerificationToken` model per Auth.js v5 Prisma adapter requirements
 
-### Task 2.3 — Define User Model
+### Task 2.3 — Define Recipe & Related Models
 
-- Create `User` model with fields:
-  - `id` (cuid, primary key)
-  - `name` (String, optional)
-  - `email` (String, unique)
-  - `emailVerified` (DateTime, optional)
-  - `username` (String, unique, optional — set during onboarding)
-  - `image` (String, optional)
-  - `createdAt`, `updatedAt` (timestamps)
-- Include NextAuth.js required relations: `accounts`, `sessions`
-- Add relations to recipes, tags, ratings, comments, saved recipes, shopping lists
+- Create `Recipe` model with all fields, relations, and inline indexes per CTO_SPECS.md
+- Create recipe sub-models: `RecipeImage`, `Ingredient`, `RecipeIngredient`, `RecipeStep`, `DietaryTag`, `RecipeDietaryTag`
+- Create tagging models: `UserRecipeTag` (multi-tag support), `SavedRecipe`
+- Create sharing models: `RecipeShare` (share-by-username), `ShareLink` (share-by-link)
+- Create social models: `Rating` (1-5 stars, upsert pattern), `Comment` (flat list)
+- All unique constraints, cascade deletes, and inline indexes per CTO_SPECS.md
 
-### Task 2.4 — Define NextAuth Models
+### Task 2.4 — Define Shopping List Models
 
-- Create `Account` model (OAuth provider data) per Auth.js v5 schema requirements
-- Create `Session` model (if using database sessions, or omit for JWT-only)
-- Create `VerificationToken` model (for email verification if needed)
-- Ensure all fields match the Auth.js Prisma adapter expectations exactly
+- Create `ShoppingList` model per SENIOR_DEVELOPER.md Phase 7b
+- Create `ShoppingListItem` model per SENIOR_DEVELOPER.md Phase 7b
+- Add `shoppingLists ShoppingList[]` relation to the `User` model
 
-### Task 2.5 — Define Recipe Model
+### Task 2.5 — Add Database Indexes
 
-- Create `Recipe` model with fields:
-  - `id` (cuid, primary key)
-  - `title` (String)
-  - `description` (String, text)
-  - `prepTime` (Int, minutes)
-  - `cookTime` (Int, minutes)
-  - `servings` (Int)
-  - `difficulty` (Difficulty enum)
-  - `cuisineType` (String)
-  - `visibility` (Visibility enum, default PRIVATE)
-  - `nutritionData` (Json, optional — cached AI nutrition estimates)
-  - `avgRating` (Float, default 0)
-  - `ratingCount` (Int, default 0)
-  - `authorId` (foreign key → User)
-  - `createdAt`, `updatedAt` (timestamps)
-- Add relations: author, images, ingredients, steps, dietary tags, user tags, shares, share links, saved by, ratings, comments
+- Audit existing indexes from CTO_SPECS.md model definitions
+- Add additional performance indexes: composite `[visibility, createdAt]` on Recipe, `difficulty`, `avgRating`, `ingredientId` on RecipeIngredient, `[userId, status]` on UserRecipeTag, `userId` on RecipeShare, `recipeId` on Rating
 
-### Task 2.6 — Define Recipe-Related Models
+### Task 2.6 — Configure Prisma Client & Run Migration
 
-- Create `RecipeImage` model:
-  - `id`, `url`, `source` (ImageSource enum), `isPrimary` (Boolean), `order` (Int), `recipeId`
-- Create `Ingredient` model:
-  - `id`, `name` (String, unique) — global ingredient lookup table
-- Create `RecipeIngredient` model (join table with extra data):
-  - `id`, `recipeId`, `ingredientId`, `quantity` (String), `unit` (String), `notes` (String, optional), `order` (Int)
-- Create `RecipeStep` model:
-  - `id`, `recipeId`, `stepNumber` (Int), `instruction` (String, text), `duration` (Int, optional, minutes)
-- Create `DietaryTag` model:
-  - `id`, `name` (String, unique) — e.g., Vegetarian, Vegan, Gluten-Free, Dairy-Free, Nut-Free, Keto, Paleo
-- Create `RecipeDietaryTag` join model:
-  - `id`, `recipeId`, `dietaryTagId`
+- Create `src/lib/db.ts` with a singleton Prisma client instance (global pattern for Next.js hot reload)
+- Validate the schema (`npx prisma validate`)
+- Run the initial migration (`npx prisma migrate dev --name init`)
+- Generate the Prisma client types (`npx prisma generate`)
+- Verify all 19 tables, indexes, constraints, and enums are created
 
-### Task 2.7 — Define Tagging & Collection Models
-
-- Create `UserRecipeTag` model:
-  - `id`, `userId`, `recipeId`, `status` (TagStatus enum), `createdAt`
-  - Unique constraint on `[userId, recipeId, status]` (a user can have multiple different statuses on one recipe)
-- Create `SavedRecipe` model:
-  - `id`, `userId`, `recipeId`, `savedAt` (DateTime)
-  - Unique constraint on `[userId, recipeId]`
-
-### Task 2.8 — Define Sharing Models
-
-- Create `RecipeShare` model:
-  - `id`, `recipeId`, `userId` (the user being shared with), `sharedAt` (DateTime)
-  - Unique constraint on `[recipeId, userId]`
-- Create `ShareLink` model:
-  - `id`, `recipeId`, `token` (String, unique — cryptographically random), `isActive` (Boolean, default true), `createdAt`
-
-### Task 2.9 — Define Social Models
-
-- Create `Rating` model:
-  - `id`, `userId`, `recipeId`, `value` (Int, 1-5), `createdAt`, `updatedAt`
-  - Unique constraint on `[userId, recipeId]` (one rating per user per recipe, upsert pattern)
-- Create `Comment` model:
-  - `id`, `userId`, `recipeId`, `content` (String, text), `createdAt`, `updatedAt`
-
-### Task 2.10 — Define Shopping List Models
-
-- Create `ShoppingList` model:
-  - `id`, `userId`, `name` (String), `createdAt`, `updatedAt`
-- Create `ShoppingListItem` model:
-  - `id`, `shoppingListId`, `ingredientName` (String), `quantity` (String, optional), `unit` (String, optional), `category` (String, optional), `checked` (Boolean, default false), `recipeId` (optional — track which recipe it came from), `order` (Int)
-
-### Task 2.11 — Add Database Indexes
-
-- Add indexes for performance-critical queries:
-  - `Recipe`: index on `authorId`, `visibility`, `cuisineType`, `difficulty`, `avgRating`
-  - `Recipe`: composite index on `[visibility, createdAt]` for community browsing
-  - `RecipeIngredient`: index on `ingredientId`
-  - `UserRecipeTag`: index on `[userId, status]`
-  - `SavedRecipe`: index on `userId`
-  - `RecipeShare`: index on `userId`
-  - `Rating`: index on `recipeId`
-  - `Comment`: index on `recipeId`
-  - `ShareLink`: index on `token`
-- Add full-text search index on Recipe (title, description) — may require raw SQL migration
-
-### Task 2.12 — Configure Prisma Client Singleton
-
-- Create `src/lib/db.ts` with a singleton Prisma client instance
-- Use the global singleton pattern to prevent multiple instances in development (hot reload)
-- Export the `prisma` client for use across the application
-
-### Task 2.13 — Run Initial Migration
-
-- Run `npx prisma migrate dev --name init` to create the initial migration
-- Verify the migration SQL is correct and all tables are created in Neon
-- Run `npx prisma generate` to generate the Prisma client types
-- Verify TypeScript types are available for all models
-
-### Task 2.14 — Set Up Full-Text Search
+### Task 2.7 — Set Up Full-Text Search
 
 - Create a raw SQL migration to add PostgreSQL full-text search capabilities:
   - Add a `searchVector` column (tsvector) to the `Recipe` table
   - Create a GIN index on the `searchVector` column
-  - Create a trigger to auto-update `searchVector` on INSERT/UPDATE using `title`, `description`, and `cuisineType`
+  - Create a trigger to auto-update `searchVector` on INSERT/UPDATE using `name`, `description`, and `cuisineType`
 - Test full-text search with a sample query
 
-### Task 2.15 — Create Seed Script
+### Task 2.8 — Create Seed Script & DB Utilities
 
+- Install `tsx` and configure Prisma seed command in `package.json`
+- Add convenience scripts: `db:push`, `db:migrate`, `db:seed`, `db:studio`, `db:reset`
 - Create `prisma/seed.ts` with:
-  - A system user ("RecipeApp") for seeded recipes
-  - Test user accounts (for development/demo purposes)
-  - All dietary tags (Vegetarian, Vegan, Gluten-Free, Dairy-Free, Nut-Free, Keto, Paleo, Halal, Low-Carb, etc.)
-  - 15-20 diverse recipes across multiple cuisines:
-    - Italian (e.g., Pasta Carbonara, Margherita Pizza)
-    - Asian (e.g., Pad Thai, Sushi Rolls, Ramen)
-    - Mexican (e.g., Chicken Tacos, Guacamole)
-    - Middle Eastern (e.g., Falafel, Hummus)
-    - American (e.g., Classic Burger, Mac and Cheese)
-    - Indian (e.g., Chicken Tikka Masala, Dal)
-    - French (e.g., Crêpes, Ratatouille)
-    - Mediterranean (e.g., Greek Salad)
-  - Each recipe includes: title, description, prepTime, cookTime, servings, difficulty (varied), cuisineType, visibility PUBLIC, ingredients with quantities, step-by-step instructions, dietary tags, at least one image URL (from Unsplash/Pexels), and pre-calculated nutrition data
-  - Seed some ratings and comments for demo purposes
-- Configure `package.json` to run seed: `"prisma": { "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts" }`
-- Run `npx prisma db seed` and verify all data is inserted
-
-### Task 2.16 — Add Database Utility Scripts
-
-- Add convenience scripts to `package.json`:
-  - `"db:push": "prisma db push"` (quick schema push without migration)
-  - `"db:migrate": "prisma migrate dev"` (create migration)
-  - `"db:seed": "prisma db seed"` (run seed)
-  - `"db:studio": "prisma studio"` (open Prisma Studio GUI)
-  - `"db:reset": "prisma migrate reset"` (reset database)
+  - System user ("RecipeApp") and 2–3 test users
+  - All dietary tags (Vegetarian, Vegan, Gluten-Free, Dairy-Free, Nut-Free, Keto, Paleo, Halal, Low-Carb)
+  - 15–20 diverse recipes across multiple cuisines with full data (ingredients, steps, images, dietary tags, nutrition data)
+  - Sample ratings and comments for demo purposes
+- Idempotent seed script (safe to re-run)
 
 ---
 
@@ -1900,7 +1797,7 @@
 
 ### Task 15.3 — Verify Production Deployment
 
-- Access the production URL (*.vercel.app)
+- Access the production URL (\*.vercel.app)
 - Run through the full QA checklist (Task 14.6) on the production site
 - Test on multiple browsers (Chrome, Firefox, Safari, Edge)
 - Test on mobile devices (iOS Safari, Android Chrome)
@@ -1946,46 +1843,46 @@
 
 ## Appendix A: Technology Versions Reference
 
-| Technology | Minimum Version | Purpose |
-|---|---|---|
-| Node.js | 18.17+ | Runtime |
-| Next.js | 14.0+ | App Router framework |
-| React | 18.2+ | UI library |
-| TypeScript | 5.0+ | Type safety |
-| Prisma | 5.0+ | Database ORM |
-| NextAuth.js | 5.0 (beta) | Authentication |
-| TanStack Query | 5.0+ | Server state management |
-| React Hook Form | 7.0+ | Form management |
-| Zod | 3.0+ | Schema validation |
-| Tailwind CSS | 3.3+ | Utility CSS |
-| shadcn/ui | latest | UI component library |
-| Vercel AI SDK | 3.0+ | AI streaming |
+| Technology      | Minimum Version | Purpose                 |
+| --------------- | --------------- | ----------------------- |
+| Node.js         | 18.17+          | Runtime                 |
+| Next.js         | 14.0+           | App Router framework    |
+| React           | 18.2+           | UI library              |
+| TypeScript      | 5.0+            | Type safety             |
+| Prisma          | 5.0+            | Database ORM            |
+| NextAuth.js     | 5.0 (beta)      | Authentication          |
+| TanStack Query  | 5.0+            | Server state management |
+| React Hook Form | 7.0+            | Form management         |
+| Zod             | 3.0+            | Schema validation       |
+| Tailwind CSS    | 3.3+            | Utility CSS             |
+| shadcn/ui       | latest          | UI component library    |
+| Vercel AI SDK   | 3.0+            | AI streaming            |
 
 ## Appendix B: Environment Variable Reference
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | Neon PostgreSQL connection string |
-| `NEXTAUTH_SECRET` | Yes | Random secret for JWT signing |
-| `NEXTAUTH_URL` | Yes | Base URL (http://localhost:3000 for dev) |
-| `GOOGLE_CLIENT_ID` | Yes | Google OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | Yes | Google OAuth client secret |
-| `GITHUB_CLIENT_ID` | Yes | GitHub OAuth client ID |
-| `GITHUB_CLIENT_SECRET` | Yes | GitHub OAuth client secret |
-| `OPENAI_API_KEY` | Yes | OpenAI API key for GPT-4o-mini + DALL-E |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Yes | Cloudinary cloud name (public) |
-| `CLOUDINARY_API_KEY` | Yes | Cloudinary API key (server-side) |
-| `CLOUDINARY_API_SECRET` | Yes | Cloudinary API secret (server-side) |
+| Variable                            | Required | Description                              |
+| ----------------------------------- | -------- | ---------------------------------------- |
+| `DATABASE_URL`                      | Yes      | Neon PostgreSQL connection string        |
+| `NEXTAUTH_SECRET`                   | Yes      | Random secret for JWT signing            |
+| `NEXTAUTH_URL`                      | Yes      | Base URL (http://localhost:3000 for dev) |
+| `GOOGLE_CLIENT_ID`                  | Yes      | Google OAuth client ID                   |
+| `GOOGLE_CLIENT_SECRET`              | Yes      | Google OAuth client secret               |
+| `GITHUB_CLIENT_ID`                  | Yes      | GitHub OAuth client ID                   |
+| `GITHUB_CLIENT_SECRET`              | Yes      | GitHub OAuth client secret               |
+| `OPENAI_API_KEY`                    | Yes      | OpenAI API key for GPT-4o-mini + DALL-E  |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Yes      | Cloudinary cloud name (public)           |
+| `CLOUDINARY_API_KEY`                | Yes      | Cloudinary API key (server-side)         |
+| `CLOUDINARY_API_SECRET`             | Yes      | Cloudinary API secret (server-side)      |
 
 ## Appendix C: Key Architectural Decisions
 
-| Decision | Choice | Rationale |
-|---|---|---|
-| Monorepo | Yes | Single Next.js app for frontend + backend, simpler deployment |
-| Session Strategy | JWT | Stateless, no session table needed, works with Vercel serverless |
-| Search | PostgreSQL FTS | No external service, built into the database, sufficient for this scale |
-| AI Streaming | Vercel AI SDK | Seamless integration with Next.js, built-in streaming utilities |
-| File Storage | Cloudinary | CDN delivery, image transformations, generous free tier |
-| Shopping Lists | Database-persisted | Survives across devices/sessions, not dependent on localStorage |
-| Rate Limiting | In-memory | Sufficient for single-instance Vercel deployment, simple to implement |
-| State Management | React Query only | No Redux/Zustand needed, React Query handles all server state |
+| Decision         | Choice             | Rationale                                                               |
+| ---------------- | ------------------ | ----------------------------------------------------------------------- |
+| Monorepo         | Yes                | Single Next.js app for frontend + backend, simpler deployment           |
+| Session Strategy | JWT                | Stateless, no session table needed, works with Vercel serverless        |
+| Search           | PostgreSQL FTS     | No external service, built into the database, sufficient for this scale |
+| AI Streaming     | Vercel AI SDK      | Seamless integration with Next.js, built-in streaming utilities         |
+| File Storage     | Cloudinary         | CDN delivery, image transformations, generous free tier                 |
+| Shopping Lists   | Database-persisted | Survives across devices/sessions, not dependent on localStorage         |
+| Rate Limiting    | In-memory          | Sufficient for single-instance Vercel deployment, simple to implement   |
+| State Management | React Query only   | No Redux/Zustand needed, React Query handles all server state           |

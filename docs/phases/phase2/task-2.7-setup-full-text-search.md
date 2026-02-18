@@ -1,12 +1,12 @@
 ---
-task_id: 'task-2.14'
+task_id: 'task-2.7'
 title: 'Set Up Full-Text Search'
 phase: 2
-task_number: 14
+task_number: 7
 status: 'pending'
 priority: 'medium'
 dependencies:
-  - 'task-2.13'
+  - 'task-2.6'
 blocks: []
 created_at: '2026-02-18'
 ---
@@ -15,7 +15,7 @@ created_at: '2026-02-18'
 
 ## Current State
 
-> Task 2.13 has run the initial migration and all tables exist in the database. The application needs PostgreSQL native full-text search capabilities on the Recipe table for searching by recipe name, description, and cuisine type.
+> Task 2.6 has run the initial migration and all tables exist in the database. The application needs PostgreSQL native full-text search capabilities on the Recipe table for searching by recipe name, description, and cuisine type.
 
 - **What exists**: All database tables created by the initial migration; Recipe table with `name`, `description`, and `cuisineType` columns
 - **What is missing**: A `searchVector` tsvector column on the Recipe table, a GIN index for fast full-text search, and a trigger to auto-update the search vector on insert/update
@@ -30,7 +30,7 @@ created_at: '2026-02-18'
 ## Desired Outcome
 
 - **End state**: The Recipe table has a `searchVector` tsvector column with a GIN index, and a trigger that auto-updates the search vector when a recipe is inserted or updated. Full-text search queries using `ts_query` can be performed against this column.
-- **User-facing changes**: None (search functionality built in Phase 5)
+- **User-facing changes**: None (search functionality built in Phase 7)
 - **Developer-facing changes**: Full-text search infrastructure available for API routes to query against
 
 ---
@@ -48,14 +48,14 @@ created_at: '2026-02-18'
 
 ### Out of Scope
 
-- Building search API routes (handled in Phase 5)
-- Building search UI components (handled in Phase 5)
-- Indexing ingredient names in the search vector (CTO_SPECS.md mentions it, but ingredient names are in a separate `Ingredient` table joined through `RecipeIngredient` — this would require a more complex trigger; defer to Phase 5 if needed)
-- Modifying the Prisma schema to include the tsvector column (Prisma does not natively support tsvector, so it remains a raw SQL addition)
+- Building search API routes (handled in Phase 7)
+- Building search UI components (handled in Phase 7)
+- Indexing ingredient names in the search vector (ingredients are in a separate table — defer to Phase 7 if needed)
+- Modifying the Prisma schema to include the tsvector column (Prisma does not natively support tsvector)
 
 ### Dependencies
 
-- Task 2.13 (Initial migration must be complete — Recipe table must exist)
+- Task 2.6 (Initial migration must be complete — Recipe table must exist)
 
 ---
 
@@ -69,7 +69,6 @@ created_at: '2026-02-18'
 
 - [docs/ROADMAP.md](docs/ROADMAP.md) — Task 2.14
 - [docs/CTO_SPECS.md](docs/CTO_SPECS.md) — Full-text Search row in the Database table
-- Prisma docs on raw SQL migrations
 
 **Specific requirements**:
 
@@ -122,7 +121,7 @@ created_at: '2026-02-18'
 - Weight `B` for `description` — description is secondary
 - Weight `C` for `cuisineType` — cuisine type helps with browsing/filtering
 
-**Note**: The tsvector column is NOT represented in the Prisma schema. Queries against it must use `prisma.$queryRaw` or `prisma.$executeRaw`. This is a known limitation of Prisma with PostgreSQL full-text search.
+**Note**: The tsvector column is NOT represented in the Prisma schema. Queries against it must use `prisma.$queryRaw` or `prisma.$executeRaw`.
 
 ---
 
@@ -183,4 +182,4 @@ created_at: '2026-02-18'
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
 - _(Empty until task execution begins)_
-- **Future consideration**: CTO_SPECS.md mentions searching "recipe name + ingredient names." The current trigger only indexes `name`, `description`, and `cuisineType` from the Recipe table directly. Indexing ingredient names would require a more complex approach (e.g., a materialized view or denormalized column) since ingredients are in a separate table. This should be evaluated during Phase 5 search implementation.
+- **Future consideration**: CTO_SPECS.md mentions searching "recipe name + ingredient names." The current trigger only indexes `name`, `description`, and `cuisineType` from the Recipe table directly. Indexing ingredient names would require a more complex approach (e.g., a materialized view or denormalized column). This should be evaluated during Phase 7 search implementation.

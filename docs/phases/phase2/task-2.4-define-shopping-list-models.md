@@ -1,15 +1,15 @@
 ---
-task_id: 'task-2.10'
+task_id: 'task-2.4'
 title: 'Define Shopping List Models'
 phase: 2
-task_number: 10
+task_number: 4
 status: 'pending'
 priority: 'medium'
 dependencies:
-  - 'task-2.3'
+  - 'task-2.2'
 blocks:
-  - 'task-2.11'
-  - 'task-2.13'
+  - 'task-2.5'
+  - 'task-2.6'
 created_at: '2026-02-18'
 ---
 
@@ -17,13 +17,12 @@ created_at: '2026-02-18'
 
 ## Current State
 
-> Tasks 2.1–2.9 have defined all core models (User, Recipe, and related models). The shopping list models — which are a Phase 10 feature but defined in the schema now — have not been added yet.
+> Tasks 2.1–2.3 have defined all core models (enums, User, NextAuth adapters, Recipe, and all related models). The shopping list models — which are a Phase 10 feature but defined in the schema now — have not been added yet.
 
 - **What exists**: Complete core schema with User, Recipe, and all related models
 - **What is missing**: `ShoppingList` and `ShoppingListItem` models, and the `shoppingLists` relation on `User`
 - **Relevant code**:
   - `prisma/schema.prisma` — target file
-  - [docs/ROADMAP.md](docs/ROADMAP.md) — Task 2.10: Define Shopping List Models
   - [docs/SENIOR_DEVELOPER.md](docs/SENIOR_DEVELOPER.md) — Phase 7b: Shopping List Generator, includes Prisma model definitions
   - [docs/CTO_SPECS.md](docs/CTO_SPECS.md) — The locked schema does NOT include shopping list models, but SENIOR_DEVELOPER.md explicitly defines them
 
@@ -55,7 +54,7 @@ created_at: '2026-02-18'
 
 ### Dependencies
 
-- Task 2.3 (Define User Model) — `User` model is referenced and needs relation update
+- Task 2.2 (Define Core Models & Enums) — `User` model is referenced and needs relation update
 
 ---
 
@@ -68,7 +67,6 @@ created_at: '2026-02-18'
 **Where to find context**:
 
 - [docs/SENIOR_DEVELOPER.md](docs/SENIOR_DEVELOPER.md) — Phase 7b, Shopping List Generator section
-- [docs/ROADMAP.md](docs/ROADMAP.md) — Task 2.10
 
 **Specific requirements**:
 
@@ -90,7 +88,6 @@ created_at: '2026-02-18'
 **Where to find context**:
 
 - [docs/SENIOR_DEVELOPER.md](docs/SENIOR_DEVELOPER.md) — Phase 7b
-- [docs/ROADMAP.md](docs/ROADMAP.md) — Task 2.10
 
 **Specific requirements** (following SENIOR_DEVELOPER.md):
 
@@ -103,17 +100,13 @@ created_at: '2026-02-18'
 - `checked`: Boolean, `@default(false)`
 - `order`: Int, `@default(0)`
 
-**Note on discrepancy**: ROADMAP Task 2.10 includes additional fields (`unit`, `recipeId`) not present in SENIOR_DEVELOPER.md. Since SENIOR_DEVELOPER.md is the implementation-level locked spec and CTO_SPECS.md doesn't define these models at all, follow SENIOR_DEVELOPER.md as the authoritative source for these models.
+**Note on discrepancy**: ROADMAP includes additional fields (`unit`, `recipeId`) not present in SENIOR_DEVELOPER.md. Follow SENIOR_DEVELOPER.md as the authoritative source for these models.
 
 ---
 
 ### Section 3: Update User Model
 
 **What to do**: Add the `shoppingLists` relation to the `User` model.
-
-**Where to find context**:
-
-- [docs/SENIOR_DEVELOPER.md](docs/SENIOR_DEVELOPER.md) — Phase 7b implies `User` has shopping lists
 
 **Specific requirements**:
 
@@ -135,6 +128,7 @@ created_at: '2026-02-18'
 - [ ] `ShoppingListItem` model exists with `ingredientName`, `quantity?`, `category?`, `checked`, `order`
 - [ ] `ShoppingListItem` has `onDelete: Cascade` on shopping list relation
 - [ ] `User` model includes `shoppingLists ShoppingList[]` relation
+- [ ] `npx prisma validate` runs without errors
 
 ### Code Quality Checks
 
@@ -160,4 +154,4 @@ created_at: '2026-02-18'
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
 - _(Empty until task execution begins)_
-- **Discrepancy**: ROADMAP Task 2.10 includes `unit` and `recipeId` fields on ShoppingListItem that are NOT in SENIOR_DEVELOPER.md. If needed during Phase 10 implementation, these can be added via a schema migration at that time.
+- **Discrepancy**: ROADMAP includes `unit` and `recipeId` fields on ShoppingListItem that are NOT in SENIOR_DEVELOPER.md. If needed during Phase 10 implementation, these can be added via a schema migration at that time.

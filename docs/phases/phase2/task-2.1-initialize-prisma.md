@@ -13,13 +13,6 @@ blocks:
   - 'task-2.4'
   - 'task-2.5'
   - 'task-2.6'
-  - 'task-2.7'
-  - 'task-2.8'
-  - 'task-2.9'
-  - 'task-2.10'
-  - 'task-2.11'
-  - 'task-2.12'
-  - 'task-2.13'
 created_at: '2026-02-18'
 ---
 
@@ -60,9 +53,9 @@ created_at: '2026-02-18'
 
 ### Out of Scope
 
-- Defining any models or enums (handled in tasks 2.2–2.10)
-- Running migrations (handled in task 2.13)
-- Configuring the Prisma client singleton in application code (handled in task 2.12)
+- Defining any models or enums (handled in tasks 2.2–2.4)
+- Running migrations (handled in task 2.6)
+- Configuring the Prisma client singleton in application code (handled in task 2.6)
 - Adding preview features (only add if specifically required by a later task)
 
 ### Dependencies
@@ -108,7 +101,7 @@ created_at: '2026-02-18'
 - Datasource provider must be `"postgresql"`
 - Datasource URL must reference `DATABASE_URL` from environment
 - Generator must target `"prisma-client-js"`
-- The schema file should contain ONLY the datasource and generator blocks — no models yet (those are defined in tasks 2.2–2.10)
+- The schema file should contain ONLY the datasource and generator blocks — no models yet (those are defined in tasks 2.2–2.4)
 
 **Expected `schema.prisma` content after this task**:
 

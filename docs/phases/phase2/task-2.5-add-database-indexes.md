@@ -1,19 +1,15 @@
 ---
-task_id: 'task-2.11'
+task_id: 'task-2.5'
 title: 'Add Database Indexes'
 phase: 2
-task_number: 11
+task_number: 5
 status: 'pending'
 priority: 'medium'
 dependencies:
-  - 'task-2.5'
-  - 'task-2.6'
-  - 'task-2.7'
-  - 'task-2.8'
-  - 'task-2.9'
-  - 'task-2.10'
+  - 'task-2.3'
+  - 'task-2.4'
 blocks:
-  - 'task-2.13'
+  - 'task-2.6'
 created_at: '2026-02-18'
 ---
 
@@ -21,10 +17,10 @@ created_at: '2026-02-18'
 
 ## Current State
 
-> Tasks 2.1–2.10 have defined all models in the Prisma schema. Many models already include indexes as part of their CTO_SPECS.md definitions (e.g., `Recipe.@@index([authorId])`, `RecipeStep.@@index([recipeId])`, `ShareLink.@@index([token])`). ROADMAP Task 2.11 calls for adding additional performance-critical indexes and a composite index.
+> Tasks 2.2–2.4 have defined all models in the Prisma schema. Many models already include indexes as part of their CTO_SPECS.md definitions. ROADMAP calls for adding additional performance-critical indexes and composite indexes.
 
 - **What exists**: Models with indexes already defined inline per CTO_SPECS.md: `Recipe` (authorId, visibility, cuisineType), `RecipeImage` (recipeId), `RecipeStep` (recipeId), `Comment` (recipeId), `ShareLink` (token), `ShoppingList` (userId)
-- **What is missing**: Additional performance indexes listed in ROADMAP Task 2.11 that are NOT already in the CTO_SPECS.md locked schema, specifically composite indexes and indexes on join tables
+- **What is missing**: Additional performance indexes listed in ROADMAP that are NOT already in the CTO_SPECS.md locked schema
 - **Relevant code**:
   - `prisma/schema.prisma` — target file
   - [docs/ROADMAP.md](docs/ROADMAP.md) — Task 2.11: lists all indexes to add
@@ -34,7 +30,7 @@ created_at: '2026-02-18'
 
 ## Desired Outcome
 
-- **End state**: All performance-critical indexes from ROADMAP Task 2.11 that are not already present in the schema are added. No duplicate indexes are created.
+- **End state**: All performance-critical indexes from the ROADMAP that are not already present in the schema are added. No duplicate indexes are created.
 - **User-facing changes**: None
 - **Developer-facing changes**: Additional database indexes for query performance
 
@@ -44,8 +40,8 @@ created_at: '2026-02-18'
 
 ### In Scope
 
-- Audit existing indexes in the schema (already added by tasks 2.5–2.10)
-- Add any MISSING indexes from the ROADMAP Task 2.11 list that are not already present:
+- Audit existing indexes in the schema (already added by tasks 2.3–2.4)
+- Add any MISSING indexes from the ROADMAP list:
   - `Recipe`: composite index on `[visibility, createdAt]` for community browsing
   - `Recipe`: indexes on `difficulty` and `avgRating` (if not already present)
   - `RecipeIngredient`: index on `ingredientId`
@@ -56,13 +52,13 @@ created_at: '2026-02-18'
 
 ### Out of Scope
 
-- Full-text search index (handled in task 2.14 — requires raw SQL migration)
+- Full-text search index (handled in task 2.7 — requires raw SQL migration)
 - Removing or modifying existing indexes from CTO_SPECS.md
-- Running migrations (handled in task 2.13)
+- Running migrations (handled in task 2.6)
 
 ### Dependencies
 
-- Tasks 2.5–2.10 (all model definitions) must be complete
+- Tasks 2.3–2.4 (all model definitions) must be complete
 
 ---
 
@@ -98,7 +94,7 @@ created_at: '2026-02-18'
 
 ### Section 2: Add Missing Indexes
 
-**What to do**: Add the following indexes that are listed in ROADMAP Task 2.11 but NOT already present in the schema.
+**What to do**: Add indexes that are NOT already covered by existing indexes or unique constraints.
 
 **Where to find context**:
 
@@ -112,18 +108,10 @@ created_at: '2026-02-18'
 3. `Recipe`: `@@index([avgRating])` — sort by rating
 4. `RecipeIngredient`: `@@index([ingredientId])` — look up recipes by ingredient
 5. `UserRecipeTag`: `@@index([userId, status])` — filter tags by user + status (collection tabs)
-6. `SavedRecipe`: `@@index([userId])` — list user's saved recipes
-7. `RecipeShare`: `@@index([userId])` — list recipes shared with a user
-8. `Rating`: `@@index([recipeId])` — list ratings for a recipe
+6. `RecipeShare`: `@@index([userId])` — list recipes shared with a user (not covered by `@@unique([recipeId, userId])` which leads with `recipeId`)
+7. `Rating`: `@@index([recipeId])` — list ratings for a recipe (not covered by `@@unique([userId, recipeId])` which leads with `userId`)
 
-**Note**: Some of these may be partially covered by existing unique constraints (e.g., `SavedRecipe.@@unique([userId, recipeId])` creates an index starting with `userId`). However, PostgreSQL can use the leading column of a composite index for prefix queries, so `@@unique([userId, recipeId])` already covers `@@index([userId])`. Evaluate each and only add if not covered.
-
-**Recommendations**:
-
-- `SavedRecipe`: `@@unique([userId, recipeId])` already covers `userId` lookups — skip `@@index([userId])`
-- `RecipeShare`: `@@unique([recipeId, userId])` covers `recipeId` lookups but NOT `userId` lookups — ADD `@@index([userId])`
-- `Rating`: `@@unique([userId, recipeId])` covers `userId` lookups but NOT `recipeId` lookups — ADD `@@index([recipeId])`
-- All other listed indexes should be added
+**Note**: `SavedRecipe.@@unique([userId, recipeId])` already covers `userId` lookups via its leading column — skip adding a separate `@@index([userId])`.
 
 ---
 
@@ -137,6 +125,7 @@ created_at: '2026-02-18'
 ### Functional Verification
 
 - [ ] `Recipe` model has composite index `@@index([visibility, createdAt])`
+- [ ] `Recipe` model has `@@index([difficulty])` and `@@index([avgRating])`
 - [ ] `RecipeIngredient` model has `@@index([ingredientId])`
 - [ ] `UserRecipeTag` model has `@@index([userId, status])`
 - [ ] `RecipeShare` model has `@@index([userId])`
