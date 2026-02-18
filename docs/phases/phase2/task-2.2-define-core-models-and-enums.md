@@ -233,5 +233,6 @@ created_at: '2026-02-18'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
-- **Note**: The executor should verify the exact field names and types against the current Auth.js v5 Prisma adapter documentation, as field naming conventions may have changed between versions. The Auth.js v5 adapter uses snake_case for OAuth token fields (`refresh_token`, `access_token`, `id_token`) to match the OAuth spec.
+- **Auth.js v5 `@map`/`@@map` directives**: The official Auth.js v5 Prisma adapter docs use `@map`/`@@map` to map camelCase Prisma fields to snake_case DB columns (e.g., `userId` → `@map("user_id")`, `@@map("accounts")`). These were included per user direction that official docs always win over internal specs. Task 2.3 should decide whether to apply similar `@@map` conventions to the recipe-related models or keep them unmapped.
+- **CTO_SPECS.md `User.email` vs Auth.js docs**: CTO_SPECS defines `email String @unique` (required), while the official Auth.js adapter schema defines `email String? @unique` (optional). We kept `email` as required per CTO_SPECS since the app requires email for authentication. Task 2.3+ should be aware of this difference.
+- **`prisma validate` expected to fail**: The User model references `Recipe`, `UserRecipeTag`, `SavedRecipe`, `Rating`, `Comment`, `RecipeShare` — models not yet defined. `prisma validate` will fail until task 2.3/2.4 adds these models. `npm run build` passes since Next.js doesn't run Prisma validation during build.
