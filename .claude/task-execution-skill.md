@@ -7,11 +7,13 @@
 ## Core Principles
 
 ### 1. The Task File Is Law
+
 - The task file defines what to build, where to build it, and what boundaries to respect.
 - Do NOT deviate from the task file. Do NOT add features, optimizations, or "nice-to-haves" that are not specified.
 - If the task file is ambiguous or incomplete, **stop and ask the user** — do not fill in the gaps yourself.
 
 ### 2. Zero Assumptions, Zero Inference
+
 - Every implementation decision must be backed by **concrete evidence** from one of these sources:
   1. The task file itself.
   2. The existing codebase (read the actual code, don't guess).
@@ -19,6 +21,7 @@
 - If evidence cannot be found in any of these sources, **ask the user**.
 
 ### 3. Best Practices Are Non-Negotiable
+
 - Follow established software engineering best practices at all times.
 - Code must be clean, readable, and maintainable — not just functional.
 
@@ -27,6 +30,7 @@
 ## Mandatory Process (Follow in Order)
 
 ### Step 1: Read and Internalize the Task File
+
 - Read the entire task file from `docs/phases/phase<n>/` (where `<n>` is the phase number).
 - Understand:
   - **Current State** — What exists right now?
@@ -37,6 +41,7 @@
   - **Boundary Enforcement Checklist** — What must NOT happen?
 
 ### Step 2: Gather Detailed Context
+
 - Before writing a single line of code, build a comprehensive understanding of the current state:
   - **Read every file** referenced in the task's "Current State" and "Implementation Details" sections.
   - **Read related files** — imports, dependencies, types, schemas, adjacent components.
@@ -45,6 +50,7 @@
 - The goal is to have **full situational awareness** before making any changes. No surprises mid-implementation.
 
 ### Step 3: Create an Execution Plan
+
 - Based on the task file and gathered context, produce a **step-by-step execution plan**.
 - The plan must:
   - Map directly to the sections in the task file's "Implementation Details".
@@ -55,6 +61,7 @@
 - **Present the plan to the user and wait for approval before proceeding.** Do not write any code until the plan is approved.
 
 ### Step 4: Execute Section by Section
+
 - Work through the approved plan one section at a time.
 - For each section:
   1. **Re-read the relevant task file section** to confirm what's needed.
@@ -63,6 +70,7 @@
   4. **Move to the next section** only when the current one is solid.
 
 ### Step 5: Final Verification
+
 - After all sections are complete, run through the full verification:
   - **Build verification**: The project must build without errors.
   - **Lint/type check**: No new TypeScript errors, no new linting violations.
@@ -71,48 +79,65 @@
   - **Boundary enforcement checklist**: Confirm no out-of-scope changes were made.
 
 ### Step 6: Document Discoveries
+
 - Fill in the "Notes & Discoveries" section of the task file with anything relevant found during execution that is out of scope.
 - These notes feed into future task definitions.
+
+### Step 7: Commit Changes
+
+- After all verification passes and discoveries are documented, **commit all changes** made during this task.
+- The commit message must clearly reference the task (e.g., `task-<phase>.<number>: <brief description of what was done>`).
+- Stage only the files that were created or modified as part of this task — do not include unrelated changes.
+- If the task introduced changes to the task file itself (e.g., "Notes & Discoveries"), include that in the commit as well.
+- This step is **mandatory** — every completed task must result in a commit.
 
 ---
 
 ## Coding Standards
 
 ### DRY (Don't Repeat Yourself)
+
 - **Never duplicate logic.** If the same logic exists or is needed in multiple places, extract it into a shared utility, hook, helper, or component.
 - Before writing new code, **search the codebase** for existing implementations that do the same thing or something similar.
 - If an existing utility almost works, extend it rather than creating a parallel one — but only if the extension is within scope.
 
 ### Single Responsibility per File
+
 - **One class per file.** One primary component per file. One primary utility per file.
 - Do NOT bundle multiple classes, multiple unrelated components, or multiple unrelated functions into a single file.
 - Helper functions that are private to a component can live in the same file, but anything reusable gets its own file.
 
 ### Naming Conventions
+
 - Follow the naming patterns already established in the codebase. Read existing files to identify them.
 - If no pattern exists yet, follow the conventions defined in `docs/SENIOR_DEVELOPER.md`.
 - File names, variable names, function names, and type names must all be clear, descriptive, and consistent.
 
 ### Error Handling
+
 - Handle errors explicitly. Do not swallow errors silently.
 - Follow the error handling patterns established in the codebase and documented in `docs/CTO_SPECS.md` / `docs/SENIOR_DEVELOPER.md`.
 - User-facing errors must be meaningful and actionable.
 
 ### Type Safety
+
 - Use proper TypeScript types everywhere. No `any` unless explicitly justified and documented.
 - Define interfaces and types for all data structures.
 - Leverage the type system to prevent bugs at compile time.
 
 ### Code Organization
+
 - Follow the project's established file/folder structure.
 - New files go in the location that matches the existing organizational pattern.
 - Imports should be organized and follow the project's import ordering convention.
 
 ### No Dead Code
+
 - Do not leave commented-out code, unused imports, unused variables, or placeholder implementations.
 - Every line of code must serve a purpose.
 
 ### Configuration Over Hardcoding
+
 - No magic numbers, no hardcoded strings for values that could change.
 - Use constants, environment variables, or configuration files as appropriate.
 - Follow the project's existing configuration patterns.
@@ -122,7 +147,9 @@
 ## Conflict & Ambiguity Resolution
 
 ### Misalignment Between Documents
+
 If you discover contradictions between:
+
 - The task file and `docs/CTO_SPECS.md`
 - The task file and `docs/SENIOR_DEVELOPER.md`
 - The task file and `docs/ROADMAP.md`
@@ -130,14 +157,26 @@ If you discover contradictions between:
 
 **STOP immediately and ask the user.** Do not pick a side. Do not make a judgment call. Present the conflict clearly and let the user decide.
 
+### Discrepancies with Official External Documentation
+
+If you discover discrepancies between the codebase, task file, or project specs and the **official latest documentation** of the technologies being used (e.g., Next.js docs, Prisma docs, NextAuth.js docs, library/framework changelogs):
+
+- **Always follow the official latest documentation.** It is the highest authority for how a technology should be used.
+- Update the code to align with the latest official guidance — do not perpetuate outdated patterns just because they exist in the codebase or specs.
+- Log the discrepancy and the correction made in the task file's "Notes & Discoveries" section so that project specs can be updated in a future task.
+
 ### Ambiguity in the Task File
+
 If any section of the task file is vague, incomplete, or open to interpretation:
+
 - **Do not interpret it yourself.**
 - Ask the user for clarification with specific options if possible.
 - Do not proceed past the ambiguous section until it's resolved.
 
 ### Unexpected Codebase State
+
 If the actual codebase does not match what the task file describes in "Current State":
+
 - **STOP and flag it.** The task file may be outdated or based on incorrect assumptions.
 - Describe the discrepancy to the user and wait for guidance.
 
