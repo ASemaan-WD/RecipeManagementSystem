@@ -3,7 +3,7 @@ task_id: "task-1.5"
 title: "Set Up Project Directory Structure"
 phase: 1
 task_number: 5
-status: "pending"
+status: "done"
 priority: "medium"
 dependencies:
   - "task-1.1"
@@ -180,4 +180,6 @@ created_at: "2026-02-17"
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- *(Empty until task execution begins)*
+- `public/` already existed from `create-next-app` with 5 SVG files (file.svg, globe.svg, next.svg, vercel.svg, window.svg). No action was needed.
+- `src/lib/` already existed with `utils.ts` from shadcn/ui init. No `.gitkeep` was added since the directory is not empty.
+- The SENIOR_DEVELOPER.md file structure does not include `(main)/` route group or `providers/` directory, but the task file (following the roadmap) specifies both. The task file was followed as the source of truth.
