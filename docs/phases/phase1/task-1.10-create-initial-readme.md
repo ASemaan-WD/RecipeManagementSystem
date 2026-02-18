@@ -1,16 +1,16 @@
 ---
-task_id: "task-1.10"
-title: "Create Initial README.md"
+task_id: 'task-1.10'
+title: 'Create Initial README.md'
 phase: 1
 task_number: 10
-status: "pending"
-priority: "low"
+status: 'pending'
+priority: 'low'
 dependencies:
-  - "task-1.1"
-  - "task-1.2"
-  - "task-1.4"
+  - 'task-1.1'
+  - 'task-1.2'
+  - 'task-1.4'
 blocks: []
-created_at: "2026-02-17"
+created_at: '2026-02-17'
 ---
 
 # Create Initial README.md
@@ -38,17 +38,20 @@ created_at: "2026-02-17"
 ## Scope & Boundaries
 
 ### In Scope
+
 - Create (or replace) `README.md` at the project root
 - Include: project name, description, tech stack, prerequisites, setup instructions, available scripts, project structure overview, deployment section (placeholder), and license
 - Content should reflect the current state of the project (Phase 1 — scaffolding complete)
 
 ### Out of Scope
+
 - Adding screenshots (no UI to screenshot yet — added in Phase 14)
 - Documenting API endpoints (not built yet — documented in later phases)
 - Writing a live demo URL (not deployed yet — added in Phase 15)
 - Documenting AI features in detail (not implemented yet)
 
 ### Dependencies
+
 - task-1.1 must be complete (project initialized, scripts available)
 - task-1.2 must be complete (all dependencies listed)
 - task-1.4 must be complete (`.env.example` exists for reference)
@@ -62,12 +65,14 @@ created_at: "2026-02-17"
 **What to do**: Write a comprehensive README at the project root.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.10 specifies the README contents
 - `docs/GENERAL_SPECS.md` — Project overview and description
 - `docs/CTO_SPECS.md` — Tech stack, environment variables
 - `docs/PRODUCT_MANAGER.md` — Feature list, product vision
 
 **Specific requirements**:
+
 - The README should include the following sections:
 
   **1. Project Title & Description**
@@ -140,10 +145,12 @@ created_at: "2026-02-17"
 ## Verification & Acceptance Criteria
 
 ### Build Verification
+
 - [ ] Project still builds without errors (`npm run build`)
 - [ ] No new TypeScript/linting errors introduced
 
 ### Functional Verification
+
 - [ ] `README.md` exists at the project root
 - [ ] README includes: project title, description, tech stack, prerequisites, setup instructions, available scripts, project structure, environment variables reference, deployment placeholder, license
 - [ ] Setup instructions are accurate and follow the correct order
@@ -152,6 +159,7 @@ created_at: "2026-02-17"
 - [ ] No real API keys, secrets, or passwords appear in the README
 
 ### Code Quality Checks
+
 - [ ] README is well-formatted Markdown with proper headings and code blocks
 - [ ] No TODO/FIXME comments left unresolved (except intentional "TBD" placeholders for future phases)
 
@@ -173,4 +181,7 @@ created_at: "2026-02-17"
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- *(Empty until task execution begins)*
+- The existing README was the default `create-next-app` boilerplate with no project-specific content.
+- `package.json` currently has 6 user-facing scripts (`dev`, `build`, `start`, `lint`, `format`, `format:check`) plus `prepare` (internal Husky setup). Database scripts (`db:push`, `db:migrate`, `db:seed`, `db:studio`, `db:reset`) are listed as Phase 2 placeholders in the README since they don't exist yet.
+- `.env.example` contains 11 variables across 5 categories (Database, Auth, Google OAuth, GitHub OAuth, OpenAI, Cloudinary), matching what the task file and `docs/ROADMAP.md` specify.
+- The `src/` directory structure is fully scaffolded with `.gitkeep` placeholders in all subdirectories.
