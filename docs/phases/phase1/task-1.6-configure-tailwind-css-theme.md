@@ -3,7 +3,7 @@ task_id: "task-1.6"
 title: "Configure Tailwind CSS and Theme"
 phase: 1
 task_number: 6
-status: "pending"
+status: "completed"
 priority: "medium"
 dependencies:
   - "task-1.1"
@@ -137,4 +137,17 @@ created_at: "2026-02-17"
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- *(Empty until task execution begins)*
+- **Tailwind CSS v4 (4.1.18) is installed, not v3.** This fundamentally changes how the configuration described in this task is handled:
+  - Tailwind v4 does NOT use `tailwind.config.ts`. Configuration is CSS-first via `@theme`, `@custom-variant`, and other CSS-based directives in `globals.css`.
+  - The `components.json` (shadcn/ui config) has `"config": ""` (empty string), confirming no `tailwind.config.ts` is expected.
+  - The PostCSS config uses `@tailwindcss/postcss` (the v4 PostCSS plugin).
+
+- **Dark mode (`class` strategy) is already configured** via `@custom-variant dark (&:is(.dark *));` on line 5 of `src/app/globals.css`. This is the Tailwind v4 equivalent of `darkMode: "class"` in `tailwind.config.ts`. It defines a `dark:` variant that activates when a `.dark` class is present on an ancestor element — the same behavior `next-themes` will use when configured in a future task.
+
+- **Responsive breakpoints are Tailwind v4 defaults** and have not been overridden. The `@theme inline` block only defines radius and color tokens, not breakpoints. The defaults match the spec exactly: `sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`.
+
+- **Animations are handled by `tw-animate-css` (v1.4.0)** which is imported in `globals.css`. No additional custom animations are needed at this stage.
+
+- **All three sections of this task were already satisfied by the shadcn/ui init (task 1.3)**, which generated the complete `globals.css` with v4-compatible dark mode, theme tokens, and animation imports.
+
+- **Documentation discrepancy (for future reference)**: The `docs/ROADMAP.md` Appendix A lists "Tailwind CSS 3.3+" and the `docs/CTO_SPECS.md` architecture diagram references `tailwind.config.ts`. These are outdated — the project uses Tailwind CSS v4. Future task definitions should not reference `tailwind.config.ts`.
