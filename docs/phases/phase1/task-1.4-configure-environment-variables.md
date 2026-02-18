@@ -180,4 +180,5 @@ created_at: "2026-02-17"
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- *(Empty until task execution begins)*
+- **`.gitignore` used `.env*` instead of `.env*.local`**: The `create-next-app` scaffold (task-1.1) generated `.env*` on line 34 of `.gitignore`, which would have blocked `.env.example` from being committed. Changed to `.env` + `.env*.local` + `!.env.example` to allow the template file to be tracked while keeping secrets ignored.
+- **Variable count**: The task file says "11 environment variables" which matches the actual count of distinct variable names (DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, OPENAI_API_KEY, NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET).
