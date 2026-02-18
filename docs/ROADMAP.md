@@ -202,7 +202,7 @@
 
 **Goal:** Implement NextAuth.js v5 with Google and GitHub OAuth providers, JWT sessions, username onboarding flow, and auth middleware to protect routes.
 
-### Task 3.1 — Configure NextAuth.js v5
+### Task 3.1 — Configure NextAuth.js v5 & Auth Routes
 
 - Create `src/lib/auth.ts` (or `auth.ts` at root) with NextAuth configuration:
   - Prisma adapter for database persistence
@@ -214,30 +214,21 @@
   - `session` callback: expose `userId` and `username` on the session object
   - `signIn` callback: handle first-time sign-in logic if needed
 - Export `handlers` (GET, POST), `auth`, `signIn`, `signOut`
-
-### Task 3.2 — Create Auth API Route
-
 - Create `src/app/api/auth/[...nextauth]/route.ts`
 - Export the GET and POST handlers from the NextAuth configuration
 - Verify OAuth callback URLs work for both Google and GitHub
-
-### Task 3.3 — Set Up OAuth Applications (Documentation)
-
 - Document the steps to create Google OAuth app (Google Cloud Console)
 - Document the steps to create GitHub OAuth app (GitHub Developer Settings)
 - Include redirect URIs: `http://localhost:3000/api/auth/callback/google` and `/github`
 - Add production redirect URIs for Vercel deployment
 
-### Task 3.4 — Create Auth Middleware
+### Task 3.2 — Create Auth Middleware & Helper Utilities
 
 - Create `middleware.ts` at the project root
 - Define protected route matchers (e.g., `/dashboard`, `/recipes/new`, `/recipes/*/edit`, `/my-collection`, `/settings`)
 - Define public routes (e.g., `/`, `/login`, `/community`, `/recipes/*` for viewing, `/api/auth/*`)
 - Redirect unauthenticated users to `/login` when accessing protected routes
 - Redirect authenticated users away from `/login` to `/dashboard`
-
-### Task 3.5 — Create Auth Helper Utilities
-
 - Create `src/lib/auth-utils.ts` with helper functions:
   - `getCurrentUser()`: get the current authenticated user from the session (server-side)
   - `requireAuth()`: throw/redirect if not authenticated (for API routes)
@@ -245,7 +236,7 @@
   - `canViewRecipe(recipeId)`: check if the current user has visibility access to a recipe (owner, public, shared, or valid share link)
 - These helpers will be used extensively in API routes
 
-### Task 3.6 — Create Login Page
+### Task 3.3 — Create Login Page
 
 - Create `src/app/(auth)/login/page.tsx`
 - Design a clean login page with:
@@ -257,7 +248,7 @@
 - Use shadcn/ui components (Card, Button)
 - Handle error states (e.g., OAuthAccountNotLinked)
 
-### Task 3.7 — Create Username Onboarding Page
+### Task 3.4 — Create Username Onboarding Flow
 
 - Create `src/app/(auth)/onboarding/page.tsx`
 - Design a step to capture username on first login:
@@ -270,21 +261,13 @@
   - GET: check username availability
 - Add middleware/logic to redirect users without a username to `/onboarding`
 
-### Task 3.8 — Create Auth Provider Wrapper
+### Task 3.5 — Set Up Root Providers & App Layout
 
 - Create `src/providers/auth-provider.tsx` using `SessionProvider` from NextAuth
-- Wrap the app layout with the auth provider
 - Ensure session data is available client-side via `useSession()`
-
-### Task 3.9 — Create React Query Provider
-
 - Create `src/providers/query-provider.tsx` with `QueryClientProvider`
 - Configure default query options (staleTime, retry, refetchOnWindowFocus)
 - Add React Query DevTools in development mode
-- Wrap the app layout with the query provider
-
-### Task 3.10 — Create Root Layout with Providers
-
 - Update `src/app/layout.tsx`:
   - Wrap children with AuthProvider and QueryProvider
   - Add ThemeProvider for dark mode support (from shadcn/ui `next-themes`)
@@ -292,7 +275,7 @@
   - Configure the root font (Inter or similar)
   - Add Toaster component for notifications
 
-### Task 3.11 — Write Tests for Authentication
+### Task 3.6 — Write Tests for Authentication
 
 - Test OAuth callback handling
 - Test username validation (regex, length, uniqueness)
@@ -309,7 +292,7 @@
 
 **Goal:** Build the shell of the application — header, navigation, sidebar, footer — so all subsequent pages slot into a consistent, responsive layout.
 
-### Task 4.1 — Create Header Component
+### Task 4.1 — Create Header & Navigation (Desktop + Mobile)
 
 - Create `src/components/layout/header.tsx`:
   - App logo (linked to `/` or `/dashboard`)
@@ -319,9 +302,6 @@
   - "Add Recipe" button (prominent CTA)
   - Mobile hamburger menu trigger
 - Use shadcn/ui components: DropdownMenu, Avatar, Button, Sheet (mobile)
-
-### Task 4.2 — Create Mobile Navigation
-
 - Create `src/components/layout/mobile-nav.tsx`:
   - Sheet/drawer that slides in from the left
   - Full navigation links
@@ -329,16 +309,13 @@
   - Sign out button
 - Ensure touch targets are at least 44px (mobile accessibility)
 
-### Task 4.3 — Create Footer Component
+### Task 4.2 — Create Main App Layout & Footer
 
 - Create `src/components/layout/footer.tsx`:
   - Copyright notice
   - Links (About, Privacy, Terms)
   - "Built with Next.js" or similar attribution
 - Keep it minimal and unobtrusive
-
-### Task 4.4 — Create Main App Layout
-
 - Create `src/app/(main)/layout.tsx`:
   - Header at top
   - Main content area with proper padding/max-width
@@ -346,41 +323,35 @@
   - Responsive container (max-width with centered content)
 - This layout wraps all authenticated pages
 
-### Task 4.5 — Create Landing Page (Unauthenticated)
+### Task 4.3 — Create Landing Page & Dashboard
 
-- Create `src/app/page.tsx`:
+- Create `src/app/page.tsx` (Unauthenticated Landing Page):
   - Hero section with tagline and CTA ("Get Started" → login)
   - Featured recipes preview (from seed data, summary cards only)
   - Feature highlights (AI-powered, sharing, collections)
   - Responsive layout with appealing visuals
-- For authenticated users, redirect to `/dashboard`
-
-### Task 4.6 — Create Dashboard Page (Authenticated)
-
-- Create `src/app/(main)/dashboard/page.tsx`:
+  - For authenticated users, redirect to `/dashboard`
+- Create `src/app/(main)/dashboard/page.tsx` (Authenticated Dashboard):
   - Welcome message with user's name
   - Quick stats (total recipes, favorites, to-try count)
   - Recent recipes (last 5 created/edited)
   - Quick actions (Add Recipe, Browse Community, View Collection)
   - Community highlights (top-rated public recipes)
-- Use skeleton loaders while data fetches
+  - Use skeleton loaders while data fetches
 
-### Task 4.7 — Create Loading and Error States
+### Task 4.4 — Create Loading, Error States & Dark Mode
 
 - Create `src/app/loading.tsx` (global loading fallback)
 - Create `src/app/error.tsx` (global error boundary)
 - Create `src/app/not-found.tsx` (custom 404 page)
 - Create reusable loading skeleton components for common patterns (recipe card skeleton, list skeleton, page skeleton)
-
-### Task 4.8 — Implement Dark Mode
-
 - Configure `next-themes` ThemeProvider with `attribute="class"` and `defaultTheme="system"`
 - Create a theme toggle component (sun/moon icon button)
 - Place toggle in the header dropdown and mobile nav
 - Verify all shadcn/ui components respect dark mode
 - Test all custom styles in both light and dark themes
 
-### Task 4.9 — Write Tests for Layout Components
+### Task 4.5 — Write Tests for Layout & Navigation
 
 - Test Header renders correctly for authenticated and unauthenticated states
 - Test navigation links point to correct routes
@@ -396,7 +367,7 @@
 
 **Goal:** Implement the complete recipe lifecycle — create, read, update, delete, and duplicate recipes — with a multi-step form wizard, image management, and Pinterest-style grid display.
 
-### Task 5.1 — Create Recipe TypeScript Types
+### Task 5.1 — Create Recipe Types & Validation Schemas
 
 - Create `src/types/recipe.ts` with comprehensive types:
   - `RecipeFormData` (Zod schema for form validation)
@@ -405,9 +376,6 @@
   - `RecipeIngredientInput`, `RecipeStepInput` (for form arrays)
   - `RecipeFilters` (search/filter parameters)
   - `PaginatedResponse<T>` (generic paginated response)
-
-### Task 5.2 — Create Recipe Zod Validation Schemas
-
 - Create `src/lib/validations/recipe.ts`:
   - `createRecipeSchema`: validates all fields for recipe creation
     - title: 1-200 chars, required
@@ -425,7 +393,7 @@
   - `updateRecipeSchema`: partial version of create schema
   - `recipeFilterSchema`: validates search/filter query params
 
-### Task 5.3 — Create Recipe API Routes — List & Create
+### Task 5.2 — Create Recipe API Routes
 
 - Create `src/app/api/recipes/route.ts`:
   - **GET** `/api/recipes`: List recipes with pagination, filtering, and sorting
@@ -439,9 +407,6 @@
     - Create recipe with all related records (ingredients, steps, images, dietary tags) in a transaction
     - Handle ingredient upsert (create if not exists in global `Ingredient` table)
     - Return the created recipe with all relations
-
-### Task 5.4 — Create Recipe API Routes — Read, Update, Delete
-
 - Create `src/app/api/recipes/[id]/route.ts`:
   - **GET** `/api/recipes/:id`: Get full recipe details
     - Check visibility permissions via `canViewRecipe()`
@@ -456,9 +421,6 @@
     - Require authentication + ownership
     - Cascade delete all related records (images, ingredients, steps, tags, shares, ratings, comments)
     - Return success confirmation
-
-### Task 5.5 — Create Recipe Duplicate API Route
-
 - Create `src/app/api/recipes/[id]/duplicate/route.ts`:
   - **POST** `/api/recipes/:id/duplicate`: Duplicate a recipe
     - Require authentication
@@ -468,62 +430,14 @@
     - Set visibility to PRIVATE
     - Copy ingredients, steps, dietary tags, images (by reference)
     - Return the new recipe
+- Create `src/app/api/images/[id]/route.ts`:
+  - **DELETE** `/api/images/:id`: Delete a recipe image
+    - Require authentication + recipe ownership
+    - Remove from Cloudinary (if uploaded)
+    - Remove from database
+    - Return success
 
-### Task 5.6 — Create Recipe Form Components — Step 1: Basic Info
-
-- Create `src/components/recipes/recipe-form/basic-info-step.tsx`:
-  - Recipe title input
-  - Description textarea (with character count)
-  - Prep time and cook time inputs (minutes)
-  - Servings input (number)
-  - Difficulty select (Easy, Medium, Hard)
-  - Cuisine type input (with suggestions/autocomplete from existing recipes)
-  - Visibility select (Private, Shared, Public)
-- Use React Hook Form with Zod resolver
-- All fields show inline validation errors
-
-### Task 5.7 — Create Recipe Form Components — Step 2: Ingredients
-
-- Create `src/components/recipes/recipe-form/ingredients-step.tsx`:
-  - Dynamic ingredient list using `useFieldArray`
-  - Each ingredient row: name (with autocomplete from existing ingredients), quantity, unit, notes (optional)
-  - Add ingredient button (adds a blank row)
-  - Remove ingredient button (per row, with confirmation if populated)
-  - Drag-and-drop reordering (or up/down buttons)
-  - Minimum 1 ingredient required validation
-  - "Common ingredients" quick-add suggestions
-
-### Task 5.8 — Create Recipe Form Components — Step 3: Instructions
-
-- Create `src/components/recipes/recipe-form/steps-step.tsx`:
-  - Dynamic step list using `useFieldArray`
-  - Each step: step number (auto-generated), instruction textarea, optional duration (minutes)
-  - Add step button
-  - Remove step button (with confirmation)
-  - Reorder steps (auto-renumber on reorder)
-  - Minimum 1 step required validation
-
-### Task 5.9 — Create Recipe Form Components — Step 4: Tags & Diet
-
-- Create `src/components/recipes/recipe-form/tags-step.tsx`:
-  - Dietary tag multi-select (checkboxes or tag chips)
-  - Load available dietary tags from the database
-  - Visual tag chips for selected tags
-  - Option to add custom dietary tags (stretch)
-
-### Task 5.10 — Create Recipe Form Components — Step 5: Images
-
-- Create `src/components/recipes/recipe-form/images-step.tsx`:
-  - Three image source options:
-    1. **Upload**: Cloudinary upload widget integration (drag-and-drop, file picker)
-    2. **URL**: Direct image URL input with preview
-    3. **AI Generate**: Button to generate image with DALL-E (wired in Phase 9)
-  - Image preview grid with reordering
-  - Set primary image toggle
-  - Remove image button
-  - Maximum image limit (e.g., 5 per recipe)
-
-### Task 5.11 — Create Recipe Form Wizard Container
+### Task 5.3 — Create Recipe Form Wizard & Image Upload
 
 - Create `src/components/recipes/recipe-form/recipe-form-wizard.tsx`:
   - Multi-step wizard with progress indicator (Step 1 of 5)
@@ -534,19 +448,56 @@
   - Form state persistence across steps (React Hook Form context)
   - Loading state during submission
   - Error handling with toast notifications
+- Use React Hook Form with Zod resolver throughout all steps
+- **Step 1 — Basic Info** (`basic-info-step.tsx`):
+  - Recipe title input
+  - Description textarea (with character count)
+  - Prep time and cook time inputs (minutes)
+  - Servings input (number)
+  - Difficulty select (Easy, Medium, Hard)
+  - Cuisine type input (with suggestions/autocomplete from existing recipes)
+  - Visibility select (Private, Shared, Public)
+  - All fields show inline validation errors
+- **Step 2 — Ingredients** (`ingredients-step.tsx`):
+  - Dynamic ingredient list using `useFieldArray`
+  - Each ingredient row: name (with autocomplete from existing ingredients), quantity, unit, notes (optional)
+  - Add ingredient button (adds a blank row)
+  - Remove ingredient button (per row, with confirmation if populated)
+  - Drag-and-drop reordering (or up/down buttons)
+  - Minimum 1 ingredient required validation
+  - "Common ingredients" quick-add suggestions
+- **Step 3 — Instructions** (`steps-step.tsx`):
+  - Dynamic step list using `useFieldArray`
+  - Each step: step number (auto-generated), instruction textarea, optional duration (minutes)
+  - Add step button
+  - Remove step button (with confirmation)
+  - Reorder steps (auto-renumber on reorder)
+  - Minimum 1 step required validation
+- **Step 4 — Tags & Diet** (`tags-step.tsx`):
+  - Dietary tag multi-select (checkboxes or tag chips)
+  - Load available dietary tags from the database
+  - Visual tag chips for selected tags
+  - Option to add custom dietary tags (stretch)
+- **Step 5 — Images** (`images-step.tsx`):
+  - Three image source options:
+    1. **Upload**: Cloudinary upload widget integration (drag-and-drop, file picker)
+    2. **URL**: Direct image URL input with preview
+    3. **AI Generate**: Button to generate image with DALL-E (wired in Phase 9)
+  - Image preview grid with reordering
+  - Set primary image toggle
+  - Remove image button
+  - Maximum image limit (e.g., 5 per recipe)
+- **Cloudinary Integration**:
+  - Create `src/lib/cloudinary.ts`:
+    - Server-side: generate signed upload signatures
+    - Configure upload preset, folder, transformations
+  - Create `src/app/api/images/upload-signature/route.ts`:
+    - POST: Generate a Cloudinary upload signature for client-side uploads
+    - Require authentication
+  - Create upload widget component using `next-cloudinary` or CldUploadWidget
+  - Handle upload success (store URL in form state) and error callbacks
 
-### Task 5.12 — Create Cloudinary Upload Integration
-
-- Create `src/lib/cloudinary.ts`:
-  - Server-side: generate signed upload signatures
-  - Configure upload preset, folder, transformations
-- Create `src/app/api/images/upload-signature/route.ts`:
-  - POST: Generate a Cloudinary upload signature for client-side uploads
-  - Require authentication
-- Create upload widget component using `next-cloudinary` or CldUploadWidget
-- Handle upload success (store URL in form state) and error callbacks
-
-### Task 5.13 — Create Recipe Card Component
+### Task 5.4 — Create Recipe Card & Grid Components
 
 - Create `src/components/recipes/recipe-card.tsx`:
   - Pinterest-style card with:
@@ -562,9 +513,6 @@
   - Hover effects (subtle scale, shadow)
   - Click navigates to recipe detail page
   - Responsive sizing
-
-### Task 5.14 — Create Recipe Grid Component
-
 - Create `src/components/recipes/recipe-grid.tsx`:
   - Pinterest-style masonry grid layout (CSS columns or grid)
   - Responsive: 1 column (mobile) → 2 columns (tablet) → 3 columns (desktop) → 4 columns (wide)
@@ -572,7 +520,7 @@
   - Loading state (skeleton cards)
   - Infinite scroll or "Load More" pagination
 
-### Task 5.15 — Create Recipe Detail Page
+### Task 5.5 — Create Recipe Detail Page
 
 - Create `src/app/(main)/recipes/[id]/page.tsx`:
   - Full recipe display with all information:
@@ -595,21 +543,15 @@
   - Social section (Ratings, Comments — wired in Phase 8)
   - Related recipes suggestion (same cuisine or tags)
 
-### Task 5.16 — Create Recipe Create Page
+### Task 5.6 — Create Recipe Create, Edit & My Recipes Pages
 
 - Create `src/app/(main)/recipes/new/page.tsx`:
   - Render the RecipeFormWizard in "create" mode
   - On success: redirect to the new recipe detail page with success toast
-
-### Task 5.17 — Create Recipe Edit Page
-
 - Create `src/app/(main)/recipes/[id]/edit/page.tsx`:
   - Load existing recipe data
   - Render the RecipeFormWizard in "edit" mode (pre-populated)
   - On success: redirect to the recipe detail page with success toast
-
-### Task 5.18 — Create My Recipes Page
-
 - Create `src/app/(main)/my-recipes/page.tsx`:
   - Recipe grid showing only the authenticated user's recipes
   - Filter tabs: All, Published (public), Shared, Private, Drafts
@@ -617,7 +559,7 @@
   - "Add New Recipe" CTA button
   - Empty state with onboarding prompt
 
-### Task 5.19 — Create React Query Hooks for Recipes
+### Task 5.7 — Create React Query Hooks for Recipes
 
 - Create `src/hooks/use-recipes.ts`:
   - `useRecipes(filters)`: fetch paginated recipe list with filters
@@ -628,16 +570,7 @@
   - `useDuplicateRecipe()`: mutation to duplicate a recipe
   - Configure cache invalidation on mutations (invalidate recipe lists)
 
-### Task 5.20 — Create Recipe Image Delete API
-
-- Create `src/app/api/images/[id]/route.ts`:
-  - **DELETE** `/api/images/:id`: Delete a recipe image
-    - Require authentication + recipe ownership
-    - Remove from Cloudinary (if uploaded)
-    - Remove from database
-    - Return success
-
-### Task 5.21 — Write Tests for Recipe CRUD
+### Task 5.8 — Write Tests for Recipe CRUD
 
 - Test recipe creation with valid data (all fields)
 - Test recipe creation with missing required fields (expect validation errors)
@@ -665,7 +598,7 @@
 
 **Goal:** Implement the multi-tag system (Favorite, To Try, Made Before), saved recipes, and the "My Collection" page with filtered tabs.
 
-### Task 6.1 — Create Tag API Routes
+### Task 6.1 — Create Tagging & Save API Routes
 
 - Create `src/app/api/recipes/[id]/tags/route.ts`:
   - **POST** `/api/recipes/:id/tags`: Add a tag to a recipe
@@ -677,9 +610,6 @@
     - Body: `{ status: "FAVORITE" | "TO_TRY" | "MADE_BEFORE" }`
     - Require authentication
     - Delete the matching `UserRecipeTag` record
-
-### Task 6.2 — Create Save/Unsave API Routes
-
 - Create `src/app/api/recipes/[id]/save/route.ts`:
   - **POST** `/api/recipes/:id/save`: Save a recipe to collection
     - Require authentication
@@ -687,16 +617,13 @@
   - **DELETE** `/api/recipes/:id/save`: Unsave a recipe
     - Require authentication
     - Delete the `SavedRecipe` record
-
-### Task 6.3 — Create Collection API Route
-
 - Create `src/app/api/collections/route.ts`:
   - **GET** `/api/collections`: Get the user's collection
     - Query params: `tab` (all, favorites, to-try, made-before, saved), `page`, `limit`, `sort`
     - Return paginated recipes matching the tab filter
     - Include tag and save status for each recipe
 
-### Task 6.4 — Create Tag Toggle Component
+### Task 6.2 — Create Tag & Save UI Components
 
 - Create `src/components/recipes/tag-toggles.tsx`:
   - Three toggle buttons: Favorite (heart), To Try (bookmark), Made Before (check)
@@ -704,15 +631,12 @@
   - Optimistic UI updates on toggle
   - Works on recipe cards and recipe detail page
   - Requires authentication (show login prompt for guests)
-
-### Task 6.5 — Create Save Button Component
-
 - Create `src/components/recipes/save-button.tsx`:
   - Toggle button: Save (bookmark+) / Saved (bookmark-filled)
   - Optimistic UI update
   - Toast notification on save/unsave
 
-### Task 6.6 — Create My Collection Page
+### Task 6.3 — Create My Collection Page & React Query Hooks
 
 - Create `src/app/(main)/my-collection/page.tsx`:
   - Tab navigation: All | Favorites | To Try | Made Before | Saved
@@ -721,15 +645,12 @@
   - Sort options within each tab
   - Empty states per tab with relevant CTAs
   - URL-driven tab state (e.g., `/my-collection?tab=favorites`)
-
-### Task 6.7 — Create React Query Hooks for Tags & Collections
-
 - Create `src/hooks/use-tags.ts`:
   - `useToggleTag()`: mutation to add/remove a tag (with optimistic update)
   - `useToggleSave()`: mutation to save/unsave (with optimistic update)
   - `useCollection(tab, filters)`: fetch the user's collection with filters
 
-### Task 6.8 — Write Tests for Tagging & Collections
+### Task 6.4 — Write Tests for Tagging & Collections
 
 - Test adding each tag status (FAVORITE, TO_TRY, MADE_BEFORE)
 - Test removing each tag status
@@ -749,7 +670,7 @@
 
 **Goal:** Implement full-text search powered by PostgreSQL tsvector/tsquery, multi-filter search panel, debounced search bar, and URL-driven filter state for shareable search results.
 
-### Task 7.1 — Create Search API Route
+### Task 7.1 — Create Search API Route & Utilities
 
 - Create `src/app/api/search/route.ts`:
   - **GET** `/api/search`: Search recipes with full-text search and filters
@@ -767,16 +688,13 @@
     - Combine full-text search with filter conditions
     - Return paginated results with highlight snippets (optional)
     - Respect visibility rules (public + own + shared)
-
-### Task 7.2 — Create Search Utility Functions
-
 - Create `src/lib/search.ts`:
   - `buildSearchQuery(params)`: construct Prisma `where` clause from filter parameters
   - `buildFullTextSearch(query)`: convert user search string to PostgreSQL tsquery format (handle AND/OR, stemming)
   - `buildSortOrder(sort, hasQuery)`: determine ORDER BY clause (relevance rank when searching, else by sort param)
   - Handle edge cases: empty query, special characters, very long queries
 
-### Task 7.3 — Create Search Bar Component
+### Task 7.2 — Create Search Bar & Filter Panel Components
 
 - Create `src/components/search/search-bar.tsx`:
   - Input with search icon and clear button
@@ -785,9 +703,8 @@
   - Loading indicator during search
   - Keyboard shortcut (Cmd/Ctrl + K) to focus search
   - Integrates with the header search bar
-
-### Task 7.4 — Create Filter Panel Component
-
+- Wire the header search bar to navigate to `/search?q=...` on submit
+- Ensure search works from any page in the app
 - Create `src/components/search/filter-panel.tsx`:
   - Collapsible filter sections:
     - **Cuisine**: multi-select checkboxes (populated from existing recipes)
@@ -800,7 +717,7 @@
   - Active filter count badge
   - Mobile: filter panel slides in as a sheet/drawer
 
-### Task 7.5 — Create Search Results Page
+### Task 7.3 — Create Search Results Page & React Query Hooks
 
 - Create `src/app/(main)/search/page.tsx`:
   - Search bar (pre-populated from URL query)
@@ -811,21 +728,12 @@
   - Pagination or infinite scroll
   - Empty state ("No recipes match your search")
   - URL-driven state: all filters reflected in URL params for shareable/bookmarkable search URLs
-
-### Task 7.6 — Create React Query Hooks for Search
-
 - Create `src/hooks/use-search.ts`:
   - `useSearch(params)`: fetch search results with debounced query and filters
   - `useCuisineOptions()`: fetch distinct cuisine types for filter autocomplete
   - `useDietaryTags()`: fetch all dietary tags for filter panel
 
-### Task 7.7 — Integrate Global Search in Header
-
-- Wire the header search bar to navigate to `/search?q=...` on submit
-- Show search suggestions as the user types (optional — could be a stretch goal)
-- Ensure search works from any page in the app
-
-### Task 7.8 — Write Tests for Search & Discovery
+### Task 7.4 — Write Tests for Search & Discovery
 
 - Test full-text search returns relevant results for various queries
 - Test search ranking (more relevant results appear first)
@@ -846,7 +754,7 @@
 
 **Goal:** Implement three-tier visibility, share-by-username, share-by-link, star ratings, comments, and guest summary-only access.
 
-### Task 8.1 — Create Visibility API Route
+### Task 8.1 — Create Sharing & Visibility API Routes
 
 - Create `src/app/api/recipes/[id]/visibility/route.ts`:
   - **PUT** `/api/recipes/:id/visibility`: Update recipe visibility
@@ -854,9 +762,6 @@
     - Require authentication + ownership
     - When changing from SHARED to PRIVATE: optionally remove existing shares
     - Return updated recipe
-
-### Task 8.2 — Create Share-by-Username API Routes
-
 - Create `src/app/api/recipes/[id]/shares/route.ts`:
   - **GET** `/api/recipes/:id/shares`: List users the recipe is shared with
     - Require ownership
@@ -871,9 +776,6 @@
     - Body: `{ userId: string }`
     - Require ownership
     - Delete `RecipeShare` record
-
-### Task 8.3 — Create User Search API Route
-
 - Create `src/app/api/users/search/route.ts`:
   - **GET** `/api/users/search?q=...`: Search users by username
     - Require authentication
@@ -881,9 +783,6 @@
     - Return limited fields: `id`, `username`, `name`, `image` (no email leakage)
     - Exclude the requesting user from results
     - Limit results (e.g., top 10 matches)
-
-### Task 8.4 — Create Share-by-Link API Routes
-
 - Create `src/app/api/recipes/[id]/share-link/route.ts`:
   - **POST** `/api/recipes/:id/share-link`: Generate a share link
     - Require ownership
@@ -893,9 +792,6 @@
   - **DELETE** `/api/recipes/:id/share-link`: Revoke a share link
     - Require ownership
     - Set `isActive = false` on the ShareLink record
-
-### Task 8.5 — Update Recipe Access Logic for Share Links
-
 - Update `canViewRecipe()` in auth utils to check:
   1. User is the recipe author → allow
   2. Recipe visibility is PUBLIC → allow
@@ -905,7 +801,7 @@
 - Update the recipe detail page to accept `?token=` query parameter
 - Pass the token through the access check
 
-### Task 8.6 — Create Share Dialog Component
+### Task 8.2 — Create Share Dialog Component
 
 - Create `src/components/social/share-dialog.tsx`:
   - Dialog with tabs: "Share with Users" | "Share Link"
@@ -921,7 +817,7 @@
   - Visibility selector at the top
   - Show current visibility status
 
-### Task 8.7 — Create Rating API Routes
+### Task 8.3 — Create Rating Feature (API & Component)
 
 - Create `src/app/api/recipes/[id]/ratings/route.ts`:
   - **GET** `/api/recipes/:id/ratings`: Get ratings for a recipe
@@ -933,9 +829,6 @@
     - Recalculate `avgRating` and `ratingCount` on the Recipe record
     - Cannot rate own recipes
     - Recipe must be public or shared with the user
-
-### Task 8.8 — Create Rating Component
-
 - Create `src/components/social/star-rating.tsx`:
   - 5-star interactive rating widget
   - Hover preview (highlight stars up to hovered position)
@@ -945,7 +838,7 @@
   - Read-only mode for recipe cards
   - Optimistic update on rating change
 
-### Task 8.9 — Create Comment API Routes
+### Task 8.4 — Create Comment Feature (API & Components)
 
 - Create `src/app/api/recipes/[id]/comments/route.ts`:
   - **GET** `/api/recipes/:id/comments`: List comments for a recipe
@@ -961,9 +854,6 @@
     - Require authentication + comment ownership
   - **DELETE** `/api/comments/:id`: Delete own comment
     - Require authentication + comment ownership
-
-### Task 8.10 — Create Comment Components
-
 - Create `src/components/social/comment-section.tsx`:
   - Comment input form (textarea + submit button)
   - Comment list with pagination ("Load More" button)
@@ -973,7 +863,7 @@
   - Empty state ("Be the first to comment!")
   - Character count indicator on input
 
-### Task 8.11 — Create Community Page
+### Task 8.5 — Create Community Page, Guest Access & "Shared with Me"
 
 - Create `src/app/(main)/community/page.tsx`:
   - Browse all public recipes
@@ -981,9 +871,6 @@
   - Filter by cuisine, difficulty, dietary tags
   - Recipe grid with public recipes
   - Featured/trending section (top rated this week — stretch)
-
-### Task 8.12 — Create Guest Access Pages
-
 - Create `src/app/community/page.tsx` (public, no auth required):
   - Similar to authenticated community page but with limited data
   - Recipe cards show summary only: title, image, prep time, cuisine, rating
@@ -994,15 +881,12 @@
   - Blurred/hidden sections for full ingredients, steps, comments
   - Prominent "Sign in to view the full recipe" CTA
 - Update recipe detail page to handle guest vs authenticated rendering
-
-### Task 8.13 — Create "Shared with Me" View
-
 - Create `src/app/(main)/shared-with-me/page.tsx` (or tab in collection):
   - List all recipes shared with the current user via `RecipeShare`
   - Show who shared each recipe and when
   - Recipe grid display
 
-### Task 8.14 — Create React Query Hooks for Social Features
+### Task 8.6 — Create React Query Hooks for Social Features
 
 - Create `src/hooks/use-sharing.ts`:
   - `useRecipeShares(recipeId)`: list shares for a recipe
@@ -1020,7 +904,7 @@
   - `useEditComment()`: mutation to edit comment
   - `useDeleteComment()`: mutation to delete comment
 
-### Task 8.15 — Write Tests for Sharing & Social Features
+### Task 8.7 — Write Tests for Sharing & Social Features
 
 - Test visibility update (PRIVATE → SHARED → PUBLIC and back)
 - Test share-by-username creates RecipeShare record
@@ -1051,15 +935,12 @@
 
 **Goal:** Integrate OpenAI GPT-4o-mini and DALL-E 3 via Vercel AI SDK for recipe generation, ingredient substitution, nutritional estimates, AI image generation, and nice-to-have features (smart tagging, meal planning).
 
-### Task 9.1 — Set Up OpenAI Client
+### Task 9.1 — Set Up AI Infrastructure (OpenAI, Rate Limiting, Error Handling)
 
 - Create `src/lib/openai.ts`:
   - Initialize OpenAI client with API key from env
   - Export configured client for use across AI routes
   - Define model constants (GPT-4o-mini for text, DALL-E 3 for images)
-
-### Task 9.2 — Implement Rate Limiter
-
 - Create `src/lib/rate-limit.ts`:
   - In-memory rate limiter (Map-based, per user ID)
   - Configurable limits per endpoint:
@@ -1070,8 +951,15 @@
   - Sliding window algorithm
   - Return remaining requests and reset time in response headers
   - Handle rate limit exceeded with 429 status and helpful message
+- Create `src/lib/ai-utils.ts`:
+  - `withAIRetry(fn)`: wrapper that implements the retry-once pattern
+  - `formatAIError(action)`: generate user-friendly error messages
+  - On API failure: silent retry once
+  - On second failure: return a generic user-friendly message ("Could not generate recipe. Please try again.")
+  - Never expose internal OpenAI errors to the user
+  - Log errors server-side for debugging
 
-### Task 9.3 — Create AI Recipe Generator
+### Task 9.2 — Create AI Recipe Generator
 
 - Create `src/app/api/ai/generate/route.ts`:
   - **POST** `/api/ai/generate`: Generate a recipe from ingredients/preferences
@@ -1090,7 +978,7 @@
   - Loading/streaming animation
   - Error handling with retry option
 
-### Task 9.4 — Create Ingredient Substitution Feature
+### Task 9.3 — Create Ingredient Substitution & Nutritional Estimate Features
 
 - Create `src/app/api/ai/substitute/route.ts`:
   - **POST** `/api/ai/substitute`: Get ingredient substitutions
@@ -1107,9 +995,6 @@
   - Dialog showing substitution suggestions
   - Each suggestion: substitute name, ratio, notes
   - "Apply Substitution" button (updates the ingredient in the form)
-
-### Task 9.5 — Create Nutritional Estimate Feature
-
 - Create `src/app/api/ai/nutrition/route.ts`:
   - **POST** `/api/ai/nutrition`: Estimate nutritional information
     - Body: `{ recipeId: string }` or `{ ingredients: RecipeIngredient[], servings: number }`
@@ -1126,7 +1011,7 @@
   - Disclaimer: "AI-generated estimates. For accurate values, consult a nutritionist."
   - Loading skeleton while estimating
 
-### Task 9.6 — Create AI Image Generation Feature
+### Task 9.4 — Create AI Image Generation
 
 - Create `src/app/api/ai/generate-image/route.ts`:
   - **POST** `/api/ai/generate-image`: Generate a recipe image with DALL-E 3
@@ -1142,40 +1027,7 @@
   - Option to regenerate
   - Save to recipe images
 
-### Task 9.7 — Create AI Error Handling Pattern
-
-- Implement the specified error handling pattern across all AI routes:
-  - On API failure: silent retry once
-  - On second failure: return a generic user-friendly message ("Could not generate recipe. Please try again.")
-  - Never expose internal OpenAI errors to the user
-  - Log errors server-side for debugging
-- Create `src/lib/ai-utils.ts`:
-  - `withAIRetry(fn)`: wrapper that implements the retry-once pattern
-  - `formatAIError(action)`: generate user-friendly error messages
-
-### Task 9.8 — Create Smart Tagging Feature (Nice-to-Have)
-
-- Create `src/app/api/ai/suggest-tags/route.ts`:
-  - **POST** `/api/ai/suggest-tags`: Suggest tags for a recipe
-    - Body: `{ title: string, ingredients: string[], description: string }`
-    - AI suggests: cuisine type, dietary tags, difficulty level
-    - Return structured tag suggestions
-- Integrate into recipe form as auto-suggest chips
-
-### Task 9.9 — Create Meal Plan Feature (Nice-to-Have)
-
-- Create `src/app/api/ai/meal-plan/route.ts`:
-  - **POST** `/api/ai/meal-plan`: Generate a weekly meal plan
-    - Body: `{ preferences: { dietary?: string[], cuisines?: string[], servings: number, mealsPerDay: number } }`
-    - AI generates a 7-day meal plan using existing recipes + new suggestions
-    - Return structured plan (day → meals)
-- Create `src/components/ai/meal-planner.tsx`:
-  - Preference input form
-  - Weekly calendar grid display
-  - Recipe links for existing recipes
-  - "Generate Recipe" links for AI suggestions
-
-### Task 9.10 — Create AI Feature Entry Points
+### Task 9.5 — Create AI Entry Points & Nice-to-Have Features
 
 - Add AI feature access points throughout the app:
   - "Generate Recipe" in the header/navigation or dashboard
@@ -1183,8 +1035,24 @@
   - "Estimate Nutrition" button on recipe detail page
   - "Generate Image" option in recipe form image step
   - AI features page/hub (`/ai`) linking to all AI tools
+- Create `src/app/api/ai/suggest-tags/route.ts` (Nice-to-Have):
+  - **POST** `/api/ai/suggest-tags`: Suggest tags for a recipe
+    - Body: `{ title: string, ingredients: string[], description: string }`
+    - AI suggests: cuisine type, dietary tags, difficulty level
+    - Return structured tag suggestions
+  - Integrate into recipe form as auto-suggest chips
+- Create `src/app/api/ai/meal-plan/route.ts` (Nice-to-Have):
+  - **POST** `/api/ai/meal-plan`: Generate a weekly meal plan
+    - Body: `{ preferences: { dietary?: string[], cuisines?: string[], servings: number, mealsPerDay: number } }`
+    - AI generates a 7-day meal plan using existing recipes + new suggestions
+    - Return structured plan (day → meals)
+- Create `src/components/ai/meal-planner.tsx` (Nice-to-Have):
+  - Preference input form
+  - Weekly calendar grid display
+  - Recipe links for existing recipes
+  - "Generate Recipe" links for AI suggestions
 
-### Task 9.11 — Write Tests for AI Features
+### Task 9.6 — Write Tests for AI Features
 
 - Test recipe generator with valid ingredient inputs
 - Test recipe generator response parsing (valid JSON structure)
@@ -1224,7 +1092,7 @@
   - Reset button to return to original servings
 - Integrate into recipe detail page
 
-### Task 10.2 — Implement Shopping List — Database Models & API
+### Task 10.2 — Create Shopping List Feature (API & UI)
 
 - Shopping list models should already exist from Phase 2 (`ShoppingList`, `ShoppingListItem`)
 - Create `src/app/api/shopping-lists/route.ts`:
@@ -1240,9 +1108,6 @@
   - **POST**: Add items to shopping list
   - **PUT** `/api/shopping-lists/:id/items/:itemId`: Update item (check/uncheck, edit quantity)
   - **DELETE** `/api/shopping-lists/:id/items/:itemId`: Remove item
-
-### Task 10.3 — Implement Shopping List — UI Components
-
 - Create `src/components/shopping/shopping-list.tsx`:
   - Checklist UI with checkboxes for each item
   - Items grouped by category (Produce, Dairy, Meat, Pantry, etc.)
@@ -1262,7 +1127,7 @@
 - Create `src/app/(main)/shopping-lists/[id]/page.tsx`:
   - Full shopping list view and editing
 
-### Task 10.4 — Implement Cooking Timer
+### Task 10.3 — Create Cooking Mode & Timer
 
 - Create `src/components/recipes/cooking-timer.tsx`:
   - Per-step timer based on `RecipeStep.duration` field
@@ -1272,9 +1137,6 @@
   - Multiple concurrent timers (for parallel cooking steps)
   - Visual indicator on the step being timed
   - Persist timer state in component (not across page navigation)
-
-### Task 10.5 — Implement Step-by-Step Cooking Mode
-
 - Create `src/components/recipes/cooking-mode.tsx`:
   - Full-screen/overlay mode optimized for cooking:
     - Large text for readability
@@ -1287,7 +1149,7 @@
   - Mobile-optimized: prevent screen sleep (Wake Lock API), large tap targets
   - Accessible: high contrast, large fonts
 
-### Task 10.6 — Implement Print-Friendly View
+### Task 10.4 — Implement Print View & URL Import
 
 - Create `src/components/recipes/print-view.tsx`:
   - CSS `@media print` styles:
@@ -1300,22 +1162,19 @@
     - Source attribution
   - "Print Recipe" button on recipe detail page
   - Uses `window.print()` or generates a printer-friendly layout
-
-### Task 10.7 — Implement URL Import (Nice-to-Have)
-
-- Create `src/app/api/recipes/import/route.ts`:
+- Create `src/app/api/recipes/import/route.ts` (Nice-to-Have):
   - **POST** `/api/recipes/import`: Import recipe from a URL
     - Body: `{ url: string }`
     - Fetch the URL, parse recipe structured data (JSON-LD, microdata)
     - Extract: title, ingredients, steps, images, times, servings
     - Return parsed data (user reviews and saves as new recipe)
-- Create `src/components/recipes/import-dialog.tsx`:
+- Create `src/components/recipes/import-dialog.tsx` (Nice-to-Have):
   - URL input field
   - "Import" button
   - Preview of parsed data
   - "Save as Recipe" button (pre-fills recipe form)
 
-### Task 10.8 — Polish Responsive Design
+### Task 10.5 — Polish UX (Responsive Design, Error Handling & Accessibility)
 
 - Review and fix responsive layout across all pages:
   - Mobile (< 640px): single column, stacked layout, hamburger menu
@@ -1324,9 +1183,6 @@
 - Ensure all tap targets are minimum 44px on mobile
 - Test on common device sizes (iPhone SE, iPhone 14, iPad, Desktop)
 - Fix any overflow, text truncation, or alignment issues
-
-### Task 10.9 — Polish Error Handling & Edge Cases
-
 - Review all API routes for consistent error responses:
   - 400: validation errors (with field-level details)
   - 401: unauthenticated
@@ -1337,9 +1193,6 @@
 - Add toast notifications for all user actions (success, error)
 - Handle network errors gracefully (offline state, retry prompts)
 - Handle loading states consistently (skeletons, not spinners)
-
-### Task 10.10 — Polish Accessibility
-
 - Review all components for accessibility:
   - Proper ARIA labels on interactive elements
   - Keyboard navigation (tab order, Enter/Space activation)
@@ -1350,7 +1203,7 @@
   - Alt text on all images
   - Skip navigation link
 
-### Task 10.11 — Write Tests for Extra Features
+### Task 10.6 — Write Tests for Extra Features
 
 - Test recipe scaling calculations (integers, fractions, decimals, ranges)
 - Test scaling edge cases (0 servings, very large numbers)
@@ -1372,7 +1225,7 @@
 
 **Goal:** Implement a thorough testing strategy covering unit tests, integration tests, component tests, and end-to-end tests to ensure application reliability and correctness.
 
-### Task 11.1 — Set Up Testing Infrastructure
+### Task 11.1 — Set Up Testing Infrastructure & MSW
 
 - Install testing dependencies:
   - `vitest` (test runner — faster than Jest for Vite/Next.js)
@@ -1391,9 +1244,6 @@
   - `"test:coverage": "vitest run --coverage"`
   - `"test:ui": "vitest --ui"` (visual test UI)
   - `"test:e2e": "playwright test"` (if using Playwright)
-
-### Task 11.2 — Set Up MSW (Mock Service Worker)
-
 - Create `src/mocks/handlers.ts`:
   - Define mock API handlers for all endpoints
   - Cover success and error scenarios
@@ -1402,7 +1252,7 @@
 - Create `src/mocks/browser.ts` (for browser/Storybook — optional)
 - Create mock data factories for all models (User, Recipe, etc.)
 
-### Task 11.3 — Write Unit Tests — Utility Functions
+### Task 11.2 — Write Unit Tests — Utility Functions
 
 - Test `src/lib/scaling.ts`:
   - Fraction parsing and formatting
@@ -1426,7 +1276,7 @@
   - Retry-once pattern
   - Error message formatting
 
-### Task 11.4 — Write Unit Tests — React Hooks
+### Task 11.3 — Write Unit Tests — React Hooks
 
 - Test `src/hooks/use-recipes.ts`:
   - Query key generation
@@ -1446,7 +1296,7 @@
   - Pagination behavior
   - Comment CRUD operations
 
-### Task 11.5 — Write Component Tests — UI Components
+### Task 11.4 — Write Component Tests — UI Components
 
 - Test `RecipeCard`:
   - Renders all recipe information correctly
@@ -1501,7 +1351,7 @@
   - Renders all nutrition fields
   - Shows estimate button when no data
 
-### Task 11.6 — Write Integration Tests — API Routes
+### Task 11.5 — Write Integration Tests — API Routes
 
 - Test each API route with a real or mocked database:
   - `POST /api/recipes`: full recipe creation flow
@@ -1526,7 +1376,7 @@
   - Shopping list CRUD routes
   - User search route
 
-### Task 11.7 — Write Integration Tests — Auth Flows
+### Task 11.6 — Write Integration Tests — Auth Flows
 
 - Test complete OAuth sign-in flow (mocked)
 - Test username onboarding flow
@@ -1534,7 +1384,7 @@
 - Test session token contains correct user data
 - Test sign-out clears session
 
-### Task 11.8 — Write End-to-End Tests (Optional — Playwright)
+### Task 11.7 — Write End-to-End Tests (Optional — Playwright)
 
 - If using Playwright, create E2E tests for critical user journeys:
   - **Happy path — Recipe creation**: Sign in → Navigate to "New Recipe" → Fill all form steps → Submit → Verify recipe appears
@@ -1545,7 +1395,7 @@
   - **AI flow**: Open recipe generator → Enter ingredients → Generate → Save recipe
   - **Guest flow**: Visit community page → Click recipe → See summary only → Login prompt
 
-### Task 11.9 — Set Up Test Coverage Reporting
+### Task 11.8 — Set Up Test Coverage Reporting
 
 - Configure coverage thresholds:
   - Statements: 80%+
@@ -1555,7 +1405,7 @@
 - Generate coverage reports (HTML, lcov)
 - Add coverage check to CI pipeline (fail build if below threshold)
 
-### Task 11.10 — Write Tests for Edge Cases & Error Scenarios
+### Task 11.9 — Write Tests for Edge Cases & Error Scenarios
 
 - Test concurrent tag/save operations (race conditions)
 - Test recipe creation with maximum data (long title, many ingredients/steps)
