@@ -3,7 +3,7 @@ task_id: 'task-2.4'
 title: 'Define Shopping List Models'
 phase: 2
 task_number: 4
-status: 'pending'
+status: 'done'
 priority: 'medium'
 dependencies:
   - 'task-2.2'
@@ -153,5 +153,5 @@ created_at: '2026-02-18'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
 - **Discrepancy**: ROADMAP includes `unit` and `recipeId` fields on ShoppingListItem that are NOT in SENIOR_DEVELOPER.md. If needed during Phase 10 implementation, these can be added via a schema migration at that time.
+- **No issues encountered**: Models matched SENIOR_DEVELOPER.md spec exactly. Schema validates and project builds cleanly.

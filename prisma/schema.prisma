@@ -50,6 +50,7 @@ model User {
   ratings       Rating[]
   comments      Comment[]
   sharedWithMe  RecipeShare[]
+  shoppingLists ShoppingList[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -260,4 +261,27 @@ model Comment {
   updatedAt DateTime @updatedAt
 
   @@index([recipeId])
+}
+
+model ShoppingList {
+  id        String             @id @default(cuid())
+  name      String             // "Shopping list for week of Feb 17"
+  user      User               @relation(fields: [userId], references: [id])
+  userId    String
+  items     ShoppingListItem[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([userId])
+}
+
+model ShoppingListItem {
+  id             String       @id @default(cuid())
+  shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+  shoppingListId String
+  ingredientName String
+  quantity       String?      // aggregated quantity
+  category       String?      // "produce", "dairy", "pantry", etc.
+  checked        Boolean      @default(false)
+  order          Int          @default(0)
 }
