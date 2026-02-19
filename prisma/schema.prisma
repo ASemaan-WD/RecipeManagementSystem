@@ -100,39 +100,42 @@ model VerificationToken {
 }
 
 model Recipe {
-  id              String            @id @default(cuid())
-  name            String
-  description     String?
-  prepTime        Int?              // in minutes
-  cookTime        Int?              // in minutes
-  servings        Int?
-  difficulty      Difficulty?
-  cuisineType     String?
-  visibility      Visibility        @default(PRIVATE)
-  nutritionData   Json?             // cached AI nutrition estimates
-  avgRating       Float?            // denormalized average rating
-  ratingCount     Int               @default(0)
+  id            String      @id @default(cuid())
+  name          String
+  description   String?
+  prepTime      Int? // in minutes
+  cookTime      Int? // in minutes
+  servings      Int?
+  difficulty    Difficulty?
+  cuisineType   String?
+  visibility    Visibility  @default(PRIVATE)
+  nutritionData Json? // cached AI nutrition estimates
+  avgRating     Float? // denormalized average rating
+  ratingCount   Int         @default(0)
 
   // Relations
-  author          User              @relation("AuthoredRecipes", fields: [authorId], references: [id])
-  authorId        String
-  images          RecipeImage[]
-  ingredients     RecipeIngredient[]
-  steps           RecipeStep[]
-  dietaryTags     RecipeDietaryTag[]
-  userTags        UserRecipeTag[]
-  shares          RecipeShare[]
-  shareLinks      ShareLink[]
-  savedBy         SavedRecipe[]
-  ratings         Rating[]
-  comments        Comment[]
+  author      User               @relation("AuthoredRecipes", fields: [authorId], references: [id])
+  authorId    String
+  images      RecipeImage[]
+  ingredients RecipeIngredient[]
+  steps       RecipeStep[]
+  dietaryTags RecipeDietaryTag[]
+  userTags    UserRecipeTag[]
+  shares      RecipeShare[]
+  shareLinks  ShareLink[]
+  savedBy     SavedRecipe[]
+  ratings     Rating[]
+  comments    Comment[]
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([authorId])
   @@index([visibility])
   @@index([cuisineType])
+  @@index([visibility, createdAt])
+  @@index([difficulty])
+  @@index([avgRating])
 }
 
 model RecipeImage {
@@ -159,11 +162,12 @@ model RecipeIngredient {
   recipeId     String
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
   ingredientId String
-  quantity     String?    // "2 cups", "1 tbsp" — kept as string for flexibility
-  notes        String?    // "finely diced", "optional"
+  quantity     String? // "2 cups", "1 tbsp" — kept as string for flexibility
+  notes        String? // "finely diced", "optional"
   order        Int        @default(0)
 
   @@unique([recipeId, ingredientId])
+  @@index([ingredientId])
 }
 
 model RecipeStep {
@@ -172,7 +176,7 @@ model RecipeStep {
   recipeId    String
   stepNumber  Int
   instruction String
-  duration    Int?   // optional timer in minutes
+  duration    Int? // optional timer in minutes
 
   @@index([recipeId])
 }
@@ -201,26 +205,28 @@ model UserRecipeTag {
   recipeId String
   status   TagStatus
 
-  @@unique([userId, recipeId, status])  // allows multiple statuses per user-recipe
+  @@unique([userId, recipeId, status]) // allows multiple statuses per user-recipe
+  @@index([userId, status])
 }
 
 model RecipeShare {
-  id        String   @id @default(cuid())
-  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  recipeId  String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  sharedAt  DateTime @default(now())
+  id       String   @id @default(cuid())
+  recipe   Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId String
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+  sharedAt DateTime @default(now())
 
   @@unique([recipeId, userId])
+  @@index([userId])
 }
 
 model ShareLink {
   id        String   @id @default(cuid())
   recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId  String
-  token     String   @unique @default(cuid())  // unique shareable token
-  isActive  Boolean  @default(true)            // author can revoke
+  token     String   @unique @default(cuid()) // unique shareable token
+  isActive  Boolean  @default(true) // author can revoke
   createdAt DateTime @default(now())
 
   @@index([token])
@@ -243,11 +249,12 @@ model Rating {
   userId    String
   recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId  String
-  value     Int      // 1-5
+  value     Int // 1-5
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([userId, recipeId])
+  @@index([recipeId])
 }
 
 model Comment {
@@ -265,7 +272,7 @@ model Comment {
 
 model ShoppingList {
   id        String             @id @default(cuid())
-  name      String             // "Shopping list for week of Feb 17"
+  name      String // "Shopping list for week of Feb 17"
   user      User               @relation(fields: [userId], references: [id])
   userId    String
   items     ShoppingListItem[]
@@ -280,8 +287,8 @@ model ShoppingListItem {
   shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
   shoppingListId String
   ingredientName String
-  quantity       String?      // aggregated quantity
-  category       String?      // "produce", "dairy", "pantry", etc.
+  quantity       String? // aggregated quantity
+  category       String? // "produce", "dairy", "pantry", etc.
   checked        Boolean      @default(false)
   order          Int          @default(0)
 }

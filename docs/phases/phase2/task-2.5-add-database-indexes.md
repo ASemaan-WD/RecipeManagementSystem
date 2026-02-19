@@ -3,7 +3,7 @@ task_id: 'task-2.5'
 title: 'Add Database Indexes'
 phase: 2
 task_number: 5
-status: 'pending'
+status: 'done'
 priority: 'medium'
 dependencies:
   - 'task-2.3'
@@ -156,4 +156,5 @@ created_at: '2026-02-18'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- `prisma format` applied minor whitespace/alignment changes across the schema file. No functional changes.
+- `ShareLink.token` already has `@unique` which implicitly creates an index; the existing `@@index([token])` is redundant but was left untouched per the out-of-scope rule (it was added by CTO_SPECS.md in a prior task).
