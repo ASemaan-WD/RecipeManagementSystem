@@ -3,7 +3,7 @@ task_id: 'task-3.2'
 title: 'Create Auth Middleware & Helper Utilities'
 phase: 3
 task_number: 2
-status: 'pending'
+status: 'done'
 priority: 'high'
 dependencies:
   - 'task-3.1'
@@ -219,4 +219,5 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- **JWT token freshness for `username`**: When a user completes onboarding (sets their username), the JWT token stored in the cookie still has `username: null` until the next sign-in or token refresh. The middleware's onboarding redirect (Rule 3) checks `req.auth?.user?.username`, so without a token refresh after onboarding, users could get stuck in a redirect loop. **Task 3.4 (onboarding page) must trigger a session/token update** after the username is set — either via `unstable_update()` from NextAuth v5 or by forcing a re-sign-in.
+- **Prisma Edge Runtime warnings**: The build produces 3 warnings about Node.js modules (`node:path`, `node:url`, `node:buffer`) being loaded in Edge Runtime. These are pre-existing from the Prisma generated client import chain (`prisma/client.ts → db.ts → auth.ts`) and are not introduced by this task. The warnings are benign because the middleware only reads the JWT from the cookie — it does not invoke the Prisma adapter or execute database queries. The affected code paths are unreachable during middleware execution.
