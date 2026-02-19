@@ -3,7 +3,7 @@ task_id: 'task-2.6'
 title: 'Configure Prisma Client & Run Migration'
 phase: 2
 task_number: 6
-status: 'pending'
+status: 'done'
 priority: 'high'
 dependencies:
   - 'task-2.5'
@@ -192,4 +192,6 @@ created_at: '2026-02-18'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- **Import path discrepancy**: The task file specifies importing `PrismaClient` from `@prisma/client`, but the schema's generator uses a custom output path (`../src/generated/prisma`). The correct import is `from '@/generated/prisma/client'`. Future task files should reference this import path.
+- **Prisma v7 requires adapter**: The `prisma-client` generator (Prisma v7) no longer supports direct `DATABASE_URL` connections at runtime. It requires either an `adapter` or `accelerateUrl` option when constructing `PrismaClient`. The `@prisma/adapter-neon` package was installed and the adapter pattern was used in `db.ts`. This was not mentioned in the task file but is required by the latest Prisma v7 official documentation.
+- **Package added**: `@prisma/adapter-neon` was installed as a runtime dependency to support the Neon serverless adapter pattern required by Prisma v7.
