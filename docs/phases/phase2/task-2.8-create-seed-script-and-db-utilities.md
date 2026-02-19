@@ -262,4 +262,6 @@ Add the following scripts:
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- **Prisma v7 seed config location**: The task file specifies adding `"prisma": { "seed": "tsx prisma/seed.ts" }` to `package.json`. In Prisma v7, the seed command is configured in `prisma.config.ts` under `migrations.seed`, not in `package.json`. The implementation follows the Prisma v7 approach.
+- **dotenv path**: The project uses `.env.local` (not `.env`), so the seed script loads env via `dotenv.config({ path: '.env.local' })` instead of `import 'dotenv/config'`.
+- **`db:push` warning**: Running `npm run db:push` warns about dropping the `searchVector` column because it was added via raw SQL migration (task 2.7) and is not in the Prisma schema. This is expected and not a problem — `db:push` is for rapid prototyping, and the migration-based workflow (`db:migrate`) correctly preserves the column.
