@@ -3,7 +3,7 @@ task_id: 'task-2.3'
 title: 'Define Recipe & Related Models'
 phase: 2
 task_number: 3
-status: 'pending'
+status: 'done'
 priority: 'high'
 dependencies:
   - 'task-2.2'
@@ -372,6 +372,7 @@ created_at: '2026-02-18'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
 - **Discrepancy**: ROADMAP uses `title` for the recipe name field; CTO_SPECS.md uses `name`. This task follows CTO_SPECS.md (`name`). All downstream tasks and API implementations should use `name` for consistency.
 - **Discrepancy**: ROADMAP includes a `unit` field on `RecipeIngredient`. CTO_SPECS.md does not. If `unit` is needed later, it should be added via a separate schema migration.
+- **Discrepancy**: ROADMAP mentions `createdAt` on `SavedRecipe`; CTO_SPECS.md uses `savedAt`. This task follows CTO_SPECS.md.
+- **No new discoveries during execution** — all 13 models were added verbatim from CTO_SPECS.md with no issues.

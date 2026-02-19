@@ -97,3 +97,167 @@ model VerificationToken {
   @@unique([identifier, token])
   @@map("verification_tokens")
 }
+
+model Recipe {
+  id              String            @id @default(cuid())
+  name            String
+  description     String?
+  prepTime        Int?              // in minutes
+  cookTime        Int?              // in minutes
+  servings        Int?
+  difficulty      Difficulty?
+  cuisineType     String?
+  visibility      Visibility        @default(PRIVATE)
+  nutritionData   Json?             // cached AI nutrition estimates
+  avgRating       Float?            // denormalized average rating
+  ratingCount     Int               @default(0)
+
+  // Relations
+  author          User              @relation("AuthoredRecipes", fields: [authorId], references: [id])
+  authorId        String
+  images          RecipeImage[]
+  ingredients     RecipeIngredient[]
+  steps           RecipeStep[]
+  dietaryTags     RecipeDietaryTag[]
+  userTags        UserRecipeTag[]
+  shares          RecipeShare[]
+  shareLinks      ShareLink[]
+  savedBy         SavedRecipe[]
+  ratings         Rating[]
+  comments        Comment[]
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([authorId])
+  @@index([visibility])
+  @@index([cuisineType])
+}
+
+model RecipeImage {
+  id        String      @id @default(cuid())
+  recipe    Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId  String
+  url       String
+  source    ImageSource
+  isPrimary Boolean     @default(false)
+  order     Int         @default(0)
+
+  @@index([recipeId])
+}
+
+model Ingredient {
+  id      String             @id @default(cuid())
+  name    String             @unique
+  recipes RecipeIngredient[]
+}
+
+model RecipeIngredient {
+  id           String     @id @default(cuid())
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId     String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId String
+  quantity     String?    // "2 cups", "1 tbsp" — kept as string for flexibility
+  notes        String?    // "finely diced", "optional"
+  order        Int        @default(0)
+
+  @@unique([recipeId, ingredientId])
+}
+
+model RecipeStep {
+  id          String @id @default(cuid())
+  recipe      Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId    String
+  stepNumber  Int
+  instruction String
+  duration    Int?   // optional timer in minutes
+
+  @@index([recipeId])
+}
+
+model DietaryTag {
+  id      String             @id @default(cuid())
+  name    String             @unique // "vegan", "gluten-free", "dairy-free", etc.
+  recipes RecipeDietaryTag[]
+}
+
+model RecipeDietaryTag {
+  id           String     @id @default(cuid())
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId     String
+  dietaryTag   DietaryTag @relation(fields: [dietaryTagId], references: [id])
+  dietaryTagId String
+
+  @@unique([recipeId, dietaryTagId])
+}
+
+model UserRecipeTag {
+  id       String    @id @default(cuid())
+  user     User      @relation(fields: [userId], references: [id])
+  userId   String
+  recipe   Recipe    @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId String
+  status   TagStatus
+
+  @@unique([userId, recipeId, status])  // allows multiple statuses per user-recipe
+}
+
+model RecipeShare {
+  id        String   @id @default(cuid())
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId  String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  sharedAt  DateTime @default(now())
+
+  @@unique([recipeId, userId])
+}
+
+model ShareLink {
+  id        String   @id @default(cuid())
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId  String
+  token     String   @unique @default(cuid())  // unique shareable token
+  isActive  Boolean  @default(true)            // author can revoke
+  createdAt DateTime @default(now())
+
+  @@index([token])
+}
+
+model SavedRecipe {
+  id       String   @id @default(cuid())
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+  recipe   Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId String
+  savedAt  DateTime @default(now())
+
+  @@unique([userId, recipeId])
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId  String
+  value     Int      // 1-5
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, recipeId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId  String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([recipeId])
+}
