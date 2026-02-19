@@ -246,4 +246,6 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- **Zod v4 `noUncheckedIndexedAccess` interaction**: With `noUncheckedIndexedAccess: true` in tsconfig, accessing `error.issues[0].message` after `safeParse` requires optional chaining (`issues[0]?.message`) since the array index access returns `T | undefined`. This applies to all Zod validation error handling in API routes.
+- **SessionProvider needed for onboarding**: The onboarding page wraps its form in a local `SessionProvider` to enable `useSession().update()` for JWT refresh after username is set. Task 3.5 (Root Providers & App Layout) should add a global `SessionProvider`, at which point the local wrapper in the onboarding page can be removed.
+- **JWT callback `trigger === 'update'`**: Added to `src/lib/auth.ts` to support re-reading username from the database when the client calls `session.update()`. This was required by the task scope (line 66) and is essential for the onboarding flow to work correctly — without it, the middleware would keep redirecting to `/onboarding` after username is set.
