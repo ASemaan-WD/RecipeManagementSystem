@@ -3,7 +3,7 @@ task_id: 'task-4.1'
 title: 'Create Header & Navigation (Desktop + Mobile)'
 phase: 4
 task_number: 1
-status: 'pending'
+status: 'done'
 priority: 'high'
 dependencies:
   - 'task-3.5'
@@ -222,4 +222,6 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- Pre-existing TypeScript errors exist in `src/lib/__tests__/auth-utils.test.ts` (from task 3.6) — `Session` type incompatibility with `NextMiddleware`. These are test-only type errors and do not affect the build. Should be addressed in a future cleanup task.
+- The `test:run` script referenced in the task acceptance criteria does not exist in `package.json`. The correct command is `npm run test` (which runs `vitest run`). Task template should be updated to reference the correct script.
+- The `getUserInitials()` helper is duplicated across `header.tsx` and `mobile-nav.tsx`. If more components need it in the future, it should be extracted to a shared utility in `src/lib/utils.ts`.
