@@ -157,4 +157,6 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- The 3 Turbopack build warnings about `node:path`, `node:url`, and `node:buffer` in Edge Runtime are pre-existing (from Prisma client used in middleware via auth.ts). Not introduced by this task.
+- The `Separator` component from shadcn/ui is `"use client"` internally but renders fine inside the Server Component login page — Next.js handles the client boundary at the component level.
+- Next.js 16 types `searchParams` as `Promise<Record<string, string | string[] | undefined>>` — must be awaited in async Server Components. This is the first page in the codebase to use this pattern.
