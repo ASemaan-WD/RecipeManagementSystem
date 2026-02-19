@@ -218,4 +218,7 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- **Dual `@auth/core` versions**: `next-auth@5.0.0-beta.30` bundles `@auth/core@0.41.0` in its nested `node_modules`, while `@auth/prisma-adapter@2.11.1` depends on `@auth/core@0.41.1` at the top level. This means module augmentation of `next-auth/jwt` (which re-exports from `@auth/core/jwt`) does not affect the `JWT` type used internally by NextAuth's callback signatures (which resolve to the nested `@auth/core@0.41.0`). Type casts (`as string`, `as string | null`) are required in the `session` callback to bridge this gap. The augmentation still works correctly for consumer code that imports `Session` or `JWT` from `next-auth` or `next-auth/jwt`.
+- **`user.username` not on `AdapterUser` type**: The Prisma adapter returns the full database row at runtime (including custom `username` field), but TypeScript types the `user` parameter in the `jwt` callback as `User | AdapterUser`, which does not include `username`. A cast via `unknown` is required: `(user as unknown as { username: string | null }).username`.
+- **`NEXTAUTH_SECRET` vs `AUTH_SECRET`**: The `.env.example` uses `NEXTAUTH_SECRET`. NextAuth v5 reads both `NEXTAUTH_SECRET` and `AUTH_SECRET` automatically — no explicit `secret` config key is needed. Future tasks should consider standardizing on `AUTH_SECRET` (the v5 canonical name).
+- **Type declaration placement**: `src/types/next-auth.d.ts` is automatically included by `tsconfig.json`'s `"include": ["**/*.ts"]` — no `tsconfig.json` modification was needed.
