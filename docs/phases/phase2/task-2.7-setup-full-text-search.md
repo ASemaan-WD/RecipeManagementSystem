@@ -3,7 +3,7 @@ task_id: 'task-2.7'
 title: 'Set Up Full-Text Search'
 phase: 2
 task_number: 7
-status: 'pending'
+status: 'done'
 priority: 'medium'
 dependencies:
   - 'task-2.6'
@@ -181,5 +181,7 @@ created_at: '2026-02-18'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- **Naming discrepancy**: `SENIOR_DEVELOPER.md` (Phase 4a) uses different naming for the full-text search objects (`recipe_search_idx`, `update_recipe_search_vector()`, `recipe_search_update`) compared to this task file (`Recipe_searchVector_idx`, `recipe_search_vector_update()`, `recipe_search_vector_trigger`). This task file's naming was used as it is the source of truth. `SENIOR_DEVELOPER.md` should be updated to align in a future task.
+- **Column-specific trigger**: This task's trigger uses `BEFORE INSERT OR UPDATE OF "name", "description", "cuisineType"` (column-specific) rather than the broader `BEFORE INSERT OR UPDATE ON "Recipe"` from `SENIOR_DEVELOPER.md`. The column-specific approach is more efficient as it avoids unnecessary trigger fires when unrelated columns are updated.
+- **Prisma schema drift**: After applying the raw SQL migration, `npx prisma migrate dev` detects schema drift (the `searchVector` column exists in DB but not in the Prisma schema). This is expected and documented — Prisma does not natively support tsvector. Future migrations should use `npx prisma migrate dev --create-only` followed by manual application, or `npx prisma migrate deploy` in production.
 - **Future consideration**: CTO_SPECS.md mentions searching "recipe name + ingredient names." The current trigger only indexes `name`, `description`, and `cuisineType` from the Recipe table directly. Indexing ingredient names would require a more complex approach (e.g., a materialized view or denormalized column). This should be evaluated during Phase 7 search implementation.
