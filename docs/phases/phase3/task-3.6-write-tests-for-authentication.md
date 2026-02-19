@@ -331,4 +331,7 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- Vitest v4 requires `vi.hoisted()` for class definitions used inside `vi.mock()` factory functions (hoisting prevents referencing top-level variables).
+- Zod v4 (4.3.6) maintains backward-compatible `error.issues[0]?.message` API, so existing error access patterns work.
+- The `act()` wrapper from testing-library is needed around `vi.advanceTimersByTimeAsync()` calls to suppress React state update warnings when testing components with fake timers and async effects.
+- Pre-existing build warnings exist for Prisma generated client using Node.js modules (`node:path`, `node:url`, `node:buffer`) in Edge Runtime traces — not introduced by this task.
