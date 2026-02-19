@@ -3,7 +3,7 @@ task_id: 'task-3.5'
 title: 'Set Up Root Providers & App Layout'
 phase: 3
 task_number: 5
-status: 'pending'
+status: 'done'
 priority: 'high'
 dependencies:
   - 'task-3.1'
@@ -259,4 +259,5 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- The `Toaster` component from `src/components/ui/sonner.tsx` uses `useTheme()` from `next-themes`, confirming `ThemeProvider` must be the outermost provider in the composition.
+- Pre-existing Prisma edge runtime warnings (node:path, node:url, node:buffer) appear during build — these are unrelated to this task and originate from the Prisma client being imported in middleware context (task 3.2 scope).

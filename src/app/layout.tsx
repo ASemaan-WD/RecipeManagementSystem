@@ -1,20 +1,28 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+
+import { ThemeProvider } from '@/providers/theme-provider';
+import { AuthProvider } from '@/providers/auth-provider';
+import { QueryProvider } from '@/providers/query-provider';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "Recipe Management System",
-  description: "AI-Enhanced Recipe Management Platform",
+  title: {
+    default: 'Recipe Management System',
+    template: '%s | Recipe Management System',
+  },
+  description: 'AI-Enhanced Recipe Management Platform',
 };
 
 export default function RootLayout({
@@ -23,11 +31,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider>
+          <AuthProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </AuthProvider>
+        </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   );
