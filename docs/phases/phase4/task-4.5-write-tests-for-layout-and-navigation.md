@@ -3,7 +3,7 @@ task_id: 'task-4.5'
 title: 'Write Tests for Layout & Navigation'
 phase: 4
 task_number: 5
-status: 'pending'
+status: 'done'
 priority: 'medium'
 dependencies:
   - 'task-4.1'
@@ -321,4 +321,7 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- The default export name `Error` in `src/app/error.tsx` shadows the global `Error` constructor. Tests must import it with a different alias (e.g., `ErrorPage`) to avoid `new Error()` calls being misinterpreted.
+- Radix UI Sheet/DropdownMenu portals render correctly in jsdom but produce a benign jsdom warning: "Not implemented: navigation to another Document" when links are clicked.
+- The `useSyncExternalStore` hydration guard in `theme-toggle.tsx` correctly returns the client snapshot (`true`) in jsdom, so the mounted state renders without special handling.
+- The `getUserInitials` function in both `header.tsx` and `mobile-nav.tsx` is duplicated — could be extracted to a shared utility in a future refactoring task.
