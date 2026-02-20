@@ -187,4 +187,5 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- The task file references `npm run test:run` but the actual script name is `npm test` (which runs `vitest run`). Future task files should use `npm test` instead.
+- The 3 Turbopack build warnings about Prisma's Node.js module usage in Edge Runtime are pre-existing (from middleware/auth setup) and unrelated to this task.
