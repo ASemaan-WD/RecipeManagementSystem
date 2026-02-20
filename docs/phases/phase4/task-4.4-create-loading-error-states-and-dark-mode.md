@@ -3,7 +3,7 @@ task_id: 'task-4.4'
 title: 'Create Loading, Error States & Dark Mode Toggle'
 phase: 4
 task_number: 4
-status: 'pending'
+status: 'done'
 priority: 'medium'
 dependencies:
   - 'task-4.1'
@@ -312,4 +312,6 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- The test script in `package.json` is `npm test` (aliased to `vitest run`), not `npm run test:run` as referenced in the acceptance criteria.
+- Pre-existing build warnings exist from Prisma client imports in Edge Runtime (node:path, node:url, node:buffer) — unrelated to this task.
+- Removed `.gitkeep` from `src/components/shared/` since the directory now contains real component files.

@@ -29,6 +29,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { MobileNav } from '@/components/layout/mobile-nav';
+import { ThemeToggleMenuItem } from '@/components/layout/theme-toggle';
 
 const DESKTOP_NAV_ITEMS = [
   { label: 'My Recipes', href: '/my-recipes', icon: BookOpen },
@@ -175,7 +176,7 @@ export function Header() {
                     ))}
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  {/* TODO: task-4.4 — Add theme toggle here */}
+                  <ThemeToggleMenuItem />
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     variant="destructive"

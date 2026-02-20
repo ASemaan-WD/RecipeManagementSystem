@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { ThemeToggleMenuItem } from '@/components/layout/theme-toggle';
 import {
   Sheet,
   SheetContent,
@@ -146,7 +147,7 @@ export function MobileNav({
             </Link>
           </Button>
 
-          {/* TODO: task-4.4 — Add theme toggle here */}
+          <ThemeToggleMenuItem />
         </nav>
 
         {/* Sign Out / Sign In */}
