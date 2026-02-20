@@ -214,4 +214,6 @@ created_at: '2026-02-19'
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- _(Empty until task execution begins)_
+- The `npm run test:run` script referenced in the acceptance criteria does not exist. The correct script is `npm test` (which runs `vitest run`).
+- Pre-existing Turbopack build warnings about Edge Runtime and `node:path`/`node:url`/`node:buffer` in the Prisma generated client — these are from the middleware importing `auth.ts` → `db.ts` → Prisma client chain and are not caused by this task's changes.
+- Quick action link targets (`/recipes/new`, `/community`, `/my-collection`) do not have page components yet — they will 404 until future phases implement them. Task 4.4 will add a proper not-found page.
