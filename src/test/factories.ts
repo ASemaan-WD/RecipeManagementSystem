@@ -248,6 +248,64 @@ export function createMockShareLink(
   };
 }
 
+export interface MockRating {
+  id: string;
+  value: number;
+  userId: string;
+  recipeId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export function createMockRating(
+  overrides: Partial<MockRating> = {}
+): MockRating {
+  return {
+    id: 'rating-1',
+    value: 4,
+    userId: 'user-2',
+    recipeId: 'recipe-1',
+    createdAt: new Date('2025-01-15'),
+    updatedAt: new Date('2025-01-15'),
+    ...overrides,
+  };
+}
+
+export interface MockComment {
+  id: string;
+  content: string;
+  userId: string;
+  recipeId: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  user: {
+    id: string;
+    name: string | null;
+    username: string | null;
+    image: string | null;
+  };
+}
+
+export function createMockComment(
+  overrides: Partial<MockComment> = {}
+): MockComment {
+  return {
+    id: 'comment-1',
+    content: 'This is a great recipe!',
+    userId: 'user-2',
+    recipeId: 'recipe-1',
+    createdAt: new Date('2025-01-15'),
+    updatedAt: new Date('2025-01-15'),
+    user: {
+      id: 'user-2',
+      name: 'Commenter',
+      username: 'commenter',
+      image: null,
+    },
+    ...overrides,
+  };
+}
+
 export function createMockPaginatedResponse<T>(
   data: T[],
   overrides: Partial<PaginatedResponse<T>['pagination']> = {}
