@@ -1,8 +1,12 @@
 import { useState, useCallback, useRef } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import type { AIGeneratedRecipe } from '@/types/ai';
+import type {
+  AIGeneratedRecipe,
+  AISubstitutionResponse,
+  AINutritionData,
+} from '@/types/ai';
 
 // ─── Recipe Generator ───
 
@@ -131,6 +135,92 @@ export function useSaveAIRecipe() {
     mutationFn: ({ recipe }: SaveAIRecipeParams) => saveRecipeFromAI(recipe),
     onSuccess: () => {
       toast.success('Recipe saved successfully!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+// ─── Ingredient Substitution ───
+
+interface SubstitutionParams {
+  ingredient: string;
+  recipeContext?: string;
+  dietaryRestrictions?: string;
+}
+
+async function fetchSubstitution(
+  params: SubstitutionParams
+): Promise<AISubstitutionResponse> {
+  const res = await fetch('/api/ai/substitute', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+
+  if (!res.ok) {
+    const data = (await res.json()) as { error?: string };
+    throw new Error(data.error ?? 'Failed to find substitutions');
+  }
+
+  return res.json() as Promise<AISubstitutionResponse>;
+}
+
+export function useSubstitution() {
+  return useMutation({
+    mutationFn: fetchSubstitution,
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+// ─── Nutrition Estimate ───
+
+interface NutritionResponse {
+  nutritionData: AINutritionData;
+  cached: boolean;
+}
+
+async function fetchNutrition(recipeId: string): Promise<NutritionResponse> {
+  const res = await fetch(`/api/ai/nutrition/${recipeId}`, {
+    method: 'POST',
+  });
+
+  if (!res.ok) {
+    const data = (await res.json()) as { error?: string };
+    throw new Error(data.error ?? 'Failed to estimate nutrition');
+  }
+
+  return res.json() as Promise<NutritionResponse>;
+}
+
+export function useNutritionEstimate(
+  recipeId: string,
+  initialData: AINutritionData | null
+) {
+  return useQuery({
+    queryKey: ['nutrition', recipeId],
+    queryFn: () => fetchNutrition(recipeId),
+    initialData: initialData
+      ? { nutritionData: initialData, cached: true }
+      : undefined,
+    enabled: !!initialData,
+    staleTime: Infinity,
+  });
+}
+
+export function useEstimateNutrition() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ recipeId }: { recipeId: string }) =>
+      fetchNutrition(recipeId),
+    onSuccess: (data, { recipeId }) => {
+      queryClient.setQueryData(['nutrition', recipeId], data);
+      queryClient.invalidateQueries({ queryKey: ['recipe', recipeId] });
+      toast.success('Nutrition estimated successfully!');
     },
     onError: (error: Error) => {
       toast.error(error.message);

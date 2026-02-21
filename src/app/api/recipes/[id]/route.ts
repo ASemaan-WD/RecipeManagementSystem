@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db';
 import {
   requireRecipeOwner,
@@ -184,6 +185,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     // Replace ingredients if provided
     if (ingredients !== undefined) {
+      // Clear cached nutrition data since ingredients changed
+      await tx.recipe.update({
+        where: { id },
+        data: { nutritionData: Prisma.DbNull },
+      });
+
       await tx.recipeIngredient.deleteMany({ where: { recipeId: id } });
       for (const ing of ingredients) {
         const ingredient = await tx.ingredient.upsert({
