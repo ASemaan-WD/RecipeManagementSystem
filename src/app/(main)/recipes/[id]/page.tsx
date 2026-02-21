@@ -11,6 +11,8 @@ import { RecipeSteps } from '@/components/recipes/recipe-detail/recipe-steps';
 import { RecipeImages } from '@/components/recipes/recipe-detail/recipe-images';
 import { RecipeActions } from '@/components/recipes/recipe-detail/recipe-actions';
 import { NutritionSection } from '@/components/recipes/recipe-detail/nutrition-section';
+import { StarRating } from '@/components/social/star-rating';
+import { CommentSection } from '@/components/social/comment-section';
 import { TagToggles } from '@/components/recipes/tag-toggles';
 import { SaveButton } from '@/components/recipes/save-button';
 import { Badge } from '@/components/ui/badge';
@@ -158,8 +160,10 @@ export default async function RecipeDetailPage({
   let userTagStatuses: TagStatus[] = [];
   let isRecipeSaved = false;
 
+  let userRatingValue: number | null = null;
+
   if (currentUser) {
-    const [userTags, savedRecord] = await Promise.all([
+    const [userTags, savedRecord, userRating] = await Promise.all([
       prisma.userRecipeTag.findMany({
         where: { userId: currentUser.id, recipeId: id },
         select: { status: true },
@@ -170,9 +174,16 @@ export default async function RecipeDetailPage({
         },
         select: { id: true },
       }),
+      prisma.rating.findUnique({
+        where: {
+          userId_recipeId: { userId: currentUser.id, recipeId: id },
+        },
+        select: { value: true },
+      }),
     ]);
     userTagStatuses = userTags.map((t) => t.status);
     isRecipeSaved = !!savedRecord;
+    userRatingValue = userRating?.value ?? null;
   }
 
   return (
@@ -204,6 +215,7 @@ export default async function RecipeDetailPage({
               recipeId={recipe.id}
               isOwner={isOwner}
               recipeName={recipe.name}
+              currentVisibility={recipe.visibility}
             />
             {!isOwner && (
               <div className="flex items-center gap-1">
@@ -224,6 +236,15 @@ export default async function RecipeDetailPage({
           </div>
         </div>
 
+        <StarRating
+          recipeId={recipe.id}
+          initialAvgRating={recipe.avgRating}
+          initialRatingCount={recipe.ratingCount}
+          initialUserRating={userRatingValue}
+          isOwner={isOwner}
+          isAuthenticated={!!currentUser}
+        />
+
         <RecipeMetadata recipe={recipe} />
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -238,6 +259,12 @@ export default async function RecipeDetailPage({
         <RecipeImages images={recipe.images} />
 
         <NutritionSection nutritionData={recipe.nutritionData} />
+
+        <CommentSection
+          recipeId={recipe.id}
+          recipeAuthorId={rawRecipe.authorId}
+          currentUserId={currentUser?.id}
+        />
       </div>
     </div>
   );

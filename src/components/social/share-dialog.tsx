@@ -56,10 +56,19 @@ function getUserInitials(name: string | null, username: string | null): string {
 interface ShareDialogProps {
   recipeId: string;
   currentVisibility: Visibility;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function ShareDialog({ recipeId, currentVisibility }: ShareDialogProps) {
-  const [open, setOpen] = useState(false);
+export function ShareDialog({
+  recipeId,
+  currentVisibility,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}: ShareDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = controlledOnOpenChange ?? setInternalOpen;
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
 
@@ -117,12 +126,14 @@ export function ShareDialog({ recipeId, currentVisibility }: ShareDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Share2 className="size-4" />
-          Share
-        </Button>
-      </DialogTrigger>
+      {controlledOpen === undefined && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <Share2 className="size-4" />
+            Share
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Share Recipe</DialogTitle>

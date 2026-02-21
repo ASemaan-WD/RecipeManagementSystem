@@ -4,25 +4,31 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Pencil, Trash2, Copy, Printer, Loader2 } from 'lucide-react';
+import { Pencil, Trash2, Copy, Printer, Loader2, Share2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { DeleteRecipeDialog } from '@/components/recipes/recipe-detail/delete-recipe-dialog';
+import { ShareDialog } from '@/components/social/share-dialog';
+
+type Visibility = 'PRIVATE' | 'SHARED' | 'PUBLIC';
 
 interface RecipeActionsProps {
   recipeId: string;
   isOwner: boolean;
   recipeName: string;
+  currentVisibility?: Visibility;
 }
 
 export function RecipeActions({
   recipeId,
   isOwner,
   recipeName,
+  currentVisibility = 'PRIVATE',
 }: RecipeActionsProps) {
   const router = useRouter();
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   async function handleDuplicate() {
     setIsDuplicating(true);
@@ -72,6 +78,15 @@ export function RecipeActions({
               <Trash2 className="size-4" />
               Delete
             </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsShareOpen(true)}
+            >
+              <Share2 className="size-4" />
+              Share
+            </Button>
           </>
         )}
 
@@ -96,12 +111,20 @@ export function RecipeActions({
       </div>
 
       {isOwner && (
-        <DeleteRecipeDialog
-          recipeId={recipeId}
-          recipeName={recipeName}
-          open={isDeleteOpen}
-          onOpenChange={setIsDeleteOpen}
-        />
+        <>
+          <DeleteRecipeDialog
+            recipeId={recipeId}
+            recipeName={recipeName}
+            open={isDeleteOpen}
+            onOpenChange={setIsDeleteOpen}
+          />
+          <ShareDialog
+            recipeId={recipeId}
+            currentVisibility={currentVisibility}
+            open={isShareOpen}
+            onOpenChange={setIsShareOpen}
+          />
+        </>
       )}
     </>
   );
