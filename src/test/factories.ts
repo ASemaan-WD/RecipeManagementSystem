@@ -196,6 +196,58 @@ export function createMockSavedRecipe(
   };
 }
 
+export interface MockRecipeShare {
+  id: string;
+  recipeId: string;
+  userId: string;
+  sharedAt: Date;
+  user: {
+    id: string;
+    name: string | null;
+    username: string | null;
+    image: string | null;
+  };
+}
+
+export function createMockRecipeShare(
+  overrides: Partial<MockRecipeShare> = {}
+): MockRecipeShare {
+  return {
+    id: 'share-1',
+    recipeId: 'recipe-1',
+    userId: 'user-2',
+    sharedAt: new Date('2025-01-15'),
+    user: {
+      id: 'user-2',
+      name: 'Shared User',
+      username: 'shareduser',
+      image: null,
+    },
+    ...overrides,
+  };
+}
+
+export interface MockShareLink {
+  id: string;
+  recipeId: string;
+  token: string;
+  isActive: boolean;
+  createdAt: Date;
+}
+
+export function createMockShareLink(
+  overrides: Partial<MockShareLink> = {}
+): MockShareLink {
+  return {
+    id: 'link-1',
+    recipeId: 'recipe-1',
+    token: 'abc123def456ghi789jkl',
+    isActive: true,
+    createdAt: new Date('2025-01-15'),
+    ...overrides,
+  };
+}
+
 export function createMockPaginatedResponse<T>(
   data: T[],
   overrides: Partial<PaginatedResponse<T>['pagination']> = {}
