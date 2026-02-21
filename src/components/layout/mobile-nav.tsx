@@ -9,6 +9,7 @@ import {
   FolderHeart,
   ShoppingCart,
   PlusCircle,
+  Search,
   Settings,
   LogOut,
   LogIn,
@@ -29,6 +30,7 @@ import {
 
 const MOBILE_NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Search', href: '/search', icon: Search },
   { label: 'My Recipes', href: '/my-recipes', icon: BookOpen },
   { label: 'Community', href: '/community', icon: Users },
   { label: 'My Collection', href: '/my-collection', icon: FolderHeart },

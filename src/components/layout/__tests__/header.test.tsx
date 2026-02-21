@@ -14,6 +14,10 @@ vi.mock('@/components/layout/mobile-nav', () => ({
   MobileNav: () => <div data-testid="mobile-nav" />,
 }));
 
+vi.mock('@/components/search/search-bar', () => ({
+  SearchBar: () => <div data-testid="search-bar" />,
+}));
+
 vi.mock('@/components/layout/theme-toggle', () => ({
   ThemeToggleMenuItem: () => <div data-testid="theme-toggle-menu-item" />,
 }));
@@ -59,11 +63,9 @@ describe('Header', () => {
       expect(screen.getByText('RecipeApp')).toBeInTheDocument();
     });
 
-    it('renders the search input placeholder', () => {
+    it('renders the search bar component', () => {
       render(<Header />);
-      expect(
-        screen.getByLabelText('Search recipes (coming soon)')
-      ).toBeInTheDocument();
+      expect(screen.getByTestId('search-bar')).toBeInTheDocument();
     });
 
     it('renders the hamburger menu button for mobile', () => {
@@ -150,17 +152,11 @@ describe('Header', () => {
       });
     });
 
-    it('renders "My Collection" link in dropdown', async () => {
-      const user = userEvent.setup();
+    it('renders "My Collection" link in desktop navigation', () => {
       render(<Header />);
 
-      const avatarButton = screen.getByText('TU').closest('button')!;
-      await user.click(avatarButton);
-
-      await waitFor(() => {
-        const link = screen.getByRole('menuitem', { name: /my collection/i });
-        expect(link).toHaveAttribute('href', '/my-collection');
-      });
+      const link = screen.getByRole('link', { name: /my collection/i });
+      expect(link).toHaveAttribute('href', '/my-collection');
     });
 
     it('renders "Settings" link in dropdown', async () => {

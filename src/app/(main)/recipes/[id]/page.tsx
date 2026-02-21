@@ -11,7 +11,10 @@ import { RecipeSteps } from '@/components/recipes/recipe-detail/recipe-steps';
 import { RecipeImages } from '@/components/recipes/recipe-detail/recipe-images';
 import { RecipeActions } from '@/components/recipes/recipe-detail/recipe-actions';
 import { NutritionSection } from '@/components/recipes/recipe-detail/nutrition-section';
+import { TagToggles } from '@/components/recipes/tag-toggles';
+import { SaveButton } from '@/components/recipes/save-button';
 import { Badge } from '@/components/ui/badge';
+import type { TagStatus } from '@/generated/prisma/client';
 import type { RecipeDetail } from '@/types/recipe';
 
 const RECIPE_DETAIL_SELECT = {
@@ -151,6 +154,27 @@ export default async function RecipeDetailPage({
   const currentUser = await getCurrentUser();
   const isOwner = currentUser?.id === rawRecipe.authorId;
 
+  // Fetch user-specific tag/save data for authenticated users
+  let userTagStatuses: TagStatus[] = [];
+  let isRecipeSaved = false;
+
+  if (currentUser) {
+    const [userTags, savedRecord] = await Promise.all([
+      prisma.userRecipeTag.findMany({
+        where: { userId: currentUser.id, recipeId: id },
+        select: { status: true },
+      }),
+      prisma.savedRecipe.findUnique({
+        where: {
+          userId_recipeId: { userId: currentUser.id, recipeId: id },
+        },
+        select: { id: true },
+      }),
+    ]);
+    userTagStatuses = userTags.map((t) => t.status);
+    isRecipeSaved = !!savedRecord;
+  }
+
   return (
     <div className="space-y-8">
       <RecipeHero images={recipe.images} recipeName={recipe.name} />
@@ -175,11 +199,29 @@ export default async function RecipeDetailPage({
             )}
           </div>
 
-          <RecipeActions
-            recipeId={recipe.id}
-            isOwner={isOwner}
-            recipeName={recipe.name}
-          />
+          <div className="flex flex-col gap-2">
+            <RecipeActions
+              recipeId={recipe.id}
+              isOwner={isOwner}
+              recipeName={recipe.name}
+            />
+            {!isOwner && (
+              <div className="flex items-center gap-1">
+                <TagToggles
+                  recipeId={recipe.id}
+                  initialTags={userTagStatuses}
+                  variant="full"
+                  disabled={!currentUser}
+                />
+                <SaveButton
+                  recipeId={recipe.id}
+                  initialSaved={isRecipeSaved}
+                  variant="full"
+                  disabled={!currentUser}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         <RecipeMetadata recipe={recipe} />

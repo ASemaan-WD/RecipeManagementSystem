@@ -17,8 +17,8 @@ import {
   ChefHat,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { SearchBar } from '@/components/search/search-bar';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -33,12 +33,12 @@ import { ThemeToggleMenuItem } from '@/components/layout/theme-toggle';
 
 const DESKTOP_NAV_ITEMS = [
   { label: 'My Recipes', href: '/my-recipes', icon: BookOpen },
+  { label: 'My Collection', href: '/my-collection', icon: FolderHeart },
   { label: 'Community', href: '/community', icon: Users },
   { label: 'Shopping Lists', href: '/shopping-lists', icon: ShoppingCart },
 ] as const;
 
 const USER_MENU_ITEMS = [
-  { label: 'My Collection', href: '/my-collection', icon: FolderHeart },
   { label: 'Settings', href: '/settings', icon: Settings },
 ] as const;
 
@@ -92,22 +92,19 @@ export function Header() {
             <span className="hidden sm:inline-block">RecipeApp</span>
           </Link>
 
-          {/* Search placeholder (desktop) */}
+          {/* Search bar (desktop) */}
           <div className="mx-4 hidden flex-1 md:flex md:max-w-md lg:max-w-lg">
-            <div className="relative w-full">
-              <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-              <Input
-                type="search"
-                placeholder="Search recipes..."
-                className="pl-9"
-                disabled
-                aria-label="Search recipes (coming soon)"
-              />
-            </div>
+            <SearchBar variant="header" />
           </div>
 
           {/* Right section */}
           <div className="ml-auto flex items-center gap-1">
+            {/* Mobile search icon */}
+            <Button variant="ghost" size="icon" className="md:hidden" asChild>
+              <Link href="/search" aria-label="Search recipes">
+                <Search className="size-5" />
+              </Link>
+            </Button>
             {/* Desktop nav links */}
             <nav
               className="hidden items-center gap-1 md:flex"

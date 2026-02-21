@@ -14,6 +14,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import { TagToggles } from '@/components/recipes/tag-toggles';
+import { SaveButton } from '@/components/recipes/save-button';
+import type { TagStatus } from '@/generated/prisma/client';
 import type { RecipeListItem } from '@/types/recipe';
 
 const DIFFICULTY_STYLES = {
@@ -157,6 +160,28 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
               {recipe.author.name ?? recipe.author.username ?? 'Anonymous'}
             </span>
           </div>
+
+          {/* Tag & Save actions (authenticated users only) */}
+          {recipe.userTags !== undefined && (
+            <div
+              className="flex items-center justify-between border-t pt-2"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <TagToggles
+                recipeId={recipe.id}
+                initialTags={
+                  (recipe.userTags?.map((t) => t.status) ?? []) as TagStatus[]
+                }
+                variant="compact"
+              />
+              <SaveButton
+                recipeId={recipe.id}
+                initialSaved={recipe.isSaved ?? false}
+                variant="compact"
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
     </Link>

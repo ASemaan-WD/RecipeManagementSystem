@@ -158,6 +158,44 @@ export function createMockRecipeDetail(
   };
 }
 
+export interface MockUserRecipeTag {
+  id: string;
+  userId: string;
+  recipeId: string;
+  status: 'FAVORITE' | 'TO_TRY' | 'MADE_BEFORE';
+}
+
+export function createMockUserRecipeTag(
+  overrides: Partial<MockUserRecipeTag> = {}
+): MockUserRecipeTag {
+  return {
+    id: 'tag-1',
+    userId: 'user-1',
+    recipeId: 'recipe-1',
+    status: 'FAVORITE',
+    ...overrides,
+  };
+}
+
+export interface MockSavedRecipe {
+  id: string;
+  userId: string;
+  recipeId: string;
+  savedAt: Date;
+}
+
+export function createMockSavedRecipe(
+  overrides: Partial<MockSavedRecipe> = {}
+): MockSavedRecipe {
+  return {
+    id: 'saved-1',
+    userId: 'user-1',
+    recipeId: 'recipe-1',
+    savedAt: new Date('2025-01-01'),
+    ...overrides,
+  };
+}
+
 export function createMockPaginatedResponse<T>(
   data: T[],
   overrides: Partial<PaginatedResponse<T>['pagination']> = {}
