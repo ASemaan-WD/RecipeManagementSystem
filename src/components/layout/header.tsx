@@ -15,6 +15,7 @@ import {
   LogOut,
   LogIn,
   ChefHat,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -35,6 +36,7 @@ const DESKTOP_NAV_ITEMS = [
   { label: 'My Recipes', href: '/my-recipes', icon: BookOpen },
   { label: 'My Collection', href: '/my-collection', icon: FolderHeart },
   { label: 'Community', href: '/community', icon: Users },
+  { label: 'AI Generate', href: '/ai/generate', icon: Sparkles },
   { label: 'Shopping Lists', href: '/shopping-lists', icon: ShoppingCart },
 ] as const;
 

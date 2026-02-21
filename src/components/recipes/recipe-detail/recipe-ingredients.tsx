@@ -4,14 +4,21 @@ import { useState } from 'react';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { SubstitutionDialog } from '@/components/ai/substitution-dialog';
 import { cn } from '@/lib/utils';
 import type { RecipeDetail } from '@/types/recipe';
 
 interface RecipeIngredientsProps {
   ingredients: RecipeDetail['ingredients'];
+  recipeName?: string;
+  isAuthenticated?: boolean;
 }
 
-export function RecipeIngredients({ ingredients }: RecipeIngredientsProps) {
+export function RecipeIngredients({
+  ingredients,
+  recipeName,
+  isAuthenticated = false,
+}: RecipeIngredientsProps) {
   const [checked, setChecked] = useState<Set<string>>(new Set());
 
   function handleToggle(id: string) {
@@ -39,8 +46,8 @@ export function RecipeIngredients({ ingredients }: RecipeIngredientsProps) {
             const isChecked = checked.has(ingredient.id);
 
             return (
-              <li key={ingredient.id}>
-                <label className="flex cursor-pointer items-start gap-3">
+              <li key={ingredient.id} className="flex items-start gap-1">
+                <label className="flex flex-1 cursor-pointer items-start gap-3">
                   <Checkbox
                     checked={isChecked}
                     onCheckedChange={() => handleToggle(ingredient.id)}
@@ -67,6 +74,12 @@ export function RecipeIngredients({ ingredients }: RecipeIngredientsProps) {
                     )}
                   </span>
                 </label>
+                {isAuthenticated && (
+                  <SubstitutionDialog
+                    ingredientName={ingredient.name}
+                    recipeContext={recipeName}
+                  />
+                )}
               </li>
             );
           })}

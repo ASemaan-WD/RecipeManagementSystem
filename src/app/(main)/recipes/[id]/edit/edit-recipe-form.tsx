@@ -28,6 +28,7 @@ export function EditRecipeForm({
   return (
     <RecipeFormWizard
       mode="edit"
+      recipeId={recipeId}
       defaultValues={defaultValues}
       onSubmit={handleSubmit}
       isSubmitting={updateRecipe.isPending}

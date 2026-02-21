@@ -2,7 +2,13 @@
 
 import { useState } from 'react';
 import { useFormContext, useFieldArray } from 'react-hook-form';
-import { Trash2, Star, Link as LinkIcon, Sparkles } from 'lucide-react';
+import {
+  Trash2,
+  Star,
+  Link as LinkIcon,
+  Sparkles,
+  Loader2,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,18 +18,24 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { ImageUploadWidget } from '@/components/recipes/image-upload-widget';
+import { useGenerateImage } from '@/hooks/use-ai';
 import { cn } from '@/lib/utils';
 import type { RecipeFormData } from '@/types/recipe';
 
 const MAX_IMAGES = 5;
 
-export function ImagesStep() {
+interface ImagesStepProps {
+  recipeId?: string;
+}
+
+export function ImagesStep({ recipeId }: ImagesStepProps) {
   const form = useFormContext<RecipeFormData>();
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'images',
   });
   const [urlInput, setUrlInput] = useState('');
+  const generateImage = useGenerateImage();
 
   function handleAddUrl() {
     const trimmedUrl = urlInput.trim();
@@ -55,6 +67,24 @@ export function ImagesStep() {
       isPrimary: fields.length === 0,
       order: fields.length,
     });
+  }
+
+  function handleGenerateAI() {
+    if (!recipeId || fields.length >= MAX_IMAGES) return;
+
+    generateImage.mutate(
+      { recipeId },
+      {
+        onSuccess: (data) => {
+          append({
+            url: data.url,
+            source: 'AI_GENERATED',
+            isPrimary: fields.length === 0,
+            order: fields.length,
+          });
+        },
+      }
+    );
   }
 
   function handleRemove(index: number) {
@@ -119,17 +149,35 @@ export function ImagesStep() {
 
         <ImageUploadWidget onUpload={handleUpload} disabled={isAtLimit} />
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span>
-              <Button type="button" variant="outline" disabled>
-                <Sparkles className="size-4" />
-                AI Generate
-              </Button>
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>Coming soon</TooltipContent>
-        </Tooltip>
+        {recipeId ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGenerateAI}
+            disabled={isAtLimit || generateImage.isPending}
+          >
+            {generateImage.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Sparkles className="size-4" />
+            )}
+            AI Generate
+          </Button>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button type="button" variant="outline" disabled>
+                  <Sparkles className="size-4" />
+                  AI Generate
+                </Button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              Save recipe first to generate AI images
+            </TooltipContent>
+          </Tooltip>
+        )}
       </div>
 
       {isAtLimit && (

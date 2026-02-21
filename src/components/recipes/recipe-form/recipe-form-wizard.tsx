@@ -58,6 +58,7 @@ const DEFAULT_VALUES: RecipeFormData = {
 
 interface RecipeFormWizardProps {
   mode: 'create' | 'edit';
+  recipeId?: string;
   defaultValues?: RecipeFormData;
   onSubmit: (data: RecipeFormData) => Promise<void>;
   isSubmitting?: boolean;
@@ -66,6 +67,7 @@ interface RecipeFormWizardProps {
 
 export function RecipeFormWizard({
   mode,
+  recipeId,
   defaultValues,
   onSubmit,
   isSubmitting = false,
@@ -121,7 +123,7 @@ export function RecipeFormWizard({
           {currentStep === 1 && <IngredientsStep />}
           {currentStep === 2 && <StepsStep />}
           {currentStep === 3 && <TagsStep dietaryTags={dietaryTags} />}
-          {currentStep === 4 && <ImagesStep />}
+          {currentStep === 4 && <ImagesStep recipeId={recipeId} />}
 
           <div className="flex items-center justify-between pt-4">
             <Button

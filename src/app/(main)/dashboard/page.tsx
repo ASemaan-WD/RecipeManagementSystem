@@ -9,6 +9,7 @@ import {
   Users,
   FolderHeart,
   ChefHat,
+  Sparkles,
 } from 'lucide-react';
 
 import { auth } from '@/lib/auth';
@@ -85,6 +86,12 @@ export default async function DashboardPage() {
             <Link href="/recipes/new">
               <Plus className="size-4" />
               Add Recipe
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/ai/generate">
+              <Sparkles className="size-4" />
+              AI Generate Recipe
             </Link>
           </Button>
           <Button variant="outline" asChild>

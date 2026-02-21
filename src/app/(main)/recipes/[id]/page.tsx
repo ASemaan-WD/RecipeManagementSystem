@@ -10,7 +10,7 @@ import { RecipeIngredients } from '@/components/recipes/recipe-detail/recipe-ing
 import { RecipeSteps } from '@/components/recipes/recipe-detail/recipe-steps';
 import { RecipeImages } from '@/components/recipes/recipe-detail/recipe-images';
 import { RecipeActions } from '@/components/recipes/recipe-detail/recipe-actions';
-import { NutritionSection } from '@/components/recipes/recipe-detail/nutrition-section';
+import { NutritionDisplay } from '@/components/ai/nutrition-display';
 import { StarRating } from '@/components/social/star-rating';
 import { CommentSection } from '@/components/social/comment-section';
 import { TagToggles } from '@/components/recipes/tag-toggles';
@@ -249,7 +249,11 @@ export default async function RecipeDetailPage({
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-1">
-            <RecipeIngredients ingredients={recipe.ingredients} />
+            <RecipeIngredients
+              ingredients={recipe.ingredients}
+              recipeName={recipe.name}
+              isAuthenticated={!!currentUser}
+            />
           </div>
           <div className="lg:col-span-2">
             <RecipeSteps steps={recipe.steps} />
@@ -258,7 +262,11 @@ export default async function RecipeDetailPage({
 
         <RecipeImages images={recipe.images} />
 
-        <NutritionSection nutritionData={recipe.nutritionData} />
+        <NutritionDisplay
+          recipeId={recipe.id}
+          initialNutritionData={recipe.nutritionData}
+          isOwner={isOwner}
+        />
 
         <CommentSection
           recipeId={recipe.id}

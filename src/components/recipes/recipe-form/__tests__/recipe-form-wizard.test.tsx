@@ -35,6 +35,13 @@ vi.mock('next-cloudinary', () => ({
   }) => children({ open: vi.fn() }),
 }));
 
+vi.mock('@/hooks/use-ai', () => ({
+  useGenerateImage: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+}));
+
 vi.mock('@/components/ui/tooltip', () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>

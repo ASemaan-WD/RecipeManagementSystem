@@ -227,3 +227,41 @@ export function useEstimateNutrition() {
     },
   });
 }
+
+// ─── AI Image Generation ───
+
+interface GenerateImageResponse {
+  url: string;
+  imageId: string;
+}
+
+async function fetchGenerateImage(
+  recipeId: string
+): Promise<GenerateImageResponse> {
+  const res = await fetch(`/api/ai/generate-image/${recipeId}`, {
+    method: 'POST',
+  });
+
+  if (!res.ok) {
+    const data = (await res.json()) as { error?: string };
+    throw new Error(data.error ?? 'Failed to generate image');
+  }
+
+  return res.json() as Promise<GenerateImageResponse>;
+}
+
+export function useGenerateImage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ recipeId }: { recipeId: string }) =>
+      fetchGenerateImage(recipeId),
+    onSuccess: (_data, { recipeId }) => {
+      queryClient.invalidateQueries({ queryKey: ['recipe', recipeId] });
+      toast.success('AI image generated successfully!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+}
