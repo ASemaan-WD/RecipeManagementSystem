@@ -34,6 +34,10 @@ vi.mock('@/components/social/share-dialog', () => ({
   ShareDialog: () => null,
 }));
 
+vi.mock('@/hooks/use-ai', () => ({
+  useGenerateImage: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+
 // ─── Global Setup ───
 beforeEach(() => {
   vi.clearAllMocks();
