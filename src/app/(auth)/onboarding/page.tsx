@@ -114,10 +114,9 @@ function OnboardingForm() {
       }
 
       // Refresh the session JWT to include the new username
-      await update();
+      await update({ username: data.username });
 
-      // Use window.location for a full navigation so the middleware
-      // reads the freshly-set cookie instead of a client-side transition
+      // Full navigation so the middleware reads the fresh cookie
       window.location.href = '/dashboard';
     } catch {
       setSubmitError('Something went wrong. Please try again.');
