@@ -1,5 +1,6 @@
-import { auth } from '@/lib/auth';
+import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
+import authConfig from '@/lib/auth.config';
 
 const protectedRoutes = [
   '/dashboard',
@@ -20,6 +21,8 @@ function isProtectedRoute(pathname: string): boolean {
   if (/^\/recipes\/[^/]+\/edit$/.test(pathname)) return true;
   return false;
 }
+
+const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl } = req;
