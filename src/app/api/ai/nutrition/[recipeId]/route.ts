@@ -6,6 +6,7 @@ import { openai, TEXT_MODEL } from '@/lib/openai';
 import { requireAuth } from '@/lib/auth-utils';
 import { nutritionLimiter, checkRateLimit } from '@/lib/rate-limit';
 import { formatAIError, withAIRetry } from '@/lib/ai-utils';
+import { validateContentType } from '@/lib/api-utils';
 import type { AINutritionData } from '@/types/ai';
 
 interface RouteParams {
@@ -36,6 +37,9 @@ Rules:
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
+
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
 
   const userId = authResult.user.id;
   const { recipeId } = await params;
@@ -135,8 +139,12 @@ Ingredients:
 
     return NextResponse.json({ nutritionData, cached: false });
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : formatAIError('nutrition');
-    return NextResponse.json({ error: message }, { status: 500 });
+    if (process.env.NODE_ENV === 'development') {
+      console.error('AI nutrition error:', err);
+    }
+    return NextResponse.json(
+      { error: formatAIError('nutrition') },
+      { status: 500 }
+    );
   }
 }

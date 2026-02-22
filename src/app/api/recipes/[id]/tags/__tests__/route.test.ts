@@ -42,6 +42,7 @@ describe('POST /api/recipes/[id]/tags', () => {
 
     const req = new NextRequest('http://localhost/api/recipes/recipe-1/tags', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'FAVORITE' }),
     });
 
@@ -71,6 +72,7 @@ describe('POST /api/recipes/[id]/tags', () => {
 
     const req = new NextRequest('http://localhost/api/recipes/recipe-1/tags', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'FAVORITE' }),
     });
 
@@ -84,6 +86,7 @@ describe('POST /api/recipes/[id]/tags', () => {
 
     const req = new NextRequest('http://localhost/api/recipes/recipe-1/tags', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'INVALID' }),
     });
 
@@ -97,6 +100,7 @@ describe('POST /api/recipes/[id]/tags', () => {
 
     const req = new NextRequest('http://localhost/api/recipes/recipe-1/tags', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: 'not json',
     });
 
@@ -111,6 +115,7 @@ describe('POST /api/recipes/[id]/tags', () => {
 
     const req = new NextRequest('http://localhost/api/recipes/recipe-1/tags', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'FAVORITE' }),
     });
 
@@ -135,6 +140,7 @@ describe('POST /api/recipes/[id]/tags', () => {
         'http://localhost/api/recipes/recipe-1/tags',
         {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status }),
         }
       );

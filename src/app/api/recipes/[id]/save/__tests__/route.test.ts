@@ -42,6 +42,7 @@ describe('POST /api/recipes/[id]/save', () => {
 
     const req = new NextRequest('http://localhost/api/recipes/recipe-1/save', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     const res = await POST(req, routeParams);
@@ -66,6 +67,7 @@ describe('POST /api/recipes/[id]/save', () => {
 
     const req = new NextRequest('http://localhost/api/recipes/recipe-1/save', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     const res = await POST(req, routeParams);
@@ -79,6 +81,7 @@ describe('POST /api/recipes/[id]/save', () => {
 
     const req = new NextRequest('http://localhost/api/recipes/recipe-1/save', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     const res = await POST(req, routeParams);

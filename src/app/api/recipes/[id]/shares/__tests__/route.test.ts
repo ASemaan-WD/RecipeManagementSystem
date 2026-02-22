@@ -112,6 +112,7 @@ describe('POST /api/recipes/[id]/shares', () => {
       'http://localhost/api/recipes/recipe-1/shares',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'other' }),
       }
     );
@@ -132,6 +133,7 @@ describe('POST /api/recipes/[id]/shares', () => {
       'http://localhost/api/recipes/recipe-1/shares',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'testuser' }),
       }
     );
@@ -153,6 +155,7 @@ describe('POST /api/recipes/[id]/shares', () => {
       'http://localhost/api/recipes/recipe-1/shares',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'nonexistent' }),
       }
     );
@@ -178,6 +181,7 @@ describe('POST /api/recipes/[id]/shares', () => {
       'http://localhost/api/recipes/recipe-1/shares',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'other' }),
       }
     );
@@ -195,6 +199,7 @@ describe('POST /api/recipes/[id]/shares', () => {
       'http://localhost/api/recipes/recipe-1/shares',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'ab' }), // too short
       }
     );

@@ -4,7 +4,11 @@ import { Prisma } from '@/generated/prisma/client';
 import { requireAuth } from '@/lib/auth-utils';
 import { usernameSchema } from '@/lib/validations/auth';
 import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
 
 export async function GET(request: NextRequest) {
   const username = request.nextUrl.searchParams.get('username');
@@ -42,6 +46,9 @@ export async function POST(request: NextRequest) {
 
   const sizeResponse = checkContentLength(request, BODY_LIMITS.DEFAULT);
   if (sizeResponse) return sizeResponse;
+
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
 
   let body: unknown;
   try {

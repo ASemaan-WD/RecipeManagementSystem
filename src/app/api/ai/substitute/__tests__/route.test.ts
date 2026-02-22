@@ -47,6 +47,7 @@ describe('POST /api/ai/substitute', () => {
 
     const req = new NextRequest('http://localhost/api/ai/substitute', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ingredient: 'butter' }),
     });
 
@@ -63,6 +64,7 @@ describe('POST /api/ai/substitute', () => {
 
     const req = new NextRequest('http://localhost/api/ai/substitute', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ingredient: 'butter' }),
     });
 
@@ -77,6 +79,7 @@ describe('POST /api/ai/substitute', () => {
 
     const req = new NextRequest('http://localhost/api/ai/substitute', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ingredient: '' }),
     });
 
@@ -91,6 +94,7 @@ describe('POST /api/ai/substitute', () => {
 
     const req = new NextRequest('http://localhost/api/ai/substitute', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ingredient: 'sour cream',
         recipeContext: 'Making a cake',
@@ -111,6 +115,7 @@ describe('POST /api/ai/substitute', () => {
 
     const req = new NextRequest('http://localhost/api/ai/substitute', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
     });
 

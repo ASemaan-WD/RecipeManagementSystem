@@ -55,6 +55,7 @@ describe('PUT /api/comments/[id]', () => {
 
     const req = new NextRequest('http://localhost/api/comments/comment-1', {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: 'Updated content' }),
     });
 
@@ -72,6 +73,7 @@ describe('PUT /api/comments/[id]', () => {
 
     const req = new NextRequest('http://localhost/api/comments/comment-1', {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: 'Updated' }),
     });
 
@@ -86,6 +88,7 @@ describe('PUT /api/comments/[id]', () => {
 
     const req = new NextRequest('http://localhost/api/comments/comment-1', {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: 'Updated' }),
     });
 
@@ -103,6 +106,7 @@ describe('PUT /api/comments/[id]', () => {
 
     const req = new NextRequest('http://localhost/api/comments/comment-1', {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: 'Updated' }),
     });
 
@@ -123,6 +127,7 @@ describe('PUT /api/comments/[id]', () => {
 
     const req = new NextRequest('http://localhost/api/comments/comment-1', {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: '' }),
     });
 
@@ -149,6 +154,7 @@ describe('PUT /api/comments/[id]', () => {
 
     const req = new NextRequest('http://localhost/api/comments/comment-1', {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: '<b>safe</b> text' }),
     });
 

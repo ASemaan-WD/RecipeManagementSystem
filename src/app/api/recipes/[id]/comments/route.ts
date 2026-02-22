@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-utils';
+import { canViewRecipe, requireAuth } from '@/lib/auth-utils';
 import {
   createCommentSchema,
   commentListSchema,
 } from '@/lib/validations/social';
 import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
+import { sanitizeText } from '@/lib/sanitize';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
-}
-
-/** Strip HTML tags to prevent XSS */
-function sanitizeContent(content: string): string {
-  return content.replace(/<[^>]*>/g, '');
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
@@ -33,15 +33,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   const { page, limit } = parsed.data;
   const skip = (page - 1) * limit;
 
-  // Verify recipe exists
-  const recipe = await prisma.recipe.findUnique({
-    where: { id },
-    select: { id: true },
-  });
-
-  if (!recipe) {
-    return NextResponse.json({ error: 'Recipe not found' }, { status: 404 });
-  }
+  // Verify recipe exists and user can view it
+  const viewResult = await canViewRecipe(id);
+  if (viewResult instanceof NextResponse) return viewResult;
 
   const [comments, total] = await Promise.all([
     prisma.comment.findMany({
@@ -91,6 +85,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const sizeResponse = checkContentLength(request, BODY_LIMITS.COMMENT);
   if (sizeResponse) return sizeResponse;
 
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -109,17 +106,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  // Verify recipe exists
-  const recipe = await prisma.recipe.findUnique({
-    where: { id },
-    select: { id: true },
-  });
+  // Verify recipe exists and user can view it
+  const viewResult = await canViewRecipe(id);
+  if (viewResult instanceof NextResponse) return viewResult;
 
-  if (!recipe) {
-    return NextResponse.json({ error: 'Recipe not found' }, { status: 404 });
-  }
-
-  const sanitized = sanitizeContent(parsed.data.content);
+  const sanitized = sanitizeText(parsed.data.content);
 
   const comment = await prisma.comment.create({
     data: { recipeId: id, userId, content: sanitized },

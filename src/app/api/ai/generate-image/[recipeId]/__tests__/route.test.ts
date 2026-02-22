@@ -70,6 +70,7 @@ describe('POST /api/ai/generate-image/[recipeId]', () => {
       'http://localhost/api/ai/generate-image/recipe-1',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       }
     );
 
@@ -86,6 +87,7 @@ describe('POST /api/ai/generate-image/[recipeId]', () => {
       'http://localhost/api/ai/generate-image/recipe-1',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       }
     );
 
@@ -107,6 +109,7 @@ describe('POST /api/ai/generate-image/[recipeId]', () => {
       'http://localhost/api/ai/generate-image/recipe-1',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       }
     );
 
@@ -135,6 +138,7 @@ describe('POST /api/ai/generate-image/[recipeId]', () => {
       'http://localhost/api/ai/generate-image/recipe-1',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       }
     );
 
@@ -166,6 +170,7 @@ describe('POST /api/ai/generate-image/[recipeId]', () => {
       'http://localhost/api/ai/generate-image/recipe-1',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       }
     );
 

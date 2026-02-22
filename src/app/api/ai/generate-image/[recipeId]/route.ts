@@ -6,6 +6,7 @@ import { requireRecipeOwner } from '@/lib/auth-utils';
 import { imageLimiter, checkRateLimit } from '@/lib/rate-limit';
 import { uploadImageFromUrl } from '@/lib/cloudinary';
 import { formatAIError, withAIRetry } from '@/lib/ai-utils';
+import { validateContentType } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ recipeId: string }>;
@@ -25,6 +26,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   const rateLimitResponse = checkRateLimit(imageLimiter, userId);
   if (rateLimitResponse) return rateLimitResponse;
+
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
 
   // Fetch recipe name and description for the prompt
   const recipe = await prisma.recipe.findUnique({
@@ -84,7 +88,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       { status: 201 }
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : formatAIError('image');
-    return NextResponse.json({ error: message }, { status: 500 });
+    if (process.env.NODE_ENV === 'development') {
+      console.error('AI generate-image error:', err);
+    }
+    return NextResponse.json(
+      { error: formatAIError('image') },
+      { status: 500 }
+    );
   }
 }

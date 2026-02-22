@@ -5,7 +5,12 @@ import { requireAuth } from '@/lib/auth-utils';
 import { addItemSchema } from '@/lib/validations/shopping-list';
 import { categorizeIngredient } from '@/lib/ingredient-categories';
 import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
+import { sanitizeText } from '@/lib/sanitize';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -41,6 +46,9 @@ export async function POST(request: Request, { params }: RouteParams) {
   const sizeResponse = checkContentLength(request, BODY_LIMITS.SHOPPING_LIST);
   if (sizeResponse) return sizeResponse;
 
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -60,13 +68,14 @@ export async function POST(request: Request, { params }: RouteParams) {
   }
 
   const { ingredientName, quantity, category } = parsed.data;
+  const sanitizedIngredientName = sanitizeText(ingredientName);
 
   const item = await prisma.shoppingListItem.create({
     data: {
       shoppingListId: id,
-      ingredientName,
+      ingredientName: sanitizedIngredientName,
       quantity: quantity ?? null,
-      category: category ?? categorizeIngredient(ingredientName),
+      category: category ?? categorizeIngredient(sanitizedIngredientName),
       order: list._count.items,
     },
   });

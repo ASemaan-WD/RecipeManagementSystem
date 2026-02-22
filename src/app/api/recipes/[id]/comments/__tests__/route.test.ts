@@ -2,22 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 import { GET, POST } from '@/app/api/recipes/[id]/comments/route';
 import { prisma } from '@/lib/db';
-import { requireAuth } from '@/lib/auth-utils';
+import { canViewRecipe, requireAuth } from '@/lib/auth-utils';
 import { createMockSession, createMockComment } from '@/test/factories';
 
 vi.mock('@/lib/db', () => ({
   prisma: {
-    recipe: { findUnique: vi.fn() },
     comment: { findMany: vi.fn(), count: vi.fn(), create: vi.fn() },
   },
 }));
 
 vi.mock('@/lib/auth-utils', () => ({
+  canViewRecipe: vi.fn(),
   requireAuth: vi.fn(),
 }));
 
+const mockCanViewRecipe = vi.mocked(canViewRecipe);
 const mockRequireAuth = vi.mocked(requireAuth);
-const mockRecipeFindUnique = vi.mocked(prisma.recipe.findUnique);
 const mockCommentFindMany = vi.mocked(prisma.comment.findMany);
 const mockCommentCount = vi.mocked(prisma.comment.count);
 const mockCommentCreate = vi.mocked(prisma.comment.create);
@@ -30,7 +30,10 @@ beforeEach(() => {
 
 describe('GET /api/recipes/[id]/comments', () => {
   it('returns paginated comments', async () => {
-    mockRecipeFindUnique.mockResolvedValueOnce({ id: 'recipe-1' } as never);
+    mockCanViewRecipe.mockResolvedValueOnce({
+      recipe: { id: 'recipe-1' },
+      user: null,
+    } as never);
 
     const comment = createMockComment();
     mockCommentFindMany.mockResolvedValueOnce([comment] as never);
@@ -50,7 +53,9 @@ describe('GET /api/recipes/[id]/comments', () => {
   });
 
   it('returns 404 when recipe not found', async () => {
-    mockRecipeFindUnique.mockResolvedValueOnce(null);
+    mockCanViewRecipe.mockResolvedValueOnce(
+      NextResponse.json({ error: 'Recipe not found' }, { status: 404 })
+    );
 
     const req = new NextRequest(
       'http://localhost/api/recipes/recipe-1/comments'
@@ -60,7 +65,10 @@ describe('GET /api/recipes/[id]/comments', () => {
   });
 
   it('uses default pagination when no params', async () => {
-    mockRecipeFindUnique.mockResolvedValueOnce({ id: 'recipe-1' } as never);
+    mockCanViewRecipe.mockResolvedValueOnce({
+      recipe: { id: 'recipe-1' },
+      user: null,
+    } as never);
     mockCommentFindMany.mockResolvedValueOnce([] as never);
     mockCommentCount.mockResolvedValueOnce(0);
 
@@ -76,7 +84,10 @@ describe('GET /api/recipes/[id]/comments', () => {
   });
 
   it('does not include user email in response', async () => {
-    mockRecipeFindUnique.mockResolvedValueOnce({ id: 'recipe-1' } as never);
+    mockCanViewRecipe.mockResolvedValueOnce({
+      recipe: { id: 'recipe-1' },
+      user: null,
+    } as never);
 
     const comment = createMockComment();
     mockCommentFindMany.mockResolvedValueOnce([comment] as never);
@@ -95,7 +106,10 @@ describe('POST /api/recipes/[id]/comments', () => {
   it('creates a comment and returns 201', async () => {
     const session = createMockSession();
     mockRequireAuth.mockResolvedValueOnce(session);
-    mockRecipeFindUnique.mockResolvedValueOnce({ id: 'recipe-1' } as never);
+    mockCanViewRecipe.mockResolvedValueOnce({
+      recipe: { id: 'recipe-1' },
+      user: { id: 'user-1' },
+    } as never);
 
     const comment = createMockComment({
       userId: 'user-1',
@@ -113,6 +127,7 @@ describe('POST /api/recipes/[id]/comments', () => {
       'http://localhost/api/recipes/recipe-1/comments',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: 'Nice recipe!' }),
       }
     );
@@ -133,6 +148,7 @@ describe('POST /api/recipes/[id]/comments', () => {
       'http://localhost/api/recipes/recipe-1/comments',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: 'Hello' }),
       }
     );
@@ -144,12 +160,15 @@ describe('POST /api/recipes/[id]/comments', () => {
   it('returns 404 when recipe not found', async () => {
     const session = createMockSession();
     mockRequireAuth.mockResolvedValueOnce(session);
-    mockRecipeFindUnique.mockResolvedValueOnce(null);
+    mockCanViewRecipe.mockResolvedValueOnce(
+      NextResponse.json({ error: 'Recipe not found' }, { status: 404 })
+    );
 
     const req = new NextRequest(
       'http://localhost/api/recipes/recipe-1/comments',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: 'Hello' }),
       }
     );
@@ -166,6 +185,7 @@ describe('POST /api/recipes/[id]/comments', () => {
       'http://localhost/api/recipes/recipe-1/comments',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: '' }),
       }
     );
@@ -177,7 +197,10 @@ describe('POST /api/recipes/[id]/comments', () => {
   it('sanitizes HTML from content', async () => {
     const session = createMockSession();
     mockRequireAuth.mockResolvedValueOnce(session);
-    mockRecipeFindUnique.mockResolvedValueOnce({ id: 'recipe-1' } as never);
+    mockCanViewRecipe.mockResolvedValueOnce({
+      recipe: { id: 'recipe-1' },
+      user: { id: 'user-1' },
+    } as never);
 
     const comment = createMockComment({ content: 'clean content' });
     mockCommentCreate.mockResolvedValueOnce(comment as never);
@@ -186,6 +209,7 @@ describe('POST /api/recipes/[id]/comments', () => {
       'http://localhost/api/recipes/recipe-1/comments',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: '<script>alert("xss")</script>clean content',
         }),

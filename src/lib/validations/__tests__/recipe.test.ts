@@ -147,7 +147,7 @@ describe('createRecipeSchema', () => {
       ...VALID_RECIPE,
       images: [
         {
-          url: 'https://example.com/image.jpg',
+          url: 'https://res.cloudinary.com/demo/image/upload/sample.jpg',
           source: 'URL',
           isPrimary: true,
           order: 0,

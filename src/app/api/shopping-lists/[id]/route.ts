@@ -8,7 +8,12 @@ import {
   apiWriteLimiter,
   checkRateLimit,
 } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
+import { sanitizeText } from '@/lib/sanitize';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -87,6 +92,9 @@ export async function PUT(request: Request, { params }: RouteParams) {
   const sizeResponse = checkContentLength(request, BODY_LIMITS.SHOPPING_LIST);
   if (sizeResponse) return sizeResponse;
 
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -105,9 +113,13 @@ export async function PUT(request: Request, { params }: RouteParams) {
     );
   }
 
+  const sanitizedName = parsed.data.name
+    ? sanitizeText(parsed.data.name)
+    : undefined;
+
   const updated = await prisma.shoppingList.update({
     where: { id },
-    data: { name: parsed.data.name },
+    data: { name: sanitizedName },
     include: {
       items: { orderBy: { order: 'asc' } },
     },

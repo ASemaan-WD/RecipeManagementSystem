@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/db';
-import { getCurrentUser, requireAuth } from '@/lib/auth-utils';
+import { canViewRecipe, getCurrentUser, requireAuth } from '@/lib/auth-utils';
 import { createRatingSchema } from '@/lib/validations/social';
 import {
   apiReadLimiter,
   apiWriteLimiter,
   checkRateLimit,
 } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -17,15 +21,11 @@ interface RouteParams {
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
 
-  const recipe = await prisma.recipe.findUnique({
-    where: { id },
-    select: { avgRating: true, ratingCount: true },
-  });
+  // Verify recipe exists and user can view it
+  const viewResult = await canViewRecipe(id);
+  if (viewResult instanceof NextResponse) return viewResult;
 
-  if (!recipe) {
-    return NextResponse.json({ error: 'Recipe not found' }, { status: 404 });
-  }
-
+  const { recipe } = viewResult;
   const currentUser = await getCurrentUser();
 
   if (currentUser) {
@@ -70,6 +70,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const sizeResponse = checkContentLength(request, BODY_LIMITS.DEFAULT);
   if (sizeResponse) return sizeResponse;
 
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -90,15 +93,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   const { value } = parsed.data;
 
-  // Check recipe exists
-  const recipe = await prisma.recipe.findUnique({
-    where: { id },
-    select: { id: true, authorId: true },
-  });
+  // Verify recipe exists and user can view it
+  const viewResult = await canViewRecipe(id);
+  if (viewResult instanceof NextResponse) return viewResult;
 
-  if (!recipe) {
-    return NextResponse.json({ error: 'Recipe not found' }, { status: 404 });
-  }
+  const { recipe } = viewResult;
 
   // Cannot rate own recipe
   if (recipe.authorId === userId) {

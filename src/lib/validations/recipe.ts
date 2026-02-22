@@ -79,8 +79,38 @@ export const stepInputSchema = z.object({
     .positive('Step number must be a positive integer'),
 });
 
+// ─── Image URL Trusted Domains ───
+
+const TRUSTED_IMAGE_DOMAINS = [
+  'res.cloudinary.com',
+  'images.unsplash.com',
+  'oaidalleapiprodscus.blob.core.windows.net',
+];
+
+function isTrustedImageUrl(url: string): boolean {
+  // Allow relative URLs
+  if (url.startsWith('/')) return true;
+  try {
+    const parsed = new URL(url);
+    return TRUSTED_IMAGE_DOMAINS.some(
+      (domain) =>
+        parsed.hostname === domain ||
+        parsed.hostname.endsWith('.cloudinary.com')
+    );
+  } catch {
+    return false;
+  }
+}
+
+const trustedImageUrlSchema = z
+  .string()
+  .url('Invalid image URL')
+  .refine(isTrustedImageUrl, {
+    message: 'Image URL must be from a trusted source (Cloudinary, Unsplash)',
+  });
+
 export const imageInputSchema = z.object({
-  url: z.string().url('Invalid image URL'),
+  url: trustedImageUrlSchema,
   source: imageSourceSchema,
   isPrimary: z.boolean(),
   order: z.number().int().min(0, 'Order must be a non-negative integer'),

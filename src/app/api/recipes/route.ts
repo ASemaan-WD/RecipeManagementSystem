@@ -10,7 +10,12 @@ import {
   apiWriteLimiter,
   checkRateLimit,
 } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
+import { sanitizeText } from '@/lib/sanitize';
 import type { Prisma } from '@/generated/prisma/client';
 
 export async function GET(request: NextRequest) {
@@ -220,6 +225,9 @@ export async function POST(request: NextRequest) {
   const sizeResponse = checkContentLength(request, BODY_LIMITS.RECIPE);
   if (sizeResponse) return sizeResponse;
 
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -238,32 +246,50 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const { name, description, cuisineType, ingredients, steps, ...rest } =
+    parsed.data;
+  const sanitizedData = {
+    ...rest,
+    name: sanitizeText(name),
+    description: sanitizeText(description),
+    cuisineType: sanitizeText(cuisineType),
+    ingredients: ingredients.map((ing) => ({
+      ...ing,
+      name: sanitizeText(ing.name),
+      notes: ing.notes ? sanitizeText(ing.notes) : undefined,
+    })),
+    steps: steps.map((s) => ({
+      ...s,
+      instruction: sanitizeText(s.instruction),
+    })),
+  };
+
   const {
-    name,
-    description,
+    name: sanitizedName,
+    description: sanitizedDescription,
     prepTime,
     cookTime,
     servings,
     difficulty,
-    cuisineType,
+    cuisineType: sanitizedCuisineType,
     visibility,
-    ingredients,
-    steps,
+    ingredients: sanitizedIngredients,
+    steps: sanitizedSteps,
     dietaryTagIds,
     images,
-  } = parsed.data;
+  } = sanitizedData;
 
   const recipeId = await prisma.$transaction(async (tx) => {
     // 1. Create the recipe record
     const created = await tx.recipe.create({
       data: {
-        name,
-        description,
+        name: sanitizedName,
+        description: sanitizedDescription,
         prepTime,
         cookTime,
         servings,
         difficulty,
-        cuisineType,
+        cuisineType: sanitizedCuisineType,
         visibility,
         authorId: session.user.id,
       },
@@ -271,7 +297,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 2. Batch ingredient handling: pre-fetch existing, create missing, then link
-    const ingredientNames = ingredients.map((ing) =>
+    const ingredientNames = sanitizedIngredients.map((ing) =>
       ing.name.toLowerCase().trim()
     );
     const existingIngredients = await tx.ingredient.findMany({
@@ -279,12 +305,10 @@ export async function POST(request: NextRequest) {
     });
     const existingMap = new Map(existingIngredients.map((i) => [i.name, i.id]));
 
-    const missingNames = ingredientNames.filter(
-      (name) => !existingMap.has(name)
-    );
+    const missingNames = ingredientNames.filter((n) => !existingMap.has(n));
     if (missingNames.length > 0) {
       await tx.ingredient.createMany({
-        data: missingNames.map((name) => ({ name })),
+        data: missingNames.map((n) => ({ name: n })),
         skipDuplicates: true,
       });
       const newIngredients = await tx.ingredient.findMany({
@@ -294,7 +318,7 @@ export async function POST(request: NextRequest) {
     }
 
     await tx.recipeIngredient.createMany({
-      data: ingredients.map((ing) => ({
+      data: sanitizedIngredients.map((ing) => ({
         recipeId: created.id,
         ingredientId: existingMap.get(ing.name.toLowerCase().trim())!,
         quantity: ing.quantity || null,
@@ -304,9 +328,9 @@ export async function POST(request: NextRequest) {
     });
 
     // 3. Create steps
-    if (steps.length > 0) {
+    if (sanitizedSteps.length > 0) {
       await tx.recipeStep.createMany({
-        data: steps.map((s) => ({
+        data: sanitizedSteps.map((s) => ({
           recipeId: created.id,
           stepNumber: s.stepNumber,
           instruction: s.instruction,

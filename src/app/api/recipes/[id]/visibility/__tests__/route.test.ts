@@ -38,6 +38,7 @@ describe('PUT /api/recipes/[id]/visibility', () => {
       'http://localhost/api/recipes/recipe-1/visibility',
       {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ visibility: 'PUBLIC' }),
       }
     );
@@ -58,6 +59,7 @@ describe('PUT /api/recipes/[id]/visibility', () => {
       'http://localhost/api/recipes/recipe-1/visibility',
       {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ visibility: 'PUBLIC' }),
       }
     );
@@ -75,6 +77,7 @@ describe('PUT /api/recipes/[id]/visibility', () => {
       'http://localhost/api/recipes/recipe-1/visibility',
       {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ visibility: 'PUBLIC' }),
       }
     );
@@ -92,6 +95,7 @@ describe('PUT /api/recipes/[id]/visibility', () => {
       'http://localhost/api/recipes/recipe-1/visibility',
       {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ visibility: 'INVALID' }),
       }
     );
@@ -109,6 +113,7 @@ describe('PUT /api/recipes/[id]/visibility', () => {
       'http://localhost/api/recipes/recipe-1/visibility',
       {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: 'not json',
       }
     );
@@ -135,6 +140,7 @@ describe('PUT /api/recipes/[id]/visibility', () => {
         'http://localhost/api/recipes/recipe-1/visibility',
         {
           method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ visibility }),
         }
       );

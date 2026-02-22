@@ -9,7 +9,12 @@ import {
   apiWriteLimiter,
   checkRateLimit,
 } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
+import { sanitizeText } from '@/lib/sanitize';
 
 export async function GET() {
   const authResult = await requireAuth();
@@ -55,6 +60,9 @@ export async function POST(request: Request) {
   const sizeResponse = checkContentLength(request, BODY_LIMITS.SHOPPING_LIST);
   if (sizeResponse) return sizeResponse;
 
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -73,7 +81,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const { name, recipeIds } = parsed.data;
+  const sanitizedName = sanitizeText(parsed.data.name);
+  const { recipeIds } = parsed.data;
 
   // If recipeIds provided, fetch and aggregate ingredients
   let itemsData: {
@@ -111,7 +120,7 @@ export async function POST(request: Request) {
 
   const list = await prisma.shoppingList.create({
     data: {
-      name,
+      name: sanitizedName,
       userId: session.user.id,
       items: {
         create: itemsData,

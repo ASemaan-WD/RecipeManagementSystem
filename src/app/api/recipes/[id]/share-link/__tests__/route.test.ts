@@ -57,7 +57,7 @@ describe('POST /api/recipes/[id]/share-link', () => {
 
     const req = new NextRequest(
       'http://localhost/api/recipes/recipe-1/share-link',
-      { method: 'POST' }
+      { method: 'POST', headers: { 'Content-Type': 'application/json' } }
     );
 
     const res = await POST(req, routeParams);
@@ -75,7 +75,7 @@ describe('POST /api/recipes/[id]/share-link', () => {
 
     const req = new NextRequest(
       'http://localhost/api/recipes/recipe-1/share-link',
-      { method: 'POST' }
+      { method: 'POST', headers: { 'Content-Type': 'application/json' } }
     );
 
     const res = await POST(req, routeParams);
@@ -89,7 +89,7 @@ describe('POST /api/recipes/[id]/share-link', () => {
 
     const req = new NextRequest(
       'http://localhost/api/recipes/recipe-1/share-link',
-      { method: 'POST' }
+      { method: 'POST', headers: { 'Content-Type': 'application/json' } }
     );
 
     const res = await POST(req, routeParams);

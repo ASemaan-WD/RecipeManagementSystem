@@ -10,6 +10,21 @@ export const BODY_LIMITS = {
 } as const;
 
 /**
+ * Validate that the request Content-Type is application/json.
+ * Returns a 415 NextResponse if invalid, or null if valid.
+ */
+export function validateContentType(request: Request): NextResponse | null {
+  const contentType = request.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    return NextResponse.json(
+      { error: 'Content-Type must be application/json' },
+      { status: 415 }
+    );
+  }
+  return null;
+}
+
+/**
  * Check the Content-Length header and reject oversized payloads.
  * Returns a 413 response if the body exceeds maxBytes, or null if acceptable.
  * If Content-Length is missing, allows the request (streaming/chunked bodies).

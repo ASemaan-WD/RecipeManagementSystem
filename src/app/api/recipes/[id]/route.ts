@@ -12,7 +12,12 @@ import {
   apiWriteLimiter,
   checkRateLimit,
 } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
+import { sanitizeText } from '@/lib/sanitize';
 import {
   fetchRecipeDetail,
   type RecipeDetailRaw,
@@ -120,6 +125,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   const sizeResponse = checkContentLength(request, BODY_LIMITS.RECIPE);
   if (sizeResponse) return sizeResponse;
 
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -141,17 +149,40 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   const { ingredients, steps, images, dietaryTagIds, ...recipeFields } =
     parsed.data;
 
+  // Sanitize user-generated text fields
+  const sanitizedRecipeFields = {
+    ...recipeFields,
+    ...(recipeFields.name !== undefined
+      ? { name: sanitizeText(recipeFields.name) }
+      : {}),
+    ...(recipeFields.description !== undefined
+      ? { description: sanitizeText(recipeFields.description) }
+      : {}),
+    ...(recipeFields.cuisineType !== undefined
+      ? { cuisineType: sanitizeText(recipeFields.cuisineType) }
+      : {}),
+  };
+  const sanitizedIngredients = ingredients?.map((ing) => ({
+    ...ing,
+    name: sanitizeText(ing.name),
+    notes: ing.notes ? sanitizeText(ing.notes) : undefined,
+  }));
+  const sanitizedSteps = steps?.map((s) => ({
+    ...s,
+    instruction: sanitizeText(s.instruction),
+  }));
+
   await prisma.$transaction(async (tx) => {
     // Update recipe scalar fields
-    if (Object.keys(recipeFields).length > 0) {
+    if (Object.keys(sanitizedRecipeFields).length > 0) {
       await tx.recipe.update({
         where: { id },
-        data: recipeFields,
+        data: sanitizedRecipeFields,
       });
     }
 
     // Replace ingredients if provided
-    if (ingredients !== undefined) {
+    if (sanitizedIngredients !== undefined) {
       // Clear cached nutrition data since ingredients changed
       await tx.recipe.update({
         where: { id },
@@ -161,7 +192,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       await tx.recipeIngredient.deleteMany({ where: { recipeId: id } });
 
       // Batch ingredient handling: pre-fetch existing, create missing, then link
-      const ingredientNames = ingredients.map((ing) =>
+      const ingredientNames = sanitizedIngredients.map((ing) =>
         ing.name.toLowerCase().trim()
       );
       const existingIngredients = await tx.ingredient.findMany({
@@ -171,12 +202,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         existingIngredients.map((i) => [i.name, i.id])
       );
 
-      const missingNames = ingredientNames.filter(
-        (name) => !existingMap.has(name)
-      );
+      const missingNames = ingredientNames.filter((n) => !existingMap.has(n));
       if (missingNames.length > 0) {
         await tx.ingredient.createMany({
-          data: missingNames.map((name) => ({ name })),
+          data: missingNames.map((n) => ({ name: n })),
           skipDuplicates: true,
         });
         const newIngredients = await tx.ingredient.findMany({
@@ -186,7 +215,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
 
       await tx.recipeIngredient.createMany({
-        data: ingredients.map((ing) => ({
+        data: sanitizedIngredients.map((ing) => ({
           recipeId: id,
           ingredientId: existingMap.get(ing.name.toLowerCase().trim())!,
           quantity: ing.quantity || null,
@@ -197,11 +226,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     // Replace steps if provided
-    if (steps !== undefined) {
+    if (sanitizedSteps !== undefined) {
       await tx.recipeStep.deleteMany({ where: { recipeId: id } });
-      if (steps.length > 0) {
+      if (sanitizedSteps.length > 0) {
         await tx.recipeStep.createMany({
-          data: steps.map((s) => ({
+          data: sanitizedSteps.map((s) => ({
             recipeId: id,
             stepNumber: s.stepNumber,
             instruction: s.instruction,

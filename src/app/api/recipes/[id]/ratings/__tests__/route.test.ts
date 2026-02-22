@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 import { GET, POST } from '@/app/api/recipes/[id]/ratings/route';
 import { prisma } from '@/lib/db';
-import { getCurrentUser, requireAuth } from '@/lib/auth-utils';
+import { canViewRecipe, getCurrentUser, requireAuth } from '@/lib/auth-utils';
 import { createMockSession, createMockRecipe } from '@/test/factories';
 
 vi.mock('@/lib/db', () => ({
@@ -13,13 +13,14 @@ vi.mock('@/lib/db', () => ({
 }));
 
 vi.mock('@/lib/auth-utils', () => ({
+  canViewRecipe: vi.fn(),
   getCurrentUser: vi.fn(),
   requireAuth: vi.fn(),
 }));
 
+const mockCanViewRecipe = vi.mocked(canViewRecipe);
 const mockGetCurrentUser = vi.mocked(getCurrentUser);
 const mockRequireAuth = vi.mocked(requireAuth);
-const mockRecipeFindUnique = vi.mocked(prisma.recipe.findUnique);
 const mockRatingFindUnique = vi.mocked(prisma.rating.findUnique);
 const mockRatingUpsert = vi.mocked(prisma.rating.upsert);
 const mockRatingAggregate = vi.mocked(prisma.rating.aggregate);
@@ -33,9 +34,9 @@ beforeEach(() => {
 
 describe('GET /api/recipes/[id]/ratings', () => {
   it('returns rating data without auth', async () => {
-    mockRecipeFindUnique.mockResolvedValueOnce({
-      avgRating: 4.2,
-      ratingCount: 10,
+    mockCanViewRecipe.mockResolvedValueOnce({
+      recipe: { avgRating: 4.2, ratingCount: 10 },
+      user: null,
     } as never);
     mockGetCurrentUser.mockResolvedValueOnce(null);
 
@@ -52,9 +53,14 @@ describe('GET /api/recipes/[id]/ratings', () => {
   });
 
   it('returns user rating when authenticated', async () => {
-    mockRecipeFindUnique.mockResolvedValueOnce({
-      avgRating: 4.2,
-      ratingCount: 10,
+    mockCanViewRecipe.mockResolvedValueOnce({
+      recipe: { avgRating: 4.2, ratingCount: 10 },
+      user: {
+        id: 'user-1',
+        name: 'Test',
+        email: 'test@example.com',
+        image: null,
+      },
     } as never);
     mockGetCurrentUser.mockResolvedValueOnce({
       id: 'user-1',
@@ -75,7 +81,9 @@ describe('GET /api/recipes/[id]/ratings', () => {
   });
 
   it('returns 404 when recipe not found', async () => {
-    mockRecipeFindUnique.mockResolvedValueOnce(null);
+    mockCanViewRecipe.mockResolvedValueOnce(
+      NextResponse.json({ error: 'Recipe not found' }, { status: 404 })
+    );
 
     const req = new NextRequest(
       'http://localhost/api/recipes/recipe-1/ratings'
@@ -91,7 +99,10 @@ describe('POST /api/recipes/[id]/ratings', () => {
     mockRequireAuth.mockResolvedValueOnce(session);
 
     const recipe = createMockRecipe({ authorId: 'other-user' });
-    mockRecipeFindUnique.mockResolvedValueOnce(recipe as never);
+    mockCanViewRecipe.mockResolvedValueOnce({
+      recipe,
+      user: { id: 'user-1' },
+    } as never);
     mockRatingUpsert.mockResolvedValueOnce({} as never);
     mockRatingAggregate.mockResolvedValueOnce({
       _avg: { value: 4.5 },
@@ -103,6 +114,7 @@ describe('POST /api/recipes/[id]/ratings', () => {
       'http://localhost/api/recipes/recipe-1/ratings',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: 5 }),
       }
     );
@@ -125,6 +137,7 @@ describe('POST /api/recipes/[id]/ratings', () => {
       'http://localhost/api/recipes/recipe-1/ratings',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: 5 }),
       }
     );
@@ -138,12 +151,16 @@ describe('POST /api/recipes/[id]/ratings', () => {
     mockRequireAuth.mockResolvedValueOnce(session);
 
     const recipe = createMockRecipe({ authorId: 'user-1' });
-    mockRecipeFindUnique.mockResolvedValueOnce(recipe as never);
+    mockCanViewRecipe.mockResolvedValueOnce({
+      recipe,
+      user: { id: 'user-1' },
+    } as never);
 
     const req = new NextRequest(
       'http://localhost/api/recipes/recipe-1/ratings',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: 5 }),
       }
     );
@@ -158,12 +175,15 @@ describe('POST /api/recipes/[id]/ratings', () => {
   it('returns 404 when recipe not found', async () => {
     const session = createMockSession();
     mockRequireAuth.mockResolvedValueOnce(session);
-    mockRecipeFindUnique.mockResolvedValueOnce(null);
+    mockCanViewRecipe.mockResolvedValueOnce(
+      NextResponse.json({ error: 'Recipe not found' }, { status: 404 })
+    );
 
     const req = new NextRequest(
       'http://localhost/api/recipes/recipe-1/ratings',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: 5 }),
       }
     );
@@ -180,6 +200,7 @@ describe('POST /api/recipes/[id]/ratings', () => {
       'http://localhost/api/recipes/recipe-1/ratings',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: 6 }),
       }
     );
@@ -196,6 +217,7 @@ describe('POST /api/recipes/[id]/ratings', () => {
       'http://localhost/api/recipes/recipe-1/ratings',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: 3.5 }),
       }
     );

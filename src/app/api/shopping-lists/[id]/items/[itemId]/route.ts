@@ -4,7 +4,11 @@ import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
 import { updateItemSchema } from '@/lib/validations/shopping-list';
 import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string; itemId: string }>;
@@ -48,6 +52,9 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
   const sizeResponse = checkContentLength(request, BODY_LIMITS.SHOPPING_LIST);
   if (sizeResponse) return sizeResponse;
+
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
 
   let body: unknown;
   try {

@@ -4,15 +4,15 @@ import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
 import { updateCommentSchema } from '@/lib/validations/social';
 import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
+import { sanitizeText } from '@/lib/sanitize';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
-}
-
-/** Strip HTML tags to prevent XSS */
-function sanitizeContent(content: string): string {
-  return content.replace(/<[^>]*>/g, '');
 }
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
@@ -45,6 +45,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   const sizeResponse = checkContentLength(request, BODY_LIMITS.COMMENT);
   if (sizeResponse) return sizeResponse;
 
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -63,7 +66,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  const sanitized = sanitizeContent(parsed.data.content);
+  const sanitized = sanitizeText(parsed.data.content);
 
   const updated = await prisma.comment.update({
     where: { id },

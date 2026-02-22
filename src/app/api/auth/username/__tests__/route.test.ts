@@ -127,6 +127,7 @@ describe('POST /api/auth/username', () => {
     mockRequireAuth.mockResolvedValueOnce(createMockSession());
     const req = new NextRequest('http://localhost/api/auth/username', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: 'not json',
     });
     const res = await POST(req);

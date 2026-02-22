@@ -4,7 +4,11 @@ import { generateText } from 'ai';
 import { openai, TEXT_MODEL } from '@/lib/openai';
 import { requireAuth } from '@/lib/auth-utils';
 import { substitutionLimiter, checkRateLimit } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
 import { substituteIngredientSchema } from '@/lib/validations/ai';
 import { formatAIError, withAIRetry } from '@/lib/ai-utils';
 import type { AISubstitutionResponse } from '@/types/ai';
@@ -40,6 +44,9 @@ export async function POST(request: NextRequest) {
 
   const sizeResponse = checkContentLength(request, BODY_LIMITS.AI);
   if (sizeResponse) return sizeResponse;
+
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
 
   let body: unknown;
   try {
@@ -89,8 +96,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : formatAIError('substitute');
-    return NextResponse.json({ error: message }, { status: 500 });
+    if (process.env.NODE_ENV === 'development') {
+      console.error('AI substitute error:', err);
+    }
+    return NextResponse.json(
+      { error: formatAIError('substitute') },
+      { status: 500 }
+    );
   }
 }

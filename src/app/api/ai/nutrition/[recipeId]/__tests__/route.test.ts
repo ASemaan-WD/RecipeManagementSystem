@@ -70,6 +70,7 @@ describe('POST /api/ai/nutrition/[recipeId]', () => {
 
     const req = new NextRequest('http://localhost/api/ai/nutrition/recipe-1', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     const res = await POST(req, { params: createParams('recipe-1') });
@@ -83,6 +84,7 @@ describe('POST /api/ai/nutrition/[recipeId]', () => {
 
     const req = new NextRequest('http://localhost/api/ai/nutrition/missing', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     const res = await POST(req, { params: createParams('missing') });
@@ -104,6 +106,7 @@ describe('POST /api/ai/nutrition/[recipeId]', () => {
 
     const req = new NextRequest('http://localhost/api/ai/nutrition/recipe-1', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     const res = await POST(req, { params: createParams('recipe-1') });
@@ -133,6 +136,7 @@ describe('POST /api/ai/nutrition/[recipeId]', () => {
 
     const req = new NextRequest('http://localhost/api/ai/nutrition/recipe-1', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     const res = await POST(req, { params: createParams('recipe-1') });
@@ -159,6 +163,7 @@ describe('POST /api/ai/nutrition/[recipeId]', () => {
 
     const req = new NextRequest('http://localhost/api/ai/nutrition/recipe-1', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     const res = await POST(req, { params: createParams('recipe-1') });
@@ -191,6 +196,7 @@ describe('POST /api/ai/nutrition/[recipeId]', () => {
 
     const req = new NextRequest('http://localhost/api/ai/nutrition/recipe-1', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     const res = await POST(req, { params: createParams('recipe-1') });
@@ -213,6 +219,7 @@ describe('POST /api/ai/nutrition/[recipeId]', () => {
 
     const req = new NextRequest('http://localhost/api/ai/nutrition/recipe-1', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
 
     const res = await POST(req, { params: createParams('recipe-1') });

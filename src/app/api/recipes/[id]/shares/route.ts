@@ -12,7 +12,11 @@ import {
   apiWriteLimiter,
   checkRateLimit,
 } from '@/lib/rate-limit';
-import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  checkContentLength,
+  BODY_LIMITS,
+  validateContentType,
+} from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -76,6 +80,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   const sizeResponse = checkContentLength(request, BODY_LIMITS.DEFAULT);
   if (sizeResponse) return sizeResponse;
+
+  const contentTypeError = validateContentType(request);
+  if (contentTypeError) return contentTypeError;
 
   let body: unknown;
   try {

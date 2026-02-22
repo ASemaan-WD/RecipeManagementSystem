@@ -53,6 +53,7 @@ describe('POST /api/recipes/[id]/duplicate', () => {
       'http://localhost/api/recipes/recipe-1/duplicate',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       }
     );
     const res = await POST(req, routeParams);
@@ -69,6 +70,7 @@ describe('POST /api/recipes/[id]/duplicate', () => {
       'http://localhost/api/recipes/recipe-1/duplicate',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       }
     );
     const res = await POST(req, routeParams);
@@ -87,6 +89,7 @@ describe('POST /api/recipes/[id]/duplicate', () => {
       'http://localhost/api/recipes/recipe-1/duplicate',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       }
     );
     const res = await POST(req, routeParams);
@@ -174,6 +177,7 @@ describe('POST /api/recipes/[id]/duplicate', () => {
       'http://localhost/api/recipes/recipe-1/duplicate',
       {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       }
     );
     const res = await POST(req, routeParams);

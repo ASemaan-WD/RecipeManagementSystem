@@ -43,6 +43,7 @@ describe('POST /api/ai/generate', () => {
 
     const req = new NextRequest('http://localhost/api/ai/generate', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ingredients: ['chicken'] }),
     });
 
@@ -59,6 +60,7 @@ describe('POST /api/ai/generate', () => {
 
     const req = new NextRequest('http://localhost/api/ai/generate', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ingredients: ['chicken'] }),
     });
 
@@ -73,6 +75,7 @@ describe('POST /api/ai/generate', () => {
 
     const req = new NextRequest('http://localhost/api/ai/generate', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ingredients: [] }),
     });
 
@@ -87,6 +90,7 @@ describe('POST /api/ai/generate', () => {
 
     const req = new NextRequest('http://localhost/api/ai/generate', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ingredients: ['chicken', 'rice', 'garlic'] }),
     });
 
@@ -104,6 +108,7 @@ describe('POST /api/ai/generate', () => {
 
     const req = new NextRequest('http://localhost/api/ai/generate', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ingredients }),
     });
 
