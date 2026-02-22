@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
+import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -9,6 +10,9 @@ interface RouteParams {
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, authResult.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const { id } = await params;
   const userId = authResult.user.id;
@@ -38,6 +42,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, authResult.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const { id } = await params;
   const userId = authResult.user.id;

@@ -4,6 +4,7 @@ import { streamText } from 'ai';
 import { openai, TEXT_MODEL } from '@/lib/openai';
 import { requireAuth } from '@/lib/auth-utils';
 import { generationLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 import { generateRecipeSchema } from '@/lib/validations/ai';
 import { formatAIError } from '@/lib/ai-utils';
 
@@ -41,6 +42,9 @@ export async function POST(request: NextRequest) {
 
   const rateLimitResponse = checkRateLimit(generationLimiter, userId);
   if (rateLimitResponse) return rateLimitResponse;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.AI);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {

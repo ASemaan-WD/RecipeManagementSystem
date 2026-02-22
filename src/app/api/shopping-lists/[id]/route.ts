@@ -3,6 +3,12 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
 import { updateShoppingListSchema } from '@/lib/validations/shopping-list';
+import {
+  apiReadLimiter,
+  apiWriteLimiter,
+  checkRateLimit,
+} from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -13,6 +19,10 @@ export async function GET(_request: Request, { params }: RouteParams) {
   if (authResult instanceof NextResponse) return authResult;
 
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiReadLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const { id } = await params;
 
   const list = await prisma.shoppingList.findUnique({
@@ -33,13 +43,18 @@ export async function GET(_request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  return NextResponse.json({
-    id: list.id,
-    name: list.name,
-    items: list.items,
-    createdAt: list.createdAt.toISOString(),
-    updatedAt: list.updatedAt.toISOString(),
-  });
+  return NextResponse.json(
+    {
+      id: list.id,
+      name: list.name,
+      items: list.items,
+      createdAt: list.createdAt.toISOString(),
+      updatedAt: list.updatedAt.toISOString(),
+    },
+    {
+      headers: { 'Cache-Control': 'private, no-cache' },
+    }
+  );
 }
 
 export async function PUT(request: Request, { params }: RouteParams) {
@@ -47,6 +62,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
   if (authResult instanceof NextResponse) return authResult;
 
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const { id } = await params;
 
   const list = await prisma.shoppingList.findUnique({
@@ -64,6 +83,9 @@ export async function PUT(request: Request, { params }: RouteParams) {
   if (list.userId !== session.user.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.SHOPPING_LIST);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {
@@ -105,6 +127,10 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
   if (authResult instanceof NextResponse) return authResult;
 
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const { id } = await params;
 
   const list = await prisma.shoppingList.findUnique({

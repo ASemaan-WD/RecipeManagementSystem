@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, canViewRecipe } from '@/lib/auth-utils';
+import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -12,6 +13,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const viewResult = await canViewRecipe(id);
   if (viewResult instanceof NextResponse) return viewResult;

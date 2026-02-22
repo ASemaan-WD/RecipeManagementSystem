@@ -16,5 +16,12 @@ export async function GET() {
     .map((r) => r.cuisineType)
     .filter((v): v is string => v !== null);
 
-  return NextResponse.json({ data });
+  return NextResponse.json(
+    { data },
+    {
+      headers: {
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+      },
+    }
+  );
 }

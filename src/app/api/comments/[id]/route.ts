@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
 import { updateCommentSchema } from '@/lib/validations/social';
+import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -16,6 +18,9 @@ function sanitizeContent(content: string): string {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, authResult.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const { id } = await params;
   const userId = authResult.user.id;
@@ -36,6 +41,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       { status: 403 }
     );
   }
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.COMMENT);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {
@@ -77,6 +85,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, authResult.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const { id } = await params;
   const userId = authResult.user.id;

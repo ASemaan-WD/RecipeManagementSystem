@@ -13,8 +13,12 @@ vi.mock('@/lib/db', () => ({
       create: vi.fn(),
       findUniqueOrThrow: vi.fn(),
     },
-    ingredient: { upsert: vi.fn() },
-    recipeIngredient: { create: vi.fn() },
+    ingredient: {
+      upsert: vi.fn(),
+      findMany: vi.fn(),
+      createMany: vi.fn(),
+    },
+    recipeIngredient: { create: vi.fn(), createMany: vi.fn() },
     recipeStep: { createMany: vi.fn() },
     recipeImage: { createMany: vi.fn() },
     dietaryTag: { findMany: vi.fn() },
@@ -139,15 +143,24 @@ describe('POST /api/recipes', () => {
       savedBy: [],
     };
 
-    // Mock transaction internals: recipe.create returns id, ingredient.upsert returns id
+    // Mock transaction internals: recipe.create returns id, batch ingredient handling
     vi.mocked(prisma.recipe.create).mockResolvedValue({
       id: 'recipe-1',
     } as never);
-    vi.mocked(prisma.ingredient.upsert).mockResolvedValue({
-      id: 'ing-1',
-      name: 'flour',
+    vi.mocked(prisma.ingredient.findMany).mockResolvedValue([
+      {
+        id: 'ing-1',
+        name: 'flour',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ] as never);
+    vi.mocked(prisma.ingredient.createMany).mockResolvedValue({
+      count: 0,
     } as never);
-    vi.mocked(prisma.recipeIngredient.create).mockResolvedValue({} as never);
+    vi.mocked(prisma.recipeIngredient.createMany).mockResolvedValue({
+      count: 1,
+    } as never);
     vi.mocked(prisma.recipeStep.createMany).mockResolvedValue({
       count: 1,
     } as never);

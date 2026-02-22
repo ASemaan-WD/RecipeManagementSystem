@@ -3,10 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
 import { userSearchSchema } from '@/lib/validations/sharing';
+import { apiReadLimiter, checkRateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
+
+  const rateLimitResponse = checkRateLimit(apiReadLimiter, authResult.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const userId = authResult.user.id;
 
@@ -36,5 +40,10 @@ export async function GET(request: NextRequest) {
     orderBy: { username: 'asc' },
   });
 
-  return NextResponse.json({ data: users });
+  return NextResponse.json(
+    { data: users },
+    {
+      headers: { 'Cache-Control': 'private, no-cache' },
+    }
+  );
 }

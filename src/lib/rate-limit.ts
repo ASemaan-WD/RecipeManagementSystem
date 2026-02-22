@@ -94,6 +94,26 @@ export const imageLimiter = createRateLimiter('image', {
   windowMs: ONE_HOUR,
 });
 
+const FIFTEEN_MINUTES = 15 * 60 * 1000;
+
+/** 60 POST/PUT/DELETE requests per 15 minutes per user */
+export const apiWriteLimiter = createRateLimiter('api-write', {
+  maxRequests: 60,
+  windowMs: FIFTEEN_MINUTES,
+});
+
+/** 120 GET requests per 15 minutes per user */
+export const apiReadLimiter = createRateLimiter('api-read', {
+  maxRequests: 120,
+  windowMs: FIFTEEN_MINUTES,
+});
+
+/** 60 search requests per 15 minutes per user */
+export const searchLimiter = createRateLimiter('search', {
+  maxRequests: 60,
+  windowMs: FIFTEEN_MINUTES,
+});
+
 /**
  * Check rate limit and return a 429 response if exceeded, or null if allowed.
  */

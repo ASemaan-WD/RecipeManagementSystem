@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
 import { updateItemSchema } from '@/lib/validations/shopping-list';
+import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string; itemId: string }>;
@@ -13,6 +15,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
   if (authResult instanceof NextResponse) return authResult;
 
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const { id, itemId } = await params;
 
   const list = await prisma.shoppingList.findUnique({
@@ -39,6 +45,9 @@ export async function PUT(request: Request, { params }: RouteParams) {
   if (!item || item.shoppingListId !== id) {
     return NextResponse.json({ error: 'Item not found' }, { status: 404 });
   }
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.SHOPPING_LIST);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {
@@ -71,6 +80,10 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
   if (authResult instanceof NextResponse) return authResult;
 
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const { id, itemId } = await params;
 
   const list = await prisma.shoppingList.findUnique({

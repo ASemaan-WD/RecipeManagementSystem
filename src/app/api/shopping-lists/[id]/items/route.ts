@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
 import { addItemSchema } from '@/lib/validations/shopping-list';
 import { categorizeIngredient } from '@/lib/ingredient-categories';
+import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -14,6 +16,10 @@ export async function POST(request: Request, { params }: RouteParams) {
   if (authResult instanceof NextResponse) return authResult;
 
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const { id } = await params;
 
   const list = await prisma.shoppingList.findUnique({
@@ -31,6 +37,9 @@ export async function POST(request: Request, { params }: RouteParams) {
   if (list.userId !== session.user.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.SHOPPING_LIST);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {

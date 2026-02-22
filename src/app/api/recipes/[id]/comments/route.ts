@@ -6,6 +6,8 @@ import {
   createCommentSchema,
   commentListSchema,
 } from '@/lib/validations/social';
+import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -60,23 +62,34 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     prisma.comment.count({ where: { recipeId: id } }),
   ]);
 
-  return NextResponse.json({
-    data: comments,
-    pagination: {
-      total,
-      page,
-      pageSize: limit,
-      totalPages: Math.ceil(total / limit),
+  return NextResponse.json(
+    {
+      data: comments,
+      pagination: {
+        total,
+        page,
+        pageSize: limit,
+        totalPages: Math.ceil(total / limit),
+      },
     },
-  });
+    {
+      headers: { 'Cache-Control': 'private, no-cache' },
+    }
+  );
 }
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
 
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, authResult.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const { id } = await params;
   const userId = authResult.user.id;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.COMMENT);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {

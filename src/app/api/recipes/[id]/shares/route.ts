@@ -7,6 +7,12 @@ import {
   revokeShareSchema,
 } from '@/lib/validations/sharing';
 import { Visibility } from '@/generated/prisma/client';
+import {
+  apiReadLimiter,
+  apiWriteLimiter,
+  checkRateLimit,
+} from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -17,6 +23,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
   const ownerResult = await requireRecipeOwner(id);
   if (ownerResult instanceof NextResponse) return ownerResult;
+
+  const rateLimitResponse = checkRateLimit(
+    apiReadLimiter,
+    ownerResult.session.user.id
+  );
+  if (rateLimitResponse) return rateLimitResponse;
 
   const shares = await prisma.recipeShare.findMany({
     where: { recipeId: id },
@@ -40,7 +52,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     orderBy: { createdAt: 'desc' },
   });
 
-  return NextResponse.json({ shares, shareLinks });
+  return NextResponse.json(
+    { shares, shareLinks },
+    {
+      headers: { 'Cache-Control': 'private, no-cache' },
+    }
+  );
 }
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
@@ -49,7 +66,16 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const ownerResult = await requireRecipeOwner(id);
   if (ownerResult instanceof NextResponse) return ownerResult;
 
+  const rateLimitResponse = checkRateLimit(
+    apiWriteLimiter,
+    ownerResult.session.user.id
+  );
+  if (rateLimitResponse) return rateLimitResponse;
+
   const { session } = ownerResult;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.DEFAULT);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {
@@ -137,6 +163,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
   const ownerResult = await requireRecipeOwner(id);
   if (ownerResult instanceof NextResponse) return ownerResult;
+
+  const rateLimitResponse = checkRateLimit(
+    apiWriteLimiter,
+    ownerResult.session.user.id
+  );
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.DEFAULT);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {

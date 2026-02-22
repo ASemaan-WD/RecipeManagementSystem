@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth-utils';
+import { apiReadLimiter, checkRateLimit } from '@/lib/rate-limit';
 
 interface RouteParams {
   params: Promise<{ token: string }>;
@@ -23,6 +24,11 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   }
 
   const currentUser = await getCurrentUser();
+
+  if (currentUser) {
+    const rateLimitResponse = checkRateLimit(apiReadLimiter, currentUser.id);
+    if (rateLimitResponse) return rateLimitResponse;
+  }
 
   // Summary-only select for all users (guest and authenticated)
   const recipe = await prisma.recipe.findUnique({
@@ -104,5 +110,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     isAuthenticated: !!currentUser,
   };
 
-  return NextResponse.json(response);
+  return NextResponse.json(response, {
+    headers: {
+      'Cache-Control': 'private, max-age=60, stale-while-revalidate=120',
+    },
+  });
 }

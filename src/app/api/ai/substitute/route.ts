@@ -4,6 +4,7 @@ import { generateText } from 'ai';
 import { openai, TEXT_MODEL } from '@/lib/openai';
 import { requireAuth } from '@/lib/auth-utils';
 import { substitutionLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 import { substituteIngredientSchema } from '@/lib/validations/ai';
 import { formatAIError, withAIRetry } from '@/lib/ai-utils';
 import type { AISubstitutionResponse } from '@/types/ai';
@@ -36,6 +37,9 @@ export async function POST(request: NextRequest) {
 
   const rateLimitResponse = checkRateLimit(substitutionLimiter, userId);
   if (rateLimitResponse) return rateLimitResponse;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.AI);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {

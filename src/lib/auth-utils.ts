@@ -86,8 +86,27 @@ export async function canViewRecipe(recipeId: string, shareToken?: string) {
     return { recipe, user: currentUser };
   }
 
-  // 3. User has a RecipeShare record for this recipe
-  if (currentUser) {
+  // 3 & 4. Check RecipeShare and ShareLink in parallel when both are possible
+  if (currentUser && shareToken) {
+    const [share, shareLink] = await Promise.all([
+      prisma.recipeShare.findUnique({
+        where: {
+          recipeId_userId: {
+            recipeId: recipe.id,
+            userId: currentUser.id,
+          },
+        },
+      }),
+      prisma.shareLink.findUnique({
+        where: { token: shareToken },
+      }),
+    ]);
+    if (share) return { recipe, user: currentUser };
+    if (shareLink && shareLink.isActive && shareLink.recipeId === recipeId) {
+      return { recipe, user: currentUser };
+    }
+  } else if (currentUser) {
+    // 3. User has a RecipeShare record for this recipe
     const share = await prisma.recipeShare.findUnique({
       where: {
         recipeId_userId: {
@@ -96,13 +115,9 @@ export async function canViewRecipe(recipeId: string, shareToken?: string) {
         },
       },
     });
-    if (share) {
-      return { recipe, user: currentUser };
-    }
-  }
-
-  // 4. Valid, active ShareLink token
-  if (shareToken) {
+    if (share) return { recipe, user: currentUser };
+  } else if (shareToken) {
+    // 4. Valid, active ShareLink token
     const shareLink = await prisma.shareLink.findUnique({
       where: { token: shareToken },
     });

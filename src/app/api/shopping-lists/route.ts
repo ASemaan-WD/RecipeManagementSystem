@@ -4,12 +4,21 @@ import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
 import { createShoppingListSchema } from '@/lib/validations/shopping-list';
 import { aggregateIngredients } from '@/lib/ingredient-aggregation';
+import {
+  apiReadLimiter,
+  apiWriteLimiter,
+  checkRateLimit,
+} from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 export async function GET() {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
 
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiReadLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const lists = await prisma.shoppingList.findMany({
     where: { userId: session.user.id },
@@ -29,7 +38,9 @@ export async function GET() {
     updatedAt: list.updatedAt.toISOString(),
   }));
 
-  return NextResponse.json(data);
+  return NextResponse.json(data, {
+    headers: { 'Cache-Control': 'private, no-cache' },
+  });
 }
 
 export async function POST(request: Request) {
@@ -37,6 +48,12 @@ export async function POST(request: Request) {
   if (authResult instanceof NextResponse) return authResult;
 
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.SHOPPING_LIST);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {

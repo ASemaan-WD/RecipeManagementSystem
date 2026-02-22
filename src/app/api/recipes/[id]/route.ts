@@ -7,68 +7,23 @@ import {
   getCurrentUser,
 } from '@/lib/auth-utils';
 import { updateRecipeSchema } from '@/lib/validations/recipe';
+import {
+  apiReadLimiter,
+  apiWriteLimiter,
+  checkRateLimit,
+} from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
+import {
+  fetchRecipeDetail,
+  type RecipeDetailRaw,
+} from '@/lib/queries/recipe-select';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-const RECIPE_DETAIL_SELECT = {
-  id: true,
-  name: true,
-  description: true,
-  prepTime: true,
-  cookTime: true,
-  servings: true,
-  difficulty: true,
-  cuisineType: true,
-  visibility: true,
-  avgRating: true,
-  ratingCount: true,
-  nutritionData: true,
-  authorId: true,
-  createdAt: true,
-  updatedAt: true,
-  author: {
-    select: { id: true, name: true, username: true, image: true },
-  },
-  images: {
-    orderBy: { order: 'asc' as const },
-    select: {
-      id: true,
-      url: true,
-      source: true,
-      isPrimary: true,
-      order: true,
-    },
-  },
-  ingredients: {
-    orderBy: { order: 'asc' as const },
-    select: {
-      id: true,
-      quantity: true,
-      notes: true,
-      order: true,
-      ingredient: { select: { name: true } },
-    },
-  },
-  steps: {
-    orderBy: { stepNumber: 'asc' as const },
-    select: {
-      id: true,
-      stepNumber: true,
-      instruction: true,
-      duration: true,
-    },
-  },
-  dietaryTags: {
-    select: {
-      dietaryTag: { select: { id: true, name: true } },
-    },
-  },
-} as const;
-
 function transformRecipeDetail(
-  recipe: Awaited<ReturnType<typeof fetchRecipeDetail>>,
+  recipe: RecipeDetailRaw,
   extras?: { userTags?: { status: string }[]; isSaved?: boolean }
 ) {
   const primaryImage =
@@ -105,13 +60,6 @@ function transformRecipeDetail(
   };
 }
 
-async function fetchRecipeDetail(id: string) {
-  return prisma.recipe.findUniqueOrThrow({
-    where: { id },
-    select: RECIPE_DETAIL_SELECT,
-  });
-}
-
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   const shareToken = request.nextUrl.searchParams.get('token') ?? undefined;
@@ -123,6 +71,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
   // Fetch user-specific data if authenticated
   const currentUser = await getCurrentUser();
+
+  if (currentUser) {
+    const rateLimitResponse = checkRateLimit(apiReadLimiter, currentUser.id);
+    if (rateLimitResponse) return rateLimitResponse;
+  }
+
   let extras: { userTags?: { status: string }[]; isSaved?: boolean } = {};
 
   if (currentUser) {
@@ -144,7 +98,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     };
   }
 
-  return NextResponse.json(transformRecipeDetail(recipe, extras));
+  return NextResponse.json(transformRecipeDetail(recipe, extras), {
+    headers: {
+      'Cache-Control': 'private, max-age=60, stale-while-revalidate=120',
+    },
+  });
 }
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
@@ -152,6 +110,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
   const ownerResult = await requireRecipeOwner(id);
   if (ownerResult instanceof NextResponse) return ownerResult;
+
+  const rateLimitResponse = checkRateLimit(
+    apiWriteLimiter,
+    ownerResult.session.user.id
+  );
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.RECIPE);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {
@@ -192,22 +159,41 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       });
 
       await tx.recipeIngredient.deleteMany({ where: { recipeId: id } });
-      for (const ing of ingredients) {
-        const ingredient = await tx.ingredient.upsert({
-          where: { name: ing.name.toLowerCase().trim() },
-          update: {},
-          create: { name: ing.name.toLowerCase().trim() },
+
+      // Batch ingredient handling: pre-fetch existing, create missing, then link
+      const ingredientNames = ingredients.map((ing) =>
+        ing.name.toLowerCase().trim()
+      );
+      const existingIngredients = await tx.ingredient.findMany({
+        where: { name: { in: ingredientNames } },
+      });
+      const existingMap = new Map(
+        existingIngredients.map((i) => [i.name, i.id])
+      );
+
+      const missingNames = ingredientNames.filter(
+        (name) => !existingMap.has(name)
+      );
+      if (missingNames.length > 0) {
+        await tx.ingredient.createMany({
+          data: missingNames.map((name) => ({ name })),
+          skipDuplicates: true,
         });
-        await tx.recipeIngredient.create({
-          data: {
-            recipeId: id,
-            ingredientId: ingredient.id,
-            quantity: ing.quantity || null,
-            notes: ing.notes || null,
-            order: ing.order,
-          },
+        const newIngredients = await tx.ingredient.findMany({
+          where: { name: { in: missingNames } },
         });
+        newIngredients.forEach((i) => existingMap.set(i.name, i.id));
       }
+
+      await tx.recipeIngredient.createMany({
+        data: ingredients.map((ing) => ({
+          recipeId: id,
+          ingredientId: existingMap.get(ing.name.toLowerCase().trim())!,
+          quantity: ing.quantity || null,
+          notes: ing.notes || null,
+          order: ing.order,
+        })),
+      });
     }
 
     // Replace steps if provided
@@ -271,6 +257,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
   const ownerResult = await requireRecipeOwner(id);
   if (ownerResult instanceof NextResponse) return ownerResult;
+
+  const rateLimitResponse = checkRateLimit(
+    apiWriteLimiter,
+    ownerResult.session.user.id
+  );
+  if (rateLimitResponse) return rateLimitResponse;
 
   await prisma.recipe.delete({ where: { id } });
 

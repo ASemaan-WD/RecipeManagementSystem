@@ -3,6 +3,7 @@ import { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth-utils';
 import { searchFilterSchema } from '@/lib/validations/search';
+import { searchLimiter, checkRateLimit } from '@/lib/rate-limit';
 import {
   buildTsQueryString,
   buildSearchWhereClause,
@@ -11,6 +12,11 @@ import {
 
 export async function GET(request: NextRequest) {
   const currentUser = await getCurrentUser();
+
+  if (currentUser) {
+    const rateLimitResponse = checkRateLimit(searchLimiter, currentUser.id);
+    if (rateLimitResponse) return rateLimitResponse;
+  }
 
   const searchParams = Object.fromEntries(request.nextUrl.searchParams);
   const parsed = searchFilterSchema.safeParse(searchParams);
@@ -34,10 +40,17 @@ export async function GET(request: NextRequest) {
     const tsQueryString = buildTsQueryString(params.q!);
 
     if (!tsQueryString) {
-      return NextResponse.json({
-        data: [],
-        pagination: { total: 0, page, pageSize: limit, totalPages: 0 },
-      });
+      return NextResponse.json(
+        {
+          data: [],
+          pagination: { total: 0, page, pageSize: limit, totalPages: 0 },
+        },
+        {
+          headers: {
+            'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+          },
+        }
+      );
     }
 
     try {
@@ -56,10 +69,17 @@ export async function GET(request: NextRequest) {
       `;
 
       if (ftsResults.length === 0) {
-        return NextResponse.json({
-          data: [],
-          pagination: { total: 0, page, pageSize: limit, totalPages: 0 },
-        });
+        return NextResponse.json(
+          {
+            data: [],
+            pagination: { total: 0, page, pageSize: limit, totalPages: 0 },
+          },
+          {
+            headers: {
+              'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+            },
+          }
+        );
       }
 
       // Get all matching IDs and apply pagination
@@ -68,15 +88,22 @@ export async function GET(request: NextRequest) {
       const paginatedIds = matchingIds.slice(skip, skip + limit);
 
       if (paginatedIds.length === 0) {
-        return NextResponse.json({
-          data: [],
-          pagination: {
-            total,
-            page,
-            pageSize: limit,
-            totalPages: Math.ceil(total / limit),
+        return NextResponse.json(
+          {
+            data: [],
+            pagination: {
+              total,
+              page,
+              pageSize: limit,
+              totalPages: Math.ceil(total / limit),
+            },
           },
-        });
+          {
+            headers: {
+              'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+            },
+          }
+        );
       }
 
       // Build rank map for re-sorting
@@ -109,21 +136,35 @@ export async function GET(request: NextRequest) {
 
       const data = transformRecipes(sortedRecipes);
 
-      return NextResponse.json({
-        data,
-        pagination: {
-          total,
-          page,
-          pageSize: limit,
-          totalPages: Math.ceil(total / limit),
+      return NextResponse.json(
+        {
+          data,
+          pagination: {
+            total,
+            page,
+            pageSize: limit,
+            totalPages: Math.ceil(total / limit),
+          },
         },
-      });
+        {
+          headers: {
+            'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+          },
+        }
+      );
     } catch {
       // tsquery parse errors or other SQL issues — return empty results
-      return NextResponse.json({
-        data: [],
-        pagination: { total: 0, page, pageSize: limit, totalPages: 0 },
-      });
+      return NextResponse.json(
+        {
+          data: [],
+          pagination: { total: 0, page, pageSize: limit, totalPages: 0 },
+        },
+        {
+          headers: {
+            'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+          },
+        }
+      );
     }
   }
 
@@ -141,15 +182,22 @@ export async function GET(request: NextRequest) {
 
   const data = transformRecipes(recipes);
 
-  return NextResponse.json({
-    data,
-    pagination: {
-      total,
-      page,
-      pageSize: limit,
-      totalPages: Math.ceil(total / limit),
+  return NextResponse.json(
+    {
+      data,
+      pagination: {
+        total,
+        page,
+        pageSize: limit,
+        totalPages: Math.ceil(total / limit),
+      },
     },
-  });
+    {
+      headers: {
+        'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+      },
+    }
+  );
 }
 
 // ─── Helpers ───

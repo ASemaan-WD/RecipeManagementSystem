@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
+import { apiReadLimiter, checkRateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
+
+  const rateLimitResponse = checkRateLimit(apiReadLimiter, authResult.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
 
   const userId = authResult.user.id;
   const searchParams = request.nextUrl.searchParams;
@@ -69,13 +73,18 @@ export async function GET(request: NextRequest) {
     };
   });
 
-  return NextResponse.json({
-    data,
-    pagination: {
-      total,
-      page,
-      pageSize: limit,
-      totalPages: Math.ceil(total / limit),
+  return NextResponse.json(
+    {
+      data,
+      pagination: {
+        total,
+        page,
+        pageSize: limit,
+        totalPages: Math.ceil(total / limit),
+      },
     },
-  });
+    {
+      headers: { 'Cache-Control': 'private, no-cache' },
+    }
+  );
 }

@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createRateLimiter, checkRateLimit } from '@/lib/rate-limit';
+import {
+  createRateLimiter,
+  checkRateLimit,
+  apiWriteLimiter,
+  apiReadLimiter,
+  searchLimiter,
+} from '@/lib/rate-limit';
 
 describe('createRateLimiter', () => {
   beforeEach(() => {
@@ -108,5 +114,60 @@ describe('checkRateLimit', () => {
     const result = checkRateLimit(limiter, 'user-1');
     expect(result).not.toBeNull();
     expect(result!.status).toBe(429);
+  });
+});
+
+describe('apiWriteLimiter', () => {
+  it('allows up to 60 requests within 15 minutes', () => {
+    // Make 60 requests - all should be allowed
+    for (let i = 0; i < 60; i++) {
+      const result = apiWriteLimiter.check('write-test-user');
+      expect(result.allowed).toBe(true);
+    }
+  });
+
+  it('blocks the 61st request', () => {
+    for (let i = 0; i < 60; i++) {
+      apiWriteLimiter.check('write-block-user');
+    }
+    const result = apiWriteLimiter.check('write-block-user');
+    expect(result.allowed).toBe(false);
+    expect(result.remaining).toBe(0);
+  });
+});
+
+describe('apiReadLimiter', () => {
+  it('allows up to 120 requests within 15 minutes', () => {
+    for (let i = 0; i < 120; i++) {
+      const result = apiReadLimiter.check('read-test-user');
+      expect(result.allowed).toBe(true);
+    }
+  });
+
+  it('blocks the 121st request', () => {
+    for (let i = 0; i < 120; i++) {
+      apiReadLimiter.check('read-block-user');
+    }
+    const result = apiReadLimiter.check('read-block-user');
+    expect(result.allowed).toBe(false);
+    expect(result.remaining).toBe(0);
+  });
+});
+
+describe('searchLimiter', () => {
+  it('allows up to 60 requests within 15 minutes', () => {
+    for (let i = 0; i < 60; i++) {
+      const result = searchLimiter.check('search-test-user');
+      expect(result.allowed).toBe(true);
+    }
+  });
+
+  it('blocks the 61st request', () => {
+    for (let i = 0; i < 60; i++) {
+      searchLimiter.check('search-block-user');
+    }
+    const result = searchLimiter.check('search-block-user');
+    expect(result.allowed).toBe(false);
+    expect(result.remaining).toBe(0);
   });
 });

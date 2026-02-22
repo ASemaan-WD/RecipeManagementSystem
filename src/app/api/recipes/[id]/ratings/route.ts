@@ -3,6 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getCurrentUser, requireAuth } from '@/lib/auth-utils';
 import { createRatingSchema } from '@/lib/validations/social';
+import {
+  apiReadLimiter,
+  apiWriteLimiter,
+  checkRateLimit,
+} from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -21,6 +27,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   }
 
   const currentUser = await getCurrentUser();
+
+  if (currentUser) {
+    const rateLimitResponse = checkRateLimit(apiReadLimiter, currentUser.id);
+    if (rateLimitResponse) return rateLimitResponse;
+  }
+
   let userRating: number | null = null;
 
   if (currentUser) {
@@ -33,19 +45,30 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     userRating = rating?.value ?? null;
   }
 
-  return NextResponse.json({
-    avgRating: recipe.avgRating,
-    ratingCount: recipe.ratingCount,
-    userRating,
-  });
+  return NextResponse.json(
+    {
+      avgRating: recipe.avgRating,
+      ratingCount: recipe.ratingCount,
+      userRating,
+    },
+    {
+      headers: { 'Cache-Control': 'private, no-cache' },
+    }
+  );
 }
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
 
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, authResult.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const { id } = await params;
   const userId = authResult.user.id;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.DEFAULT);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {

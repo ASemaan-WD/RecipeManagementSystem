@@ -7,5 +7,12 @@ export async function GET() {
     orderBy: { name: 'asc' },
   });
 
-  return NextResponse.json({ data });
+  return NextResponse.json(
+    { data },
+    {
+      headers: {
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+      },
+    }
+  );
 }

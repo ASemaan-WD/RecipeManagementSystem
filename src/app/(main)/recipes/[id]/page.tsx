@@ -16,63 +16,9 @@ import { CommentSection } from '@/components/social/comment-section';
 import { TagToggles } from '@/components/recipes/tag-toggles';
 import { SaveButton } from '@/components/recipes/save-button';
 import { Badge } from '@/components/ui/badge';
+import { RECIPE_DETAIL_SELECT } from '@/lib/queries/recipe-select';
 import type { TagStatus } from '@/generated/prisma/client';
 import type { RecipeDetail } from '@/types/recipe';
-
-const RECIPE_DETAIL_SELECT = {
-  id: true,
-  name: true,
-  description: true,
-  prepTime: true,
-  cookTime: true,
-  servings: true,
-  difficulty: true,
-  cuisineType: true,
-  visibility: true,
-  avgRating: true,
-  ratingCount: true,
-  nutritionData: true,
-  authorId: true,
-  createdAt: true,
-  updatedAt: true,
-  author: {
-    select: { id: true, name: true, username: true, image: true },
-  },
-  images: {
-    orderBy: { order: 'asc' as const },
-    select: {
-      id: true,
-      url: true,
-      source: true,
-      isPrimary: true,
-      order: true,
-    },
-  },
-  ingredients: {
-    orderBy: { order: 'asc' as const },
-    select: {
-      id: true,
-      quantity: true,
-      notes: true,
-      order: true,
-      ingredient: { select: { name: true } },
-    },
-  },
-  steps: {
-    orderBy: { stepNumber: 'asc' as const },
-    select: {
-      id: true,
-      stepNumber: true,
-      instruction: true,
-      duration: true,
-    },
-  },
-  dietaryTags: {
-    select: {
-      dietaryTag: { select: { id: true, name: true } },
-    },
-  },
-} as const;
 
 interface PageProps {
   params: Promise<{ id: string }>;

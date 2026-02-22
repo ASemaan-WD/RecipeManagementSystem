@@ -112,6 +112,7 @@ export function useRecipe(id: string) {
     queryKey: ['recipe', id],
     queryFn: () => fetchRecipe(id),
     enabled: !!id,
+    staleTime: 60_000,
   });
 }
 

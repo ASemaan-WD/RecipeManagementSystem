@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db';
 import { requireRecipeOwner } from '@/lib/auth-utils';
 import { revokeShareLinkSchema } from '@/lib/validations/sharing';
 import { Visibility } from '@/generated/prisma/client';
+import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -15,6 +17,12 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 
   const ownerResult = await requireRecipeOwner(id);
   if (ownerResult instanceof NextResponse) return ownerResult;
+
+  const rateLimitResponse = checkRateLimit(
+    apiWriteLimiter,
+    ownerResult.session.user.id
+  );
+  if (rateLimitResponse) return rateLimitResponse;
 
   const token = nanoid(21);
 
@@ -45,6 +53,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
   const ownerResult = await requireRecipeOwner(id);
   if (ownerResult instanceof NextResponse) return ownerResult;
+
+  const rateLimitResponse = checkRateLimit(
+    apiWriteLimiter,
+    ownerResult.session.user.id
+  );
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.DEFAULT);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {

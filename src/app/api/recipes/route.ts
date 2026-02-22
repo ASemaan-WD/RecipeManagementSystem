@@ -5,10 +5,21 @@ import {
   createRecipeSchema,
   recipeFilterSchema,
 } from '@/lib/validations/recipe';
+import {
+  apiReadLimiter,
+  apiWriteLimiter,
+  checkRateLimit,
+} from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 import type { Prisma } from '@/generated/prisma/client';
 
 export async function GET(request: NextRequest) {
   const currentUser = await getCurrentUser();
+
+  if (currentUser) {
+    const rateLimitResponse = checkRateLimit(apiReadLimiter, currentUser.id);
+    if (rateLimitResponse) return rateLimitResponse;
+  }
 
   const searchParams = Object.fromEntries(request.nextUrl.searchParams);
   const parsed = recipeFilterSchema.safeParse(searchParams);
@@ -182,21 +193,32 @@ export async function GET(request: NextRequest) {
     };
   });
 
-  return NextResponse.json({
-    data,
-    pagination: {
-      total,
-      page,
-      pageSize: limit,
-      totalPages: Math.ceil(total / limit),
+  return NextResponse.json(
+    {
+      data,
+      pagination: {
+        total,
+        page,
+        pageSize: limit,
+        totalPages: Math.ceil(total / limit),
+      },
     },
-  });
+    {
+      headers: { 'Cache-Control': 'private, no-cache' },
+    }
+  );
 }
 
 export async function POST(request: NextRequest) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.RECIPE);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {
@@ -248,23 +270,38 @@ export async function POST(request: NextRequest) {
       select: { id: true },
     });
 
-    // 2. Ingredient upsert pattern (global lookup table)
-    for (const ing of ingredients) {
-      const ingredient = await tx.ingredient.upsert({
-        where: { name: ing.name.toLowerCase().trim() },
-        update: {},
-        create: { name: ing.name.toLowerCase().trim() },
+    // 2. Batch ingredient handling: pre-fetch existing, create missing, then link
+    const ingredientNames = ingredients.map((ing) =>
+      ing.name.toLowerCase().trim()
+    );
+    const existingIngredients = await tx.ingredient.findMany({
+      where: { name: { in: ingredientNames } },
+    });
+    const existingMap = new Map(existingIngredients.map((i) => [i.name, i.id]));
+
+    const missingNames = ingredientNames.filter(
+      (name) => !existingMap.has(name)
+    );
+    if (missingNames.length > 0) {
+      await tx.ingredient.createMany({
+        data: missingNames.map((name) => ({ name })),
+        skipDuplicates: true,
       });
-      await tx.recipeIngredient.create({
-        data: {
-          recipeId: created.id,
-          ingredientId: ingredient.id,
-          quantity: ing.quantity || null,
-          notes: ing.notes || null,
-          order: ing.order,
-        },
+      const newIngredients = await tx.ingredient.findMany({
+        where: { name: { in: missingNames } },
       });
+      newIngredients.forEach((i) => existingMap.set(i.name, i.id));
     }
+
+    await tx.recipeIngredient.createMany({
+      data: ingredients.map((ing) => ({
+        recipeId: created.id,
+        ingredientId: existingMap.get(ing.name.toLowerCase().trim())!,
+        quantity: ing.quantity || null,
+        notes: ing.notes || null,
+        order: ing.order,
+      })),
+    });
 
     // 3. Create steps
     if (steps.length > 0) {

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { Prisma } from '@/generated/prisma/client';
 import { requireAuth } from '@/lib/auth-utils';
 import { usernameSchema } from '@/lib/validations/auth';
+import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 export async function GET(request: NextRequest) {
   const username = request.nextUrl.searchParams.get('username');
@@ -34,6 +36,12 @@ export async function POST(request: NextRequest) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;
   const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const sizeResponse = checkContentLength(request, BODY_LIMITS.DEFAULT);
+  if (sizeResponse) return sizeResponse;
 
   let body: unknown;
   try {
