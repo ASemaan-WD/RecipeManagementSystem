@@ -6,18 +6,21 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { SubstitutionDialog } from '@/components/ai/substitution-dialog';
 import { cn } from '@/lib/utils';
+import { scaleQuantity } from '@/lib/scaling';
 import type { RecipeDetail } from '@/types/recipe';
 
 interface RecipeIngredientsProps {
   ingredients: RecipeDetail['ingredients'];
   recipeName?: string;
   isAuthenticated?: boolean;
+  scaleFactor?: number;
 }
 
 export function RecipeIngredients({
   ingredients,
   recipeName,
   isAuthenticated = false,
+  scaleFactor,
 }: RecipeIngredientsProps) {
   const [checked, setChecked] = useState<Set<string>>(new Set());
 
@@ -63,7 +66,10 @@ export function RecipeIngredients({
                     {ingredient.quantity && (
                       <span className="text-muted-foreground">
                         {' '}
-                        — {ingredient.quantity}
+                        —{' '}
+                        {scaleFactor && scaleFactor !== 1
+                          ? scaleQuantity(ingredient.quantity, scaleFactor)
+                          : ingredient.quantity}
                       </span>
                     )}
                     {ingredient.notes && (

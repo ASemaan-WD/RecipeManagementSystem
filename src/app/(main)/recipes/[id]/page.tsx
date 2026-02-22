@@ -6,8 +6,7 @@ import { canViewRecipe, getCurrentUser } from '@/lib/auth-utils';
 import { NextResponse } from 'next/server';
 import { RecipeHero } from '@/components/recipes/recipe-detail/recipe-hero';
 import { RecipeMetadata } from '@/components/recipes/recipe-detail/recipe-metadata';
-import { RecipeIngredients } from '@/components/recipes/recipe-detail/recipe-ingredients';
-import { RecipeSteps } from '@/components/recipes/recipe-detail/recipe-steps';
+import { RecipeDetailClient } from '@/components/recipes/recipe-detail/recipe-detail-client';
 import { RecipeImages } from '@/components/recipes/recipe-detail/recipe-images';
 import { RecipeActions } from '@/components/recipes/recipe-detail/recipe-actions';
 import { NutritionDisplay } from '@/components/ai/nutrition-display';
@@ -247,18 +246,7 @@ export default async function RecipeDetailPage({
 
         <RecipeMetadata recipe={recipe} />
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-1">
-            <RecipeIngredients
-              ingredients={recipe.ingredients}
-              recipeName={recipe.name}
-              isAuthenticated={!!currentUser}
-            />
-          </div>
-          <div className="lg:col-span-2">
-            <RecipeSteps steps={recipe.steps} />
-          </div>
-        </div>
+        <RecipeDetailClient recipe={recipe} isAuthenticated={!!currentUser} />
 
         <RecipeImages images={recipe.images} />
 
