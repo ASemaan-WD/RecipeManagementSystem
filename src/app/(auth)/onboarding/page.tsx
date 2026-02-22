@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { SessionProvider, useSession } from 'next-auth/react';
+import { SessionProvider, useSession, signOut } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -15,9 +15,11 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { LogOut } from 'lucide-react';
 import {
   Form,
   FormControl,
@@ -37,6 +39,8 @@ function OnboardingForm() {
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   const form = useForm<UsernameFormData>({
     resolver: zodResolver(usernameFormSchema),
@@ -125,6 +129,28 @@ function OnboardingForm() {
     }
   }
 
+  async function handleSignOut() {
+    setIsCancelling(true);
+    setCancelError(null);
+    try {
+      const response = await fetch('/api/auth/username', {
+        method: 'DELETE',
+      });
+
+      if (!response.ok && response.status !== 404) {
+        const data = (await response.json()) as { error?: string };
+        setCancelError(data.error ?? 'Failed to sign out. Please try again.');
+        return;
+      }
+
+      signOut({ callbackUrl: '/login' });
+    } catch {
+      setCancelError('Something went wrong. Please try again.');
+    } finally {
+      setIsCancelling(false);
+    }
+  }
+
   const showAvailable =
     !isCheckingAvailability &&
     isAvailable === true &&
@@ -187,7 +213,8 @@ function OnboardingForm() {
                   !isValid ||
                   isCheckingAvailability ||
                   isAvailable !== true ||
-                  isSubmitting
+                  isSubmitting ||
+                  isCancelling
                 }
               >
                 {isSubmitting ? 'Setting up...' : 'Continue'}
@@ -200,6 +227,30 @@ function OnboardingForm() {
             </form>
           </Form>
         </CardContent>
+        <CardFooter className="flex-col gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground"
+            disabled={isCancelling || isSubmitting}
+            onClick={handleSignOut}
+          >
+            {isCancelling ? (
+              'Signing out...'
+            ) : (
+              <>
+                <LogOut className="size-4" />
+                Sign out
+              </>
+            )}
+          </Button>
+          {cancelError && (
+            <p className="text-destructive text-center text-sm">
+              {cancelError}
+            </p>
+          )}
+        </CardFooter>
       </Card>
     </main>
   );

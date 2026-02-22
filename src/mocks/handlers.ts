@@ -39,6 +39,10 @@ export const handlers = [
     return HttpResponse.json({ username: body.username });
   }),
 
+  http.delete('/api/auth/username', () => {
+    return HttpResponse.json({ success: true });
+  }),
+
   // ─── Recipe Handlers ───
 
   http.get('/api/recipes', () => {

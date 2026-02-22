@@ -36,6 +36,37 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ available: !existingUser });
 }
 
+export async function DELETE() {
+  const authResult = await requireAuth();
+  if (authResult instanceof NextResponse) return authResult;
+  const session = authResult;
+
+  const rateLimitResponse = checkRateLimit(apiWriteLimiter, session.user.id);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { username: true },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  if (user.username !== null) {
+    return NextResponse.json(
+      { error: 'Cannot delete account after onboarding is complete' },
+      { status: 400 }
+    );
+  }
+
+  await prisma.user.delete({
+    where: { id: session.user.id },
+  });
+
+  return NextResponse.json({ success: true });
+}
+
 export async function POST(request: NextRequest) {
   const authResult = await requireAuth();
   if (authResult instanceof NextResponse) return authResult;

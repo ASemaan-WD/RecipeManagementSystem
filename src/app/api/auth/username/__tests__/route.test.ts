@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
-import { GET, POST } from '@/app/api/auth/username/route';
+import { GET, POST, DELETE } from '@/app/api/auth/username/route';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth-utils';
 import { createMockSession } from '@/test/factories';
@@ -25,6 +25,7 @@ vi.mock('@/lib/db', () => ({
     user: {
       findUnique: vi.fn(),
       update: vi.fn(),
+      delete: vi.fn(),
     },
   },
 }));
@@ -41,6 +42,7 @@ vi.mock('@/generated/prisma/client', () => ({
 
 const mockUserFindUnique = vi.mocked(prisma.user.findUnique);
 const mockUserUpdate = vi.mocked(prisma.user.update);
+const mockUserDelete = vi.mocked(prisma.user.delete);
 const mockRequireAuth = vi.mocked(requireAuth);
 
 beforeEach(() => {
@@ -233,5 +235,53 @@ describe('POST /api/auth/username', () => {
       body: JSON.stringify({ username: 'newuser' }),
     });
     await expect(POST(req)).rejects.toThrow('Connection lost');
+  });
+});
+
+describe('DELETE /api/auth/username', () => {
+  it('returns 401 when not authenticated', async () => {
+    mockRequireAuth.mockResolvedValueOnce(
+      NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    );
+    const res = await DELETE();
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 404 when user does not exist', async () => {
+    mockRequireAuth.mockResolvedValueOnce(createMockSession({ id: 'user-1' }));
+    mockUserFindUnique.mockResolvedValueOnce(null);
+
+    const res = await DELETE();
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.error).toBe('User not found');
+  });
+
+  it('returns 400 when user has already set a username', async () => {
+    mockRequireAuth.mockResolvedValueOnce(createMockSession({ id: 'user-1' }));
+    mockUserFindUnique.mockResolvedValueOnce({
+      username: 'existinguser',
+    } as never);
+
+    const res = await DELETE();
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe(
+      'Cannot delete account after onboarding is complete'
+    );
+  });
+
+  it('deletes user and returns success when username is null', async () => {
+    mockRequireAuth.mockResolvedValueOnce(createMockSession({ id: 'user-1' }));
+    mockUserFindUnique.mockResolvedValueOnce({ username: null } as never);
+    mockUserDelete.mockResolvedValueOnce({} as never);
+
+    const res = await DELETE();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
+    expect(mockUserDelete).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+    });
   });
 });
