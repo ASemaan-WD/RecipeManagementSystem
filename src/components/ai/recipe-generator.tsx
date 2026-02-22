@@ -264,9 +264,9 @@ export function RecipeGenerator() {
       {parsedRecipe && (
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle>{parsedRecipe.name}</CardTitle>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" onClick={handleReset}>
                   <RefreshCw className="size-4" />
                   New Recipe
@@ -281,7 +281,8 @@ export function RecipeGenerator() {
                   ) : (
                     <Save className="size-4" />
                   )}
-                  Save as New Recipe
+                  <span className="hidden sm:inline">Save as New Recipe</span>
+                  <span className="sm:hidden">Save</span>
                 </Button>
               </div>
             </div>

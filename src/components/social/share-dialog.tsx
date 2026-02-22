@@ -71,6 +71,7 @@ export function ShareDialog({
   const setOpen = controlledOnOpenChange ?? setInternalOpen;
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
+  const [visibility, setVisibility] = useState<Visibility>(currentVisibility);
 
   const { data: sharesData } = useRecipeShares(recipeId);
   const { data: searchResults, isLoading: isSearching } =
@@ -82,10 +83,19 @@ export function ShareDialog({
   const revokeShareLink = useRevokeShareLink();
 
   const handleVisibilityChange = useCallback(
-    (visibility: Visibility) => {
-      updateVisibility.mutate({ recipeId, visibility });
+    (newVisibility: Visibility) => {
+      const previous = visibility;
+      setVisibility(newVisibility);
+      updateVisibility.mutate(
+        { recipeId, visibility: newVisibility },
+        {
+          onError: () => {
+            setVisibility(previous);
+          },
+        }
+      );
     },
-    [recipeId, updateVisibility]
+    [recipeId, updateVisibility, visibility]
   );
 
   function handleShareWithUser(username: string) {
@@ -146,9 +156,7 @@ export function ShareDialog({
             {VISIBILITY_OPTIONS.map((option) => (
               <Button
                 key={option.value}
-                variant={
-                  currentVisibility === option.value ? 'default' : 'outline'
-                }
+                variant={visibility === option.value ? 'default' : 'outline'}
                 size="sm"
                 className="flex-1"
                 onClick={() => handleVisibilityChange(option.value)}

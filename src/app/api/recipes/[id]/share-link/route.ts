@@ -6,11 +6,7 @@ import { requireRecipeOwner } from '@/lib/auth-utils';
 import { revokeShareLinkSchema } from '@/lib/validations/sharing';
 import { Visibility } from '@/generated/prisma/client';
 import { apiWriteLimiter, checkRateLimit } from '@/lib/rate-limit';
-import {
-  checkContentLength,
-  BODY_LIMITS,
-  validateContentType,
-} from '@/lib/api-utils';
+import { checkContentLength, BODY_LIMITS } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -27,9 +23,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     ownerResult.session.user.id
   );
   if (rateLimitResponse) return rateLimitResponse;
-
-  const contentTypeError = validateContentType(request);
-  if (contentTypeError) return contentTypeError;
 
   const token = nanoid(21);
 

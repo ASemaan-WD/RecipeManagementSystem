@@ -263,7 +263,7 @@ export default function SearchPage() {
       />
 
       {/* Main Content */}
-      <div className="flex gap-8">
+      <div className="flex flex-col gap-4 md:flex-row md:gap-8">
         {/* Filter Panel */}
         <FilterPanel
           filters={filters}
@@ -274,8 +274,8 @@ export default function SearchPage() {
         {/* Results */}
         <div className="min-w-0 flex-1 space-y-4">
           {/* Result count + Sort */}
-          <div className="flex items-center justify-between">
-            <p className="text-muted-foreground text-sm">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-muted-foreground shrink-0 text-sm">
               {isLoading ? (
                 'Searching...'
               ) : total > 0 ? (
