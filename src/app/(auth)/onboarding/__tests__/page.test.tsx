@@ -6,7 +6,6 @@ import { createMockSession } from '@/test/factories';
 import { server } from '@/mocks/handlers';
 import { http, HttpResponse } from 'msw';
 
-const mockPush = vi.fn();
 const mockUpdate = vi.fn();
 
 vi.mock('next-auth/react', () => ({
@@ -20,25 +19,36 @@ vi.mock('next-auth/react', () => ({
   })),
 }));
 
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: mockPush,
-    refresh: vi.fn(),
-    back: vi.fn(),
-    forward: vi.fn(),
-    replace: vi.fn(),
-    prefetch: vi.fn(),
-  }),
-}));
+// Track window.location.href assignments without replacing window.location
+const locationAssignments: string[] = [];
+const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'location')!;
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
-  mockPush.mockClear();
   mockUpdate.mockClear();
+  locationAssignments.length = 0;
+
+  // Intercept href assignments while keeping the real location object intact
+  const realLocation = window.location;
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    get: () =>
+      new Proxy(realLocation, {
+        set(_target, prop, value) {
+          if (prop === 'href') {
+            locationAssignments.push(value as string);
+            return true;
+          }
+          return Reflect.set(_target, prop, value);
+        },
+      }),
+  });
 });
 
 afterEach(() => {
   vi.useRealTimers();
+  // Restore original location descriptor
+  Object.defineProperty(window, 'location', originalDescriptor);
 });
 
 describe('OnboardingPage', () => {
@@ -144,7 +154,7 @@ describe('OnboardingPage', () => {
 
     await waitFor(() => {
       expect(mockUpdate).toHaveBeenCalled();
-      expect(mockPush).toHaveBeenCalledWith('/dashboard');
+      expect(locationAssignments).toContain('/dashboard');
     });
   });
 });

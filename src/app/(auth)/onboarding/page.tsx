@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { SessionProvider, useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,12 +31,12 @@ import {
 const AVAILABILITY_DEBOUNCE_MS = 500;
 
 function OnboardingForm() {
-  const router = useRouter();
   const { update } = useSession();
 
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const form = useForm<UsernameFormData>({
     resolver: zodResolver(usernameFormSchema),
@@ -94,6 +93,7 @@ function OnboardingForm() {
 
   async function onSubmit(data: UsernameFormData) {
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
       const response = await fetch('/api/auth/username', {
         method: 'POST',
@@ -109,19 +109,18 @@ function OnboardingForm() {
 
       if (!response.ok) {
         const errorData = (await response.json()) as { error?: string };
-        form.setError('username', {
-          message: errorData.error ?? 'Something went wrong',
-        });
+        setSubmitError(errorData.error ?? 'Something went wrong');
         return;
       }
 
       // Refresh the session JWT to include the new username
       await update();
-      router.push('/dashboard');
+
+      // Use window.location for a full navigation so the middleware
+      // reads the freshly-set cookie instead of a client-side transition
+      window.location.href = '/dashboard';
     } catch {
-      form.setError('username', {
-        message: 'Something went wrong. Please try again.',
-      });
+      setSubmitError('Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -194,6 +193,11 @@ function OnboardingForm() {
               >
                 {isSubmitting ? 'Setting up...' : 'Continue'}
               </Button>
+              {submitError && (
+                <p className="text-destructive text-center text-sm">
+                  {submitError}
+                </p>
+              )}
             </form>
           </Form>
         </CardContent>
