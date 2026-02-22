@@ -143,7 +143,7 @@ function OnboardingForm() {
         return;
       }
 
-      signOut({ callbackUrl: '/login' });
+      signOut({ callbackUrl: '/' });
     } catch {
       setCancelError('Something went wrong. Please try again.');
     } finally {

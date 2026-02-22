@@ -200,7 +200,7 @@ describe('Header', () => {
       });
 
       await user.click(screen.getByRole('menuitem', { name: /sign out/i }));
-      expect(signOut).toHaveBeenCalledWith({ callbackUrl: '/login' });
+      expect(signOut).toHaveBeenCalledWith({ callbackUrl: '/' });
     });
 
     it('renders ThemeToggleMenuItem in dropdown', async () => {

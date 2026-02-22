@@ -160,7 +160,7 @@ export function MobileNav({
               className="h-11 w-full justify-start gap-3"
               onClick={() => {
                 handleLinkClick();
-                signOut({ callbackUrl: '/login' });
+                signOut({ callbackUrl: '/' });
               }}
             >
               <LogOut className="size-5" />

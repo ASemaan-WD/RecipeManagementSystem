@@ -110,7 +110,7 @@ describe('MobileNav', () => {
       render(<MobileNav {...defaultProps} />);
 
       await user.click(screen.getByRole('button', { name: /sign out/i }));
-      expect(signOut).toHaveBeenCalledWith({ callbackUrl: '/login' });
+      expect(signOut).toHaveBeenCalledWith({ callbackUrl: '/' });
     });
 
     it('calls onOpenChange(false) when a nav link is clicked', async () => {

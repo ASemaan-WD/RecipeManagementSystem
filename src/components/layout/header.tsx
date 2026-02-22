@@ -179,7 +179,7 @@ export function Header() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     variant="destructive"
-                    onClick={() => signOut({ callbackUrl: '/login' })}
+                    onClick={() => signOut({ callbackUrl: '/' })}
                   >
                     <LogOut className="size-4" />
                     Sign Out

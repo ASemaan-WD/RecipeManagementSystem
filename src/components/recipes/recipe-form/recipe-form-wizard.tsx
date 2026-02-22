@@ -117,6 +117,14 @@ export function RecipeFormWizard({
 
         <form
           onSubmit={form.handleSubmit(handleFormSubmit)}
+          onKeyDown={(e) => {
+            if (
+              e.key === 'Enter' &&
+              (e.target as HTMLElement).tagName !== 'TEXTAREA'
+            ) {
+              e.preventDefault();
+            }
+          }}
           className="space-y-6"
         >
           {currentStep === 0 && <BasicInfoStep />}

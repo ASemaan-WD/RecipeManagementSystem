@@ -186,6 +186,7 @@ interface NutritionResponse {
 async function fetchNutrition(recipeId: string): Promise<NutritionResponse> {
   const res = await fetch(`/api/ai/nutrition/${recipeId}`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
   });
 
   if (!res.ok) {
@@ -240,6 +241,7 @@ async function fetchGenerateImage(
 ): Promise<GenerateImageResponse> {
   const res = await fetch(`/api/ai/generate-image/${recipeId}`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
   });
 
   if (!res.ok) {
