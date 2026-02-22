@@ -147,7 +147,7 @@ describe('createRecipeSchema', () => {
       ...VALID_RECIPE,
       images: [
         {
-          url: 'https://res.cloudinary.com/demo/image/upload/sample.jpg',
+          url: 'https://abc123.public.blob.vercel-storage.com/recipes/sample.jpg',
           source: 'URL',
           isPrimary: true,
           order: 0,

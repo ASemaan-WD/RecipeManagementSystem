@@ -58,7 +58,7 @@ export function ImagesStep({ recipeId }: ImagesStepProps) {
     setUrlInput('');
   }
 
-  function handleUpload(result: { url: string; publicId: string }) {
+  function handleUpload(result: { url: string }) {
     if (fields.length >= MAX_IMAGES) return;
 
     append({

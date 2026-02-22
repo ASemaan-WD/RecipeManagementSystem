@@ -51,7 +51,7 @@ vi.mock('openai', () => {
   return { default: MockOpenAI };
 });
 
-vi.mock('@/lib/cloudinary', () => ({
+vi.mock('@/lib/blob-storage', () => ({
   uploadImageFromUrl: vi.fn(),
 }));
 

@@ -43,10 +43,12 @@ vi.mock('openai', () => {
   return { default: MockOpenAI };
 });
 
-vi.mock('@/lib/cloudinary', () => ({
+vi.mock('@/lib/blob-storage', () => ({
   uploadImageFromUrl: vi
     .fn()
-    .mockResolvedValue('https://res.cloudinary.com/test/image.jpg'),
+    .mockResolvedValue(
+      'https://abc123.public.blob.vercel-storage.com/recipes/test.jpg'
+    ),
 }));
 
 const mockRequireRecipeOwner = vi.mocked(requireRecipeOwner);
@@ -131,7 +133,7 @@ describe('POST /api/ai/generate-image/[recipeId]', () => {
     } as never);
     mockRecipeImageCreate.mockResolvedValueOnce({
       id: 'img-1',
-      url: 'https://res.cloudinary.com/test/image.jpg',
+      url: 'https://abc123.public.blob.vercel-storage.com/recipes/test.jpg',
     } as never);
 
     const req = new NextRequest(
@@ -145,7 +147,9 @@ describe('POST /api/ai/generate-image/[recipeId]', () => {
     const res = await POST(req, { params: createParams('recipe-1') });
     expect(res.status).toBe(201);
     const data = await res.json();
-    expect(data.url).toBe('https://res.cloudinary.com/test/image.jpg');
+    expect(data.url).toBe(
+      'https://abc123.public.blob.vercel-storage.com/recipes/test.jpg'
+    );
     expect(data.imageId).toBe('img-1');
   });
 
@@ -163,7 +167,7 @@ describe('POST /api/ai/generate-image/[recipeId]', () => {
     } as never);
     mockRecipeImageCreate.mockResolvedValueOnce({
       id: 'img-1',
-      url: 'https://res.cloudinary.com/test/image.jpg',
+      url: 'https://abc123.public.blob.vercel-storage.com/recipes/test.jpg',
     } as never);
 
     const req = new NextRequest(

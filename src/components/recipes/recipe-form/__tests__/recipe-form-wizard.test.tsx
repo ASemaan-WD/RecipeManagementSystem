@@ -27,14 +27,6 @@ vi.mock('next/image', () => ({
   ),
 }));
 
-vi.mock('next-cloudinary', () => ({
-  CldUploadWidget: ({
-    children,
-  }: {
-    children: (args: { open: () => void }) => React.ReactNode;
-  }) => children({ open: vi.fn() }),
-}));
-
 vi.mock('@/hooks/use-ai', () => ({
   useGenerateImage: () => ({
     mutate: vi.fn(),

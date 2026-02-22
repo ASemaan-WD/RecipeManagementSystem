@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'res.cloudinary.com',
+        hostname: '*.public.blob.vercel-storage.com',
       },
       {
         protocol: 'https',
@@ -53,9 +53,9 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://oaidalleapiprodscus.blob.core.windows.net",
+              "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://images.unsplash.com https://oaidalleapiprodscus.blob.core.windows.net",
               "font-src 'self'",
-              "connect-src 'self' https://api.openai.com https://res.cloudinary.com https://api.cloudinary.com",
+              "connect-src 'self' https://api.openai.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

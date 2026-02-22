@@ -4,7 +4,7 @@ import OpenAI from 'openai';
 import { prisma } from '@/lib/db';
 import { requireRecipeOwner } from '@/lib/auth-utils';
 import { imageLimiter, checkRateLimit } from '@/lib/rate-limit';
-import { uploadImageFromUrl } from '@/lib/cloudinary';
+import { uploadImageFromUrl } from '@/lib/blob-storage';
 import { formatAIError, withAIRetry } from '@/lib/ai-utils';
 import { validateContentType } from '@/lib/api-utils';
 
@@ -68,15 +68,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return generatedUrl;
     }, 'image');
 
-    // Upload to Cloudinary
-    const cloudinaryUrl = await uploadImageFromUrl(result);
+    // Upload to Vercel Blob
+    const blobUrl = await uploadImageFromUrl(result);
 
     // Save to database
     const isFirstImage = recipe.images.length === 0;
     const image = await prisma.recipeImage.create({
       data: {
         recipeId,
-        url: cloudinaryUrl,
+        url: blobUrl,
         source: 'AI_GENERATED',
         isPrimary: isFirstImage,
         order: recipe.images.length,
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     return NextResponse.json(
-      { url: cloudinaryUrl, imageId: image.id },
+      { url: blobUrl, imageId: image.id },
       { status: 201 }
     );
   } catch (err) {

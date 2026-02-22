@@ -1,16 +1,16 @@
 'use client';
 
-import {
-  CldUploadWidget,
-  type CloudinaryUploadWidgetResults,
-} from 'next-cloudinary';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Upload } from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
 interface ImageUploadWidgetProps {
-  onUpload: (result: { url: string; publicId: string }) => void;
+  onUpload: (result: { url: string }) => void;
   disabled?: boolean;
 }
 
@@ -18,44 +18,77 @@ export function ImageUploadWidget({
   onUpload,
   disabled = false,
 }: ImageUploadWidgetProps) {
-  function handleSuccess(result: CloudinaryUploadWidgetResults) {
-    if (typeof result.info === 'string' || !result.info) {
-      toast.error('Upload failed: missing image data.');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset input so the same file can be re-selected
+    e.target.value = '';
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error('File type not allowed. Use JPEG, PNG, WebP, or GIF.');
       return;
     }
 
-    const { secure_url: url, public_id: publicId } = result.info;
-
-    if (!url || !publicId) {
-      toast.error('Upload failed: missing image data.');
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('File too large. Maximum size is 5 MB.');
       return;
     }
 
-    onUpload({ url, publicId });
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/images/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string };
+        throw new Error(data.error ?? 'Upload failed');
+      }
+
+      const data = (await res.json()) as { url: string };
+      onUpload({ url: data.url });
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : 'Image upload failed. Please try again.'
+      );
+    } finally {
+      setIsUploading(false);
+    }
   }
 
   return (
-    <CldUploadWidget
-      signatureEndpoint="/api/images/upload-signature"
-      options={{
-        maxFiles: 1,
-        resourceType: 'image',
-        folder: 'recipe-management/recipes',
-      }}
-      onSuccess={handleSuccess}
-      onError={() => toast.error('Image upload failed. Please try again.')}
-    >
-      {({ open }) => (
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => open()}
-          disabled={disabled}
-        >
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => inputRef.current?.click()}
+        disabled={disabled || isUploading}
+      >
+        {isUploading ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
           <Upload className="size-4" />
-          Upload
-        </Button>
-      )}
-    </CldUploadWidget>
+        )}
+        {isUploading ? 'Uploading...' : 'Upload'}
+      </Button>
+    </>
   );
 }

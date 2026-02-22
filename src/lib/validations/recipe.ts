@@ -82,7 +82,6 @@ export const stepInputSchema = z.object({
 // ─── Image URL Trusted Domains ───
 
 const TRUSTED_IMAGE_DOMAINS = [
-  'res.cloudinary.com',
   'images.unsplash.com',
   'oaidalleapiprodscus.blob.core.windows.net',
 ];
@@ -92,10 +91,9 @@ function isTrustedImageUrl(url: string): boolean {
   if (url.startsWith('/')) return true;
   try {
     const parsed = new URL(url);
-    return TRUSTED_IMAGE_DOMAINS.some(
-      (domain) =>
-        parsed.hostname === domain ||
-        parsed.hostname.endsWith('.cloudinary.com')
+    return (
+      TRUSTED_IMAGE_DOMAINS.some((domain) => parsed.hostname === domain) ||
+      parsed.hostname.endsWith('.public.blob.vercel-storage.com')
     );
   } catch {
     return false;
@@ -106,7 +104,7 @@ const trustedImageUrlSchema = z
   .string()
   .url('Invalid image URL')
   .refine(isTrustedImageUrl, {
-    message: 'Image URL must be from a trusted source (Cloudinary, Unsplash)',
+    message: 'Image URL must be from a trusted source (Vercel Blob, Unsplash)',
   });
 
 export const imageInputSchema = z.object({
