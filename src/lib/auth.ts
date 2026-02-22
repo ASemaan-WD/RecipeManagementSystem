@@ -15,19 +15,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           (user as unknown as { username: string | null }).username ?? null;
       }
       if (trigger === 'update') {
-        // If the client passed a username via update({ username }), use it directly
-        const clientUsername = (session as { username?: string } | undefined)
-          ?.username;
-        if (clientUsername) {
-          token.username = clientUsername;
-        } else {
-          // Fallback: re-fetch from DB
+        const s = session as
+          | { username?: string; name?: string; image?: string | null }
+          | undefined;
+
+        // Apply client-provided values directly
+        if (s?.username) token.username = s.username;
+        if (s?.name !== undefined) token.name = s.name;
+        // NextAuth maps token.picture → session.user.image
+        if (s?.image !== undefined) token.picture = s.image;
+
+        // Fallback: re-fetch from DB when no client values provided
+        if (!s?.username && s?.name === undefined && s?.image === undefined) {
           const dbUser = await prisma.user.findUnique({
             where: { id: token.userId as string },
-            select: { username: true },
+            select: { username: true, name: true, image: true },
           });
           if (dbUser) {
             token.username = dbUser.username;
+            token.name = dbUser.name;
+            token.picture = dbUser.image;
           }
         }
       }
