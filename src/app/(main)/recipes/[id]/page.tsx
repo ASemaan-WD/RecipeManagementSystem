@@ -7,6 +7,7 @@ import { NextResponse } from 'next/server';
 import { RecipeHero } from '@/components/recipes/recipe-detail/recipe-hero';
 import { RecipeMetadata } from '@/components/recipes/recipe-detail/recipe-metadata';
 import { RecipeDetailClient } from '@/components/recipes/recipe-detail/recipe-detail-client';
+import { AddToListButton } from '@/components/shopping/add-to-list-button';
 import { RecipeImages } from '@/components/recipes/recipe-detail/recipe-images';
 import { RecipeActions } from '@/components/recipes/recipe-detail/recipe-actions';
 import { NutritionDisplay } from '@/components/ai/nutrition-display';
@@ -210,12 +211,20 @@ export default async function RecipeDetailPage({
           </div>
 
           <div className="flex flex-col gap-2">
-            <RecipeActions
-              recipeId={recipe.id}
-              isOwner={isOwner}
-              recipeName={recipe.name}
-              currentVisibility={recipe.visibility}
-            />
+            <div className="flex flex-wrap gap-2">
+              <RecipeActions
+                recipeId={recipe.id}
+                isOwner={isOwner}
+                recipeName={recipe.name}
+                currentVisibility={recipe.visibility}
+              />
+              {currentUser && (
+                <AddToListButton
+                  recipeId={recipe.id}
+                  recipeName={recipe.name}
+                />
+              )}
+            </div>
             {!isOwner && (
               <div className="flex items-center gap-1">
                 <TagToggles
