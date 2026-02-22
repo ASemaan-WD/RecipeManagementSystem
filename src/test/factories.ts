@@ -324,3 +324,105 @@ export function createMockPaginatedResponse<T>(
     },
   };
 }
+
+// ─── Shopping List Factories ───
+
+export interface MockShoppingListSummary {
+  id: string;
+  name: string;
+  itemCount: number;
+  checkedCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function createMockShoppingListSummary(
+  overrides: Partial<MockShoppingListSummary> = {}
+): MockShoppingListSummary {
+  return {
+    id: 'list-1',
+    name: 'Weekly Groceries',
+    itemCount: 5,
+    checkedCount: 2,
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+    ...overrides,
+  };
+}
+
+export interface MockShoppingListItem {
+  id: string;
+  shoppingListId: string;
+  ingredientName: string;
+  quantity: string | null;
+  category: string;
+  checked: boolean;
+  order: number;
+}
+
+export function createMockShoppingListItem(
+  overrides: Partial<MockShoppingListItem> = {}
+): MockShoppingListItem {
+  return {
+    id: 'item-1',
+    shoppingListId: 'list-1',
+    ingredientName: 'Flour',
+    quantity: '2 cups',
+    category: 'Baking',
+    checked: false,
+    order: 0,
+    ...overrides,
+  };
+}
+
+export interface MockShoppingListDetail {
+  id: string;
+  name: string;
+  items: MockShoppingListItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function createMockShoppingListDetail(
+  overrides: Partial<MockShoppingListDetail> = {}
+): MockShoppingListDetail {
+  return {
+    id: 'list-1',
+    name: 'Weekly Groceries',
+    items: [
+      createMockShoppingListItem(),
+      createMockShoppingListItem({
+        id: 'item-2',
+        ingredientName: 'Sugar',
+        quantity: '1 cup',
+        order: 1,
+      }),
+      createMockShoppingListItem({
+        id: 'item-3',
+        ingredientName: 'Milk',
+        quantity: '1 gallon',
+        category: 'Dairy & Eggs',
+        checked: true,
+        order: 2,
+      }),
+    ],
+    createdAt: '2025-01-01T00:00:00.000Z',
+    updatedAt: '2025-01-01T00:00:00.000Z',
+    ...overrides,
+  };
+}
+
+export interface MockDietaryTag {
+  id: string;
+  name: string;
+}
+
+export function createMockDietaryTag(
+  overrides: Partial<MockDietaryTag> = {}
+): MockDietaryTag {
+  return {
+    id: 'dt-1',
+    name: 'Vegetarian',
+    ...overrides,
+  };
+}
