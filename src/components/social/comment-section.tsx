@@ -123,6 +123,7 @@ export function CommentSection({
               onChange={(e) => setNewComment(e.target.value)}
               maxLength={MAX_COMMENT_LENGTH}
               rows={3}
+              aria-label="Write a comment"
             />
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-xs">

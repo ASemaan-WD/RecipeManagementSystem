@@ -68,6 +68,7 @@ export function SearchBar({
   return (
     <form
       onSubmit={handleSubmit}
+      role="search"
       className={cn('relative', isHeader ? 'w-full' : 'w-full')}
     >
       <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />

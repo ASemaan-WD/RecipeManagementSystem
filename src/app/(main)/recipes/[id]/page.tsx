@@ -210,7 +210,7 @@ export default async function RecipeDetailPage({
             )}
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="no-print flex flex-col gap-2">
             <div className="flex flex-wrap gap-2">
               <RecipeActions
                 recipeId={recipe.id}
@@ -244,14 +244,16 @@ export default async function RecipeDetailPage({
           </div>
         </div>
 
-        <StarRating
-          recipeId={recipe.id}
-          initialAvgRating={recipe.avgRating}
-          initialRatingCount={recipe.ratingCount}
-          initialUserRating={userRatingValue}
-          isOwner={isOwner}
-          isAuthenticated={!!currentUser}
-        />
+        <div className="no-print">
+          <StarRating
+            recipeId={recipe.id}
+            initialAvgRating={recipe.avgRating}
+            initialRatingCount={recipe.ratingCount}
+            initialUserRating={userRatingValue}
+            isOwner={isOwner}
+            isAuthenticated={!!currentUser}
+          />
+        </div>
 
         <RecipeMetadata recipe={recipe} />
 
@@ -265,11 +267,13 @@ export default async function RecipeDetailPage({
           isOwner={isOwner}
         />
 
-        <CommentSection
-          recipeId={recipe.id}
-          recipeAuthorId={rawRecipe.authorId}
-          currentUserId={currentUser?.id}
-        />
+        <div className="no-print">
+          <CommentSection
+            recipeId={recipe.id}
+            recipeAuthorId={rawRecipe.authorId}
+            currentUserId={currentUser?.id}
+          />
+        </div>
       </div>
     </div>
   );

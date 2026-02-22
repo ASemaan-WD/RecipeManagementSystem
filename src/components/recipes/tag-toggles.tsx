@@ -117,6 +117,12 @@ export function TagToggles({
                 e.stopPropagation();
                 handleToggle(config.status);
               }}
+              aria-label={
+                isCompact
+                  ? `${isActive ? 'Remove' : 'Mark as'} ${config.label}`
+                  : undefined
+              }
+              aria-pressed={isActive}
             >
               <Icon className={cn('size-4', isActive && config.activeClass)} />
               {!isCompact && <span className="text-xs">{config.label}</span>}

@@ -167,6 +167,8 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
               className="flex items-center justify-between border-t pt-2"
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.preventDefault()}
+              role="group"
+              aria-label="Recipe actions"
             >
               <TagToggles
                 recipeId={recipe.id}

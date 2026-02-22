@@ -66,6 +66,8 @@ export function SaveButton({
         e.stopPropagation();
         handleToggle();
       }}
+      aria-label={isCompact ? label : undefined}
+      aria-pressed={isSaved}
     >
       <Icon className={cn('size-4', isSaved && 'fill-primary text-primary')} />
       {!isCompact && <span className="text-xs">{label}</span>}

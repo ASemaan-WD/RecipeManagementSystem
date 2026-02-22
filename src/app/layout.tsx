@@ -35,6 +35,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <a
+          href="#main-content"
+          className="bg-background text-foreground ring-ring fixed top-2 left-2 z-[100] -translate-y-full rounded-md px-4 py-2 text-sm font-medium opacity-0 ring-2 transition-all focus:translate-y-0 focus:opacity-100"
+        >
+          Skip to main content
+        </a>
         <ThemeProvider>
           <AuthProvider>
             <QueryProvider>{children}</QueryProvider>
