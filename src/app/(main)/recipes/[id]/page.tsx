@@ -163,6 +163,7 @@ export default async function RecipeDetailPage({
                 isOwner={isOwner}
                 recipeName={recipe.name}
                 currentVisibility={recipe.visibility}
+                hasImage={recipe.images.length > 0}
               />
               {currentUser && (
                 <AddToListButton

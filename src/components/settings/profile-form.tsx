@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Trash2 } from 'lucide-react';
 
@@ -69,6 +69,8 @@ export function ProfileForm() {
     }
   }, [user, form]);
 
+  const currentImage = useWatch({ control: form.control, name: 'image' });
+
   if (!user) {
     return (
       <Card>
@@ -78,8 +80,6 @@ export function ProfileForm() {
       </Card>
     );
   }
-
-  const currentImage = form.watch('image');
 
   async function onSubmit(data: UpdateProfileData) {
     updateProfile.mutate(data, {
