@@ -7,17 +7,20 @@
 ## Core Principles
 
 ### 1. Zero Assumptions, Zero Inference
+
 - **Every claim must be backed by evidence** found in the codebase or project documentation.
 - Do NOT assume what a function does — read it. Do NOT assume a feature exists — verify it. Do NOT assume a pattern is followed — confirm it.
 - If you cannot find evidence for something, it does not exist in the project. Do not fill gaps with guesses.
 
 ### 2. Strict Task Boundaries
+
 - A task must do **one thing well** and nothing more.
 - Do NOT bleed into adjacent tasks, future tasks, or unrelated improvements.
 - If you discover something that needs fixing but is out of scope, note it as a separate future concern — do NOT fold it into the current task.
 - The task must have a clear entry point (what exists now) and a clear exit point (what should exist after).
 
 ### 3. Evidence-Driven Decision Making
+
 - When making any decision about scope, approach, or implementation — cite the source (file path, documentation section, or code reference).
 - When two sources conflict, flag it and escalate to the user.
 
@@ -26,6 +29,7 @@
 ## Mandatory Process (Follow in Order)
 
 ### Step 1: Consult the Roadmap
+
 - **First**, check `docs/ROADMAP.md` at the project root.
 - If not found, search broadly for any roadmap-related files (`roadmap`, `phases`, `milestones`, `plan`).
 - Identify:
@@ -36,6 +40,7 @@
 - This establishes the **strategic context** — where does this task fit in the bigger picture?
 
 ### Step 2: Audit Existing Functionality
+
 - Before deciding to build anything new, **thoroughly scan the codebase** for existing implementations.
 - Search for:
   - Related components, pages, API routes, utilities, and hooks.
@@ -44,6 +49,7 @@
 - **Goal**: Understand what already exists so the task builds on it rather than duplicating or conflicting with it.
 
 ### Step 3: Consult Project Documentation
+
 - Read the relevant documentation files to understand architectural decisions, constraints, and conventions:
   - `docs/CTO_SPECS.md` — Technical architecture, technology choices, infrastructure decisions, and non-negotiable technical constraints.
   - `docs/PRODUCT_MANAGER.md` — Feature requirements, user stories, acceptance criteria, and product priorities.
@@ -52,6 +58,7 @@
 - Extract anything relevant to the task at hand: patterns to follow, constraints to respect, conventions to maintain.
 
 ### Step 4: Conduct External Research (If Necessary)
+
 - If the task involves a technology, library, API, or pattern that is not fully documented within the project, perform targeted online research.
 - Focus on:
   - Official documentation for libraries/frameworks used in the project.
@@ -60,6 +67,7 @@
 - **Do NOT adopt a new approach just because it's popular** — it must align with the project's established stack and conventions as documented in `docs/CTO_SPECS.md` and `docs/SENIOR_DEVELOPER.md`.
 
 ### Step 5: Define the Expected Outcome
+
 - Before writing the task, articulate clearly:
   - **What does "done" look like?** — Describe the end state in concrete, verifiable terms.
   - **What should the user be able to do after this task is complete?** — User-facing behavior changes.
@@ -67,6 +75,7 @@
 - This expected outcome becomes the north star for the entire task. Every section of the task file should trace back to it.
 
 ### Step 6: Establish Boundaries
+
 - Explicitly state:
   - **In scope**: What this task WILL do.
   - **Out of scope**: What this task will NOT do (even if related or tempting).
@@ -75,6 +84,7 @@
   - **Blocks**: Any future tasks that depend on this task's completion.
 
 ### Step 7: Create the Task File
+
 - Using the **task-template-skill**, produce the task file and place it in `docs/phases/phase<n>/` where `<n>` is the phase number.
 - The task file must reflect everything gathered in Steps 1-6.
 

@@ -1,15 +1,15 @@
 ---
-task_id: "task-1.5"
-title: "Set Up Project Directory Structure"
+task_id: 'task-1.5'
+title: 'Set Up Project Directory Structure'
 phase: 1
 task_number: 5
-status: "done"
-priority: "medium"
+status: 'done'
+priority: 'medium'
 dependencies:
-  - "task-1.1"
-  - "task-1.3"
+  - 'task-1.1'
+  - 'task-1.3'
 blocks: []
-created_at: "2026-02-17"
+created_at: '2026-02-17'
 ---
 
 # Set Up Project Directory Structure
@@ -37,16 +37,19 @@ created_at: "2026-02-17"
 ## Scope & Boundaries
 
 ### In Scope
+
 - Create all directories under `src/` as specified in the roadmap and senior developer specs
 - Create the `public/` directory if it doesn't exist (for static assets)
 - Create placeholder `.gitkeep` files in empty directories so they are tracked by git
 
 ### Out of Scope
+
 - Creating actual component files, page files, or utility files — those are created in their respective tasks (Phases 2-10)
 - Creating barrel `index.ts` files with actual exports — those are added when the modules they export are created
 - Creating the `prisma/` directory (handled by Phase 2)
 
 ### Dependencies
+
 - task-1.1 must be complete (`src/app/` exists)
 - task-1.3 must be complete (`src/components/ui/` exists)
 
@@ -59,11 +62,13 @@ created_at: "2026-02-17"
 **What to do**: Create the route group directories under `src/app/`.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.5 defines the full directory hierarchy
 - `docs/SENIOR_DEVELOPER.md` — File structure section shows the complete `src/app/` layout
 - `docs/CTO_SPECS.md` — Architecture overview confirms the top-level structure
 
 **Specific requirements**:
+
 - Create the following directories under `src/app/`:
   ```
   src/app/
@@ -81,10 +86,12 @@ created_at: "2026-02-17"
 **What to do**: Create component subdirectories under `src/components/`.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.5 lists: `layout/`, `recipes/`, `search/`, `social/`, `ai/`, `shared/`
 - `docs/SENIOR_DEVELOPER.md` — File structure confirms these directories with specific component names
 
 **Specific requirements**:
+
 - Create the following directories under `src/components/`:
   ```
   src/components/
@@ -105,10 +112,12 @@ created_at: "2026-02-17"
 **What to do**: Create the hooks, lib, types, and providers directories.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.5 lists: `hooks/`, `lib/`, `types/`, `providers/`
 - `docs/SENIOR_DEVELOPER.md` — File structure shows all four directories with specific file names
 
 **Specific requirements**:
+
 - Create the following directories under `src/`:
   ```
   src/
@@ -127,9 +136,11 @@ created_at: "2026-02-17"
 **What to do**: Ensure the `public/` directory exists for static assets.
 
 **Where to find context**:
+
 - `docs/SENIOR_DEVELOPER.md` — File structure shows `public/` with `placeholder-recipe.jpg`, `logo.svg`, `favicon.ico`
 
 **Specific requirements**:
+
 - `public/` should already exist from `create-next-app` — verify
 - Do NOT create placeholder asset files (logo, favicon, etc.) — those are created when needed
 
@@ -138,10 +149,12 @@ created_at: "2026-02-17"
 ## Verification & Acceptance Criteria
 
 ### Build Verification
+
 - [ ] Project still builds without errors (`npm run build`)
 - [ ] No new TypeScript/linting errors introduced
 
 ### Functional Verification
+
 - [ ] `src/app/(auth)/` directory exists
 - [ ] `src/app/(main)/` directory exists
 - [ ] `src/app/api/` directory exists
@@ -159,6 +172,7 @@ created_at: "2026-02-17"
 - [ ] Empty directories contain `.gitkeep` files so git tracks them
 
 ### Code Quality Checks
+
 - [ ] No files were created that contain actual implementation code
 - [ ] No TODO/FIXME comments left unresolved
 

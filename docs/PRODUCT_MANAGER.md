@@ -11,6 +11,7 @@ A modern recipe management platform where users can organize their culinary coll
 ## User Personas
 
 ### P1: Home Cook / Primary User
+
 - Manages their personal recipe collection
 - Tags and organizes recipes
 - Searches for recipes by various criteria
@@ -18,11 +19,13 @@ A modern recipe management platform where users can organize their culinary coll
 - Shares recipes with other users
 
 ### P2: Community Member
+
 - Browses shared/public recipes
 - Saves recipes to their own collection
 - Rates and comments on recipes
 
 ### P3: Guest (unauthenticated)
+
 - Can browse public recipe **summaries** (title, image, prep time, cuisine)
 - Must log in to view full recipe details (ingredients, steps, instructions)
 - Cannot save, share, rate, or comment
@@ -35,11 +38,11 @@ A modern recipe management platform where users can organize their culinary coll
 
 Recipes are **private by default** with three visibility levels:
 
-| Visibility | Description |
-|-----------|-------------|
-| **Private** | Only the author can see the recipe (default) |
-| **Shared** | Author invites specific users by email/username — only they can view |
-| **Public** | Visible to all authenticated users; summaries visible to guests |
+| Visibility  | Description                                                          |
+| ----------- | -------------------------------------------------------------------- |
+| **Private** | Only the author can see the recipe (default)                         |
+| **Shared**  | Author invites specific users by email/username — only they can view |
+| **Public**  | Visible to all authenticated users; summaries visible to guests      |
 
 - When sharing with specific users, the author selects users from a share dialog
 - Shared users receive a notification or can find the recipe in their "Shared with me" section
@@ -49,6 +52,7 @@ Recipes are **private by default** with three visibility levels:
 ### 2. Social Features: Yes — Comments & Ratings
 
 Public and shared recipes support:
+
 - **Ratings:** 1-5 star rating system on shared/public recipes
 - **Comments:** Users can leave comments on shared/public recipes
 - **Average rating** displayed on recipe cards and detail pages
@@ -57,32 +61,32 @@ Public and shared recipes support:
 
 ### 3. AI Features: Prioritized
 
-| Priority | Feature | Description |
-|----------|---------|-------------|
-| **Must-have** | AI Recipe Generator | "I have chicken, rice, and bell peppers — what can I make?" |
-| **Must-have** | Ingredient Substitution | "I don't have butter, what can I use instead in this recipe?" |
-| **Must-have** | AI Nutritional Estimates | Auto-calculate approximate nutrition info from ingredients |
-| Nice-to-have | Smart Tagging | AI auto-suggests cuisine type, dietary tags, difficulty when adding a recipe |
-| Nice-to-have | Meal Plan Suggestions | AI suggests a weekly meal plan from your collection |
+| Priority      | Feature                  | Description                                                                  |
+| ------------- | ------------------------ | ---------------------------------------------------------------------------- |
+| **Must-have** | AI Recipe Generator      | "I have chicken, rice, and bell peppers — what can I make?"                  |
+| **Must-have** | Ingredient Substitution  | "I don't have butter, what can I use instead in this recipe?"                |
+| **Must-have** | AI Nutritional Estimates | Auto-calculate approximate nutrition info from ingredients                   |
+| Nice-to-have  | Smart Tagging            | AI auto-suggests cuisine type, dietary tags, difficulty when adding a recipe |
+| Nice-to-have  | Meal Plan Suggestions    | AI suggests a weekly meal plan from your collection                          |
 
 ### 4. Recipe Images: All Three Options
 
-| Option | Description |
-|--------|-------------|
-| **URL-based** | Paste an image URL |
-| **File upload** | Upload an image directly (stored via Cloudinary or equivalent) |
-| **AI-generated** | Auto-generate a placeholder image when no image is provided |
+| Option           | Description                                                    |
+| ---------------- | -------------------------------------------------------------- |
+| **URL-based**    | Paste an image URL                                             |
+| **File upload**  | Upload an image directly (stored via Cloudinary or equivalent) |
+| **AI-generated** | Auto-generate a placeholder image when no image is provided    |
 
 - Display priority: uploaded image > URL image > AI-generated placeholder
 - All images are optimized and served via CDN
 
 ### 5. Guest Access: Summary-Only
 
-| User Type | Can See | Cannot See |
-|-----------|---------|------------|
-| **Guest** | Recipe cards (title, image, prep time, cuisine, rating) | Full ingredients, steps, instructions, comments |
-| **Guest** | "Log in to view full recipe" prompt on click | — |
-| **Authenticated** | Full recipe detail | Private recipes of other users |
+| User Type         | Can See                                                 | Cannot See                                      |
+| ----------------- | ------------------------------------------------------- | ----------------------------------------------- |
+| **Guest**         | Recipe cards (title, image, prep time, cuisine, rating) | Full ingredients, steps, instructions, comments |
+| **Guest**         | "Log in to view full recipe" prompt on click            | —                                               |
+| **Authenticated** | Full recipe detail                                      | Private recipes of other users                  |
 
 ### 6. Design: Pinterest-Style Recipe Cards
 
@@ -118,12 +122,12 @@ Public and shared recipes support:
 
 Reuse the same platform stack as the Library project, since multiple projects can be deployed:
 
-| Choice | Technology | Rationale |
-|--------|-----------|-----------|
-| Platform | **Vercel** | Best free tier for Next.js, supports multiple projects per account |
-| Database | **Neon** | Free tier PostgreSQL, serverless, pgvector support — multiple databases allowed |
-| File Storage | **Cloudinary** | Free tier image hosting with CDN and transformations |
-| CI/CD | **Vercel auto-deploy** | Push to `main` → auto build + deploy |
+| Choice       | Technology             | Rationale                                                                       |
+| ------------ | ---------------------- | ------------------------------------------------------------------------------- |
+| Platform     | **Vercel**             | Best free tier for Next.js, supports multiple projects per account              |
+| Database     | **Neon**               | Free tier PostgreSQL, serverless, pgvector support — multiple databases allowed |
+| File Storage | **Cloudinary**         | Free tier image hosting with CDN and transformations                            |
+| CI/CD        | **Vercel auto-deploy** | Push to `main` → auto build + deploy                                            |
 
 > **Verified:** Vercel, Neon, and Cloudinary all support multiple projects on their free tiers.
 
@@ -138,12 +142,14 @@ Reuse the same platform stack as the Library project, since multiple projects ca
 ## Feature Breakdown (Finalized)
 
 ### 1. Recipe Management (CRUD)
+
 - Add a recipe with: name, ingredients (with quantities), step-by-step instructions, prep time, cook time, servings, difficulty level, cuisine type, dietary tags (vegan, gluten-free, etc.), image (upload, URL, or AI-generated)
 - Edit existing recipes
 - Delete recipes
 - Duplicate/fork a recipe to make variations
 
 ### 2. Status Tagging System
+
 - Mark recipes as:
   - **Favorite** (heart icon)
   - **To Try** (bookmark icon)
@@ -152,16 +158,19 @@ Reuse the same platform stack as the Library project, since multiple projects ca
 - Personal per-user tagging (my "favorite" is independent of your "favorite")
 
 ### 3. Search & Discovery
+
 - Search by: recipe name, ingredient, cuisine type, preparation time
 - Filters: dietary tags, difficulty, cook time range, status tag, rating
 - Sort by: name, date added, prep time, rating/popularity
 
 ### 4. AI Features
+
 - **Must-have:** AI Recipe Generator, Ingredient Substitution, AI Nutritional Estimates
 - **Nice-to-have:** Smart Tagging, Meal Plan Suggestions
 - (See prioritized table above for details)
 
 ### 5. Three-Tier Sharing & Social
+
 - Three-tier visibility: Private → Shared (specific users) → Public
 - User registration and authentication
 - Browse community/public recipes
@@ -169,6 +178,7 @@ Reuse the same platform stack as the Library project, since multiple projects ca
 - Rate (1-5 stars) and comment on shared/public recipes
 
 ### 6. Creative / Extra Features
+
 - Cooking timer built into recipe view
 - Shopping list generator from selected recipes
 - Recipe scaling (adjust servings, auto-recalculate quantities)
@@ -181,25 +191,25 @@ Reuse the same platform stack as the Library project, since multiple projects ca
 
 ## User Stories (Finalized Priority Order)
 
-| Priority | Story |
-|----------|-------|
-| P0 | As a user, I can sign up and log in |
-| P0 | As a user, I can add/edit/delete my recipes with images (upload, URL, or AI-generated) |
-| P0 | As a user, I can tag recipes as favorite/to-try/made-before |
-| P0 | As a user, I can search recipes by name, ingredient, cuisine, or prep time |
-| P1 | As a user, I can set recipe visibility to private, shared (specific users), or public |
-| P1 | As a user, I can share a recipe with specific users by email/username |
-| P1 | As a user, I can browse and save other users' public recipes |
-| P1 | As a user, I can ask AI "what can I make with these ingredients?" |
-| P1 | As a user, I can ask AI for ingredient substitutions |
-| P1 | As a user, I can rate and comment on public/shared recipes |
-| P2 | As a user, I can get AI-estimated nutritional info for a recipe |
-| P2 | As a user, I can generate a shopping list from selected recipes |
-| P2 | As a user, I can scale recipe servings and see adjusted quantities |
-| P2 | As a guest, I can see recipe summaries but must log in to view full details |
-| P3 | As a user, I can import a recipe from a URL |
-| P3 | As a user, I can get AI meal plan suggestions |
-| P3 | As a user, AI auto-suggests tags when I create a recipe |
+| Priority | Story                                                                                  |
+| -------- | -------------------------------------------------------------------------------------- |
+| P0       | As a user, I can sign up and log in                                                    |
+| P0       | As a user, I can add/edit/delete my recipes with images (upload, URL, or AI-generated) |
+| P0       | As a user, I can tag recipes as favorite/to-try/made-before                            |
+| P0       | As a user, I can search recipes by name, ingredient, cuisine, or prep time             |
+| P1       | As a user, I can set recipe visibility to private, shared (specific users), or public  |
+| P1       | As a user, I can share a recipe with specific users by email/username                  |
+| P1       | As a user, I can browse and save other users' public recipes                           |
+| P1       | As a user, I can ask AI "what can I make with these ingredients?"                      |
+| P1       | As a user, I can ask AI for ingredient substitutions                                   |
+| P1       | As a user, I can rate and comment on public/shared recipes                             |
+| P2       | As a user, I can get AI-estimated nutritional info for a recipe                        |
+| P2       | As a user, I can generate a shopping list from selected recipes                        |
+| P2       | As a user, I can scale recipe servings and see adjusted quantities                     |
+| P2       | As a guest, I can see recipe summaries but must log in to view full details            |
+| P3       | As a user, I can import a recipe from a URL                                            |
+| P3       | As a user, I can get AI meal plan suggestions                                          |
+| P3       | As a user, AI auto-suggests tags when I create a recipe                                |
 
 ---
 

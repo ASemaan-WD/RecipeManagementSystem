@@ -1,14 +1,14 @@
 ---
-task_id: "task-1.7"
-title: "Configure TypeScript Strictly"
+task_id: 'task-1.7'
+title: 'Configure TypeScript Strictly'
 phase: 1
 task_number: 7
-status: "pending"
-priority: "medium"
+status: 'pending'
+priority: 'medium'
 dependencies:
-  - "task-1.1"
+  - 'task-1.1'
 blocks: []
-created_at: "2026-02-17"
+created_at: '2026-02-17'
 ---
 
 # Configure TypeScript Strictly
@@ -36,6 +36,7 @@ created_at: "2026-02-17"
 ## Scope & Boundaries
 
 ### In Scope
+
 - Enable `noUncheckedIndexedAccess: true` in `tsconfig.json`
 - Enable `forceConsistentCasingInFileNames: true` in `tsconfig.json`
 - Verify `strict: true` is already enabled (should be from `create-next-app`)
@@ -43,10 +44,12 @@ created_at: "2026-02-17"
 - Fix any TypeScript errors introduced by the stricter settings
 
 ### Out of Scope
+
 - Adding type declaration files for external libraries (done as needed when those libraries are configured)
 - Modifying any source code beyond fixing TypeScript errors caused by the new strict settings
 
 ### Dependencies
+
 - task-1.1 must be complete (`tsconfig.json` exists)
 
 ---
@@ -58,10 +61,12 @@ created_at: "2026-02-17"
 **What to do**: Add additional strict compiler options to `tsconfig.json`.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.7 specifies the exact settings
 - Next.js default `tsconfig.json` reference
 
 **Specific requirements**:
+
 - In `tsconfig.json`, within `compilerOptions`, add or verify:
   - `"strict": true` — should already be set by `create-next-app`
   - `"noUncheckedIndexedAccess": true` — array/object index access returns `T | undefined` instead of `T`
@@ -75,9 +80,11 @@ created_at: "2026-02-17"
 **What to do**: Confirm the `@/*` path alias resolves correctly.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.7: "Verify path aliases (`@/*` → `src/*`) work correctly"
 
 **Specific requirements**:
+
 - In `tsconfig.json`, verify `paths` includes `"@/*": ["./src/*"]`
 - This should already be configured by `create-next-app` — verify, do not duplicate
 - Test by confirming that existing imports using `@/` (e.g., in shadcn/ui components) resolve without errors
@@ -89,6 +96,7 @@ created_at: "2026-02-17"
 **What to do**: If the stricter settings introduce TypeScript errors in existing code, fix them.
 
 **Specific requirements**:
+
 - Run `npm run build` to check for new errors
 - `noUncheckedIndexedAccess` may cause errors in code that accesses arrays or objects by index without null checks — fix by adding appropriate type guards
 - This is unlikely to affect the minimal codebase at this stage but should be verified
@@ -98,17 +106,20 @@ created_at: "2026-02-17"
 ## Verification & Acceptance Criteria
 
 ### Build Verification
+
 - [ ] `npm run build` completes without errors
 - [ ] No new TypeScript compilation errors
 - [ ] No new console warnings
 
 ### Functional Verification
+
 - [ ] `tsconfig.json` includes `"strict": true`
 - [ ] `tsconfig.json` includes `"noUncheckedIndexedAccess": true`
 - [ ] `tsconfig.json` includes `"forceConsistentCasingInFileNames": true`
 - [ ] Path alias `@/*` resolves to `src/*` (verified by successful build with existing `@/` imports)
 
 ### Code Quality Checks
+
 - [ ] No TypeScript settings were removed or weakened
 - [ ] No TODO/FIXME comments left unresolved
 

@@ -1,16 +1,16 @@
 ---
-task_id: "task-1.8"
-title: "Configure ESLint and Prettier"
+task_id: 'task-1.8'
+title: 'Configure ESLint and Prettier'
 phase: 1
 task_number: 8
-status: "pending"
-priority: "medium"
+status: 'pending'
+priority: 'medium'
 dependencies:
-  - "task-1.1"
-  - "task-1.2"
+  - 'task-1.1'
+  - 'task-1.2'
 blocks:
-  - "task-1.9"
-created_at: "2026-02-17"
+  - 'task-1.9'
+created_at: '2026-02-17'
 ---
 
 # Configure ESLint and Prettier
@@ -38,16 +38,19 @@ created_at: "2026-02-17"
 ## Scope & Boundaries
 
 ### In Scope
+
 - Create `.prettierrc` with team-consistent settings
 - Extend ESLint configuration with recommended rules for Next.js, TypeScript, and React hooks
 - Add `lint`, `format`, and `format:check` scripts to `package.json`
 - Create `.prettierignore` to exclude non-formattable directories
 
 ### Out of Scope
+
 - Setting up Husky/lint-staged git hooks (handled by task-1.9)
 - Running `npm run format` to format the entire codebase (do this at the end of Phase 1, or leave to the developer)
 
 ### Dependencies
+
 - task-1.1 must be complete (ESLint configured by `create-next-app`)
 - task-1.2 must be complete (Prettier and plugin installed)
 
@@ -60,9 +63,11 @@ created_at: "2026-02-17"
 **What to do**: Create `.prettierrc` with consistent formatting settings.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.8: "Create `.prettierrc` with team-consistent settings (semicolons, single quotes, trailing commas, print width)"
 
 **Specific requirements**:
+
 - Create `.prettierrc` (JSON format) at the project root with:
   ```json
   {
@@ -88,6 +93,7 @@ created_at: "2026-02-17"
 **What to do**: Create `.prettierignore` to exclude directories that should not be formatted.
 
 **Specific requirements**:
+
 - Create `.prettierignore` at the project root:
   ```
   node_modules
@@ -107,9 +113,11 @@ created_at: "2026-02-17"
 **What to do**: Ensure ESLint configuration includes recommended rules for the project's stack.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.8: "Extend ESLint configuration with recommended rules for Next.js, TypeScript, and React hooks"
 
 **Specific requirements**:
+
 - `create-next-app` sets up ESLint with `next/core-web-vitals` or `next/typescript` — verify these are present
 - The default Next.js ESLint config already includes:
   - `eslint-plugin-react` — React rules
@@ -120,6 +128,7 @@ created_at: "2026-02-17"
 - If using the new flat config format (`eslint.config.mjs`), ensure it extends the correct Next.js presets
 
 **Patterns to follow**:
+
 - Do not fight with Next.js's built-in ESLint configuration — extend it, don't replace it
 
 ---
@@ -129,9 +138,11 @@ created_at: "2026-02-17"
 **What to do**: Add lint and format scripts to `package.json`.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.8 specifies the exact scripts
 
 **Specific requirements**:
+
 - Add or verify the following scripts in `package.json`:
   - `"lint": "next lint"` — should already exist from `create-next-app`
   - `"format": "prettier --write ."` — format all files in place
@@ -143,11 +154,13 @@ created_at: "2026-02-17"
 ## Verification & Acceptance Criteria
 
 ### Build Verification
+
 - [ ] `npm run build` completes without errors
 - [ ] `npm run lint` runs without errors
 - [ ] No new TypeScript/linting errors introduced
 
 ### Functional Verification
+
 - [ ] `.prettierrc` exists with the specified settings
 - [ ] `.prettierignore` exists with appropriate exclusions
 - [ ] ESLint config extends Next.js recommended rules
@@ -157,6 +170,7 @@ created_at: "2026-02-17"
 - [ ] Tailwind CSS class sorting works (Prettier plugin is active)
 
 ### Code Quality Checks
+
 - [ ] ESLint and Prettier configurations do not conflict
 - [ ] No TODO/FIXME comments left unresolved
 

@@ -1,15 +1,15 @@
 ---
-task_id: "task-1.6"
-title: "Configure Tailwind CSS and Theme"
+task_id: 'task-1.6'
+title: 'Configure Tailwind CSS and Theme'
 phase: 1
 task_number: 6
-status: "completed"
-priority: "medium"
+status: 'completed'
+priority: 'medium'
 dependencies:
-  - "task-1.1"
-  - "task-1.3"
+  - 'task-1.1'
+  - 'task-1.3'
 blocks: []
-created_at: "2026-02-17"
+created_at: '2026-02-17'
 ---
 
 # Configure Tailwind CSS and Theme
@@ -37,18 +37,21 @@ created_at: "2026-02-17"
 ## Scope & Boundaries
 
 ### In Scope
+
 - Configure dark mode with `class` strategy in `tailwind.config.ts`
 - Verify responsive breakpoints are mobile-first (these are Tailwind defaults — confirm, don't override)
 - Add any custom animations or keyframes if the roadmap specifies them
 - Verify `globals.css` has proper Tailwind directives and shadcn/ui CSS variables for both light and dark themes
 
 ### Out of Scope
+
 - Installing `next-themes` or creating the ThemeProvider component (handled by Phase 3/4 per the roadmap — task 3.10 and 4.8)
 - Creating the dark mode toggle UI component (handled by Phase 4 — task 4.8)
 - Custom font configuration beyond what `create-next-app` provides (minimal scope, no custom fonts unless explicitly needed)
 - Building responsive layouts for specific pages (handled in their respective tasks)
 
 ### Dependencies
+
 - task-1.1 must be complete (`tailwind.config.ts` exists)
 - task-1.3 must be complete (shadcn/ui has added its theme configuration)
 
@@ -61,15 +64,18 @@ created_at: "2026-02-17"
 **What to do**: Set the dark mode strategy to `class` in `tailwind.config.ts`.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.6: "Configure dark mode support (`class` strategy for manual toggle)"
 - `docs/SENIOR_DEVELOPER.md` — Phase 7e confirms: "shadcn/ui `ThemeProvider` with system/light/dark options"
 - `docs/CTO_SPECS.md` — Frontend section confirms dark mode support
 
 **Specific requirements**:
+
 - In `tailwind.config.ts`, set `darkMode: "class"` (or verify shadcn/ui init already set this)
 - The `class` strategy means dark mode is toggled by adding/removing the `dark` class on the `<html>` element, which is how `next-themes` works (configured in a future task)
 
 **Patterns to follow**:
+
 - shadcn/ui may have already configured this during init — verify before modifying
 
 ---
@@ -79,10 +85,12 @@ created_at: "2026-02-17"
 **What to do**: Confirm the default Tailwind breakpoints are in place and mobile-first.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.6: "Set up responsive breakpoints (mobile-first: `sm`, `md`, `lg`, `xl`)"
 - `docs/SENIOR_DEVELOPER.md` — Phase 7g: "Mobile-first breakpoints: `sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`"
 
 **Specific requirements**:
+
 - Tailwind CSS defaults are already mobile-first with these exact breakpoints — verify they have not been overridden
 - Do NOT customize breakpoints unless the defaults differ from the spec (they should not)
 - The breakpoints from the senior dev spec match Tailwind defaults exactly
@@ -94,9 +102,11 @@ created_at: "2026-02-17"
 **What to do**: Add any custom animations or keyframes specified by the roadmap.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.6: "Define any custom animations or keyframes needed"
 
 **Specific requirements**:
+
 - shadcn/ui already adds animation keyframes for its components (accordion, etc.) during init
 - At this stage, no additional custom animations are specified in the project docs beyond what shadcn/ui provides
 - Do NOT add speculative animations — add them when specific components need them in later phases
@@ -106,16 +116,19 @@ created_at: "2026-02-17"
 ## Verification & Acceptance Criteria
 
 ### Build Verification
+
 - [ ] `npm run build` completes without errors
 - [ ] No new TypeScript/linting errors introduced
 
 ### Functional Verification
+
 - [ ] `tailwind.config.ts` includes `darkMode: "class"` (or equivalent)
 - [ ] Default Tailwind breakpoints are intact: `sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`
 - [ ] `globals.css` contains CSS variables for both light and dark themes (from shadcn/ui)
 - [ ] Tailwind `dark:` variant classes are functional (e.g., `dark:bg-slate-900` would apply when `dark` class is on `<html>`)
 
 ### Code Quality Checks
+
 - [ ] No unnecessary theme overrides or customizations beyond what the specs require
 - [ ] No TODO/FIXME comments left unresolved
 

@@ -7,6 +7,7 @@
 ## Dependencies Summary
 
 All upstream decisions are locked:
+
 - **PM:** Three-tier visibility, social features (ratings/comments), OpenAI, DALL-E on-demand, share-by-username + share-by-link, multi-tag support, "Shared with me" notifications, guest summary-only access, Pinterest card layout, mobile-first, 15-20 seed recipes
 - **CTO:** Next.js 14+ / Prisma / Neon PostgreSQL / NextAuth.js v5 / OpenAI GPT-4o-mini + DALL-E 3 / Cloudinary / Vercel / Vercel AI SDK
 - **Senior Dev (this doc):** Usernames locked (alphanumeric + underscores, 3-20 chars, case-sensitive, not changeable), multi-step wizard form, dashboard landing page, silent retry AI errors, shopping lists persisted in DB
@@ -16,6 +17,7 @@ All upstream decisions are locked:
 ## Implementation Plan (Phased)
 
 ### Phase 1: Project Scaffolding & Auth (Foundation)
+
 **Goal:** Bootable app with authentication, username setup, and base layout.
 **Estimated scope:** ~15 files
 
@@ -24,6 +26,7 @@ All upstream decisions are locked:
    npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir
    ```
 2. Install core dependencies:
+
    ```bash
    # UI
    npx shadcn-ui@latest init
@@ -42,6 +45,7 @@ All upstream decisions are locked:
    # Image upload
    npm install next-cloudinary
    ```
+
 3. Set up Prisma with Neon PostgreSQL connection (serverless driver)
 4. Define **full database schema** from CTO specs (all models, enums, indexes)
 5. Run initial migration: `npx prisma migrate dev --name init`
@@ -74,28 +78,35 @@ All upstream decisions are locked:
 ---
 
 ### Phase 2: Recipe CRUD + Images
+
 **Goal:** Full recipe management with all three image sources.
 **Estimated scope:** ~25 files
 
 #### 2a. API Routes
+
 Build all recipe CRUD endpoints per CTO API contract:
 
-| Route File | Endpoints |
-|-----------|-----------|
-| `src/app/api/recipes/route.ts` | `GET` (list my recipes w/ pagination, search, filters), `POST` (create) |
-| `src/app/api/recipes/[id]/route.ts` | `GET` (detail), `PUT` (update), `DELETE` (delete) |
-| `src/app/api/recipes/[id]/summary/route.ts` | `GET` (public summary, no auth) |
-| `src/app/api/recipes/[id]/duplicate/route.ts` | `POST` (fork recipe) |
-| `src/app/api/upload/image/route.ts` | `POST` (Cloudinary signed upload signature) |
+| Route File                                    | Endpoints                                                               |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| `src/app/api/recipes/route.ts`                | `GET` (list my recipes w/ pagination, search, filters), `POST` (create) |
+| `src/app/api/recipes/[id]/route.ts`           | `GET` (detail), `PUT` (update), `DELETE` (delete)                       |
+| `src/app/api/recipes/[id]/summary/route.ts`   | `GET` (public summary, no auth)                                         |
+| `src/app/api/recipes/[id]/duplicate/route.ts` | `POST` (fork recipe)                                                    |
+| `src/app/api/upload/image/route.ts`           | `POST` (Cloudinary signed upload signature)                             |
 
 **Authorization middleware pattern:**
+
 ```typescript
 // src/lib/auth-helpers.ts
-async function requireAuth(request: Request): Promise<Session>
-async function requireRecipeOwner(recipeId: string, userId: string): Promise<Recipe>
+async function requireAuth(request: Request): Promise<Session>;
+async function requireRecipeOwner(
+  recipeId: string,
+  userId: string
+): Promise<Recipe>;
 ```
 
 **Recipe creation flow:**
+
 1. Validate request body with Zod schema
 2. Create `Recipe` record
 3. Upsert `Ingredient` records (find-or-create by normalized name)
@@ -135,12 +146,14 @@ Step 1: Basic Info → Step 2: Ingredients → Step 3: Steps → Step 4: Tags �
 - **Edit mode:** pre-populates all steps from existing recipe data; allows jumping to any step via the progress indicator
 
 **Recipe list** (`/recipes`):
+
 - Pinterest-style masonry grid using CSS Grid
 - `RecipeCard` component showing: primary image, title, prep+cook time, difficulty badge, cuisine tag, average rating (stars)
 - Infinite scroll or pagination
 - Empty state: "No recipes yet — add your first recipe!"
 
 **Recipe detail** (`/recipes/[id]`):
+
 - Hero section: primary image (full width), title, author, ratings summary
 - Metadata bar: prep time, cook time, servings, difficulty, cuisine
 - Ingredients list with quantities
@@ -156,19 +169,21 @@ Step 1: Basic Info → Step 2: Ingredients → Step 3: Steps → Step 4: Tags �
 ---
 
 ### Phase 3: Status Tagging & Collections
+
 **Goal:** Personal status tags with multi-tag support + saved recipes.
 **Estimated scope:** ~10 files
 
 #### 3a. API Routes
 
-| Route File | Endpoints |
-|-----------|-----------|
-| `src/app/api/recipes/[id]/tag/route.ts` | `POST` (add tag — body: `{ status }`) |
-| `src/app/api/recipes/[id]/tag/[status]/route.ts` | `DELETE` (remove specific tag) |
-| `src/app/api/recipes/[id]/save/route.ts` | `POST` (save to collection), `DELETE` (unsave) |
-| `src/app/api/me/collection/route.ts` | `GET` (my recipes + saved + tagged, with filters) |
+| Route File                                       | Endpoints                                         |
+| ------------------------------------------------ | ------------------------------------------------- |
+| `src/app/api/recipes/[id]/tag/route.ts`          | `POST` (add tag — body: `{ status }`)             |
+| `src/app/api/recipes/[id]/tag/[status]/route.ts` | `DELETE` (remove specific tag)                    |
+| `src/app/api/recipes/[id]/save/route.ts`         | `POST` (save to collection), `DELETE` (unsave)    |
+| `src/app/api/me/collection/route.ts`             | `GET` (my recipes + saved + tagged, with filters) |
 
 **Multi-tag behavior:**
+
 - `POST /api/recipes/[id]/tag` with `{ status: "FAVORITE" }` — adds FAVORITE tag
 - Same recipe can also have TO_TRY and MADE_BEFORE tags simultaneously
 - `DELETE /api/recipes/[id]/tag/FAVORITE` — removes only FAVORITE, others remain
@@ -177,12 +192,14 @@ Step 1: Basic Info → Step 2: Ingredients → Step 3: Steps → Step 4: Tags �
 #### 3b. UI Components
 
 **Tag toggle buttons** (`TagButtons` component):
+
 - Three toggle buttons per recipe: Heart (favorite), Bookmark (to try), Check (made before)
 - Each independently toggleable (not mutually exclusive)
 - Optimistic updates via React Query `useMutation` + `onMutate` for instant feedback
 - Shown on recipe cards (compact) and recipe detail page (full size with labels)
 
 **My Collection page** (`/my-collection`):
+
 - Tab bar: All | Favorites | To Try | Made Before | Saved
 - Each tab filters the collection accordingly
 - "All" shows everything: my authored recipes + saved community recipes + any tagged recipes
@@ -194,12 +211,14 @@ Step 1: Basic Info → Step 2: Ingredients → Step 3: Steps → Step 4: Tags �
 ---
 
 ### Phase 4: Search & Discovery
+
 **Goal:** Full-text search + filters across recipes.
 **Estimated scope:** ~8 files
 
 #### 4a. PostgreSQL Full-Text Search Setup
 
 Add a Prisma migration for full-text search:
+
 ```sql
 -- Add tsvector column to Recipe
 ALTER TABLE "Recipe" ADD COLUMN "searchVector" tsvector;
@@ -245,10 +264,12 @@ For ingredient search, use a subquery joining through `RecipeIngredient` → `In
 #### 4c. Search UI
 
 **Search bar** — prominent, always visible in header or top of recipe pages:
+
 - Debounced input (300ms) using `useDeferredValue` or custom debounce hook
 - Search-as-you-type with React Query
 
 **Filter panel** — sidebar on desktop, slide-out drawer on mobile:
+
 - Cuisine type: multi-select dropdown (populated from DB)
 - Dietary tags: checkbox group
 - Difficulty: radio buttons (Easy / Medium / Hard / Any)
@@ -264,24 +285,26 @@ For ingredient search, use a subquery joining through `RecipeIngredient` → `In
 ---
 
 ### Phase 5: Sharing, Social & Guest Access
+
 **Goal:** Three-tier visibility, share-by-username, share links, ratings, comments, guest access.
 **Estimated scope:** ~25 files
 
 #### 5a. Three-Tier Visibility + Sharing API
 
-| Route File | Endpoints |
-|-----------|-----------|
-| `src/app/api/recipes/[id]/visibility/route.ts` | `PUT` (set PRIVATE/SHARED/PUBLIC) |
-| `src/app/api/recipes/[id]/share/route.ts` | `POST` (share with user by username), `GET` (list shares) |
-| `src/app/api/recipes/[id]/share/[userId]/route.ts` | `DELETE` (revoke share) |
-| `src/app/api/recipes/[id]/share-link/route.ts` | `POST` (generate link) |
-| `src/app/api/recipes/[id]/share-link/[linkId]/route.ts` | `DELETE` (revoke link) |
-| `src/app/api/share/[token]/route.ts` | `GET` (access via share link) |
-| `src/app/api/users/search/route.ts` | `GET` (search by username for share dialog) |
-| `src/app/api/recipes/public/route.ts` | `GET` (browse public, no auth required) |
-| `src/app/api/recipes/shared-with-me/route.ts` | `GET` (recipes shared with me) |
+| Route File                                              | Endpoints                                                 |
+| ------------------------------------------------------- | --------------------------------------------------------- |
+| `src/app/api/recipes/[id]/visibility/route.ts`          | `PUT` (set PRIVATE/SHARED/PUBLIC)                         |
+| `src/app/api/recipes/[id]/share/route.ts`               | `POST` (share with user by username), `GET` (list shares) |
+| `src/app/api/recipes/[id]/share/[userId]/route.ts`      | `DELETE` (revoke share)                                   |
+| `src/app/api/recipes/[id]/share-link/route.ts`          | `POST` (generate link)                                    |
+| `src/app/api/recipes/[id]/share-link/[linkId]/route.ts` | `DELETE` (revoke link)                                    |
+| `src/app/api/share/[token]/route.ts`                    | `GET` (access via share link)                             |
+| `src/app/api/users/search/route.ts`                     | `GET` (search by username for share dialog)               |
+| `src/app/api/recipes/public/route.ts`                   | `GET` (browse public, no auth required)                   |
+| `src/app/api/recipes/shared-with-me/route.ts`           | `GET` (recipes shared with me)                            |
 
 **Share dialog component:**
+
 - Modal triggered by "Share" button on recipe detail
 - Visibility selector: Private / Shared / Public (radio or segmented control)
 - When "Shared" or "Public" selected:
@@ -292,13 +315,14 @@ For ingredient search, use a subquery joining through `RecipeIngredient` → `In
 
 #### 5b. Ratings & Comments API
 
-| Route File | Endpoints |
-|-----------|-----------|
-| `src/app/api/recipes/[id]/rating/route.ts` | `POST` (upsert 1-5 rating) |
-| `src/app/api/recipes/[id]/comments/route.ts` | `GET` (list), `POST` (add comment) |
-| `src/app/api/comments/[id]/route.ts` | `PUT` (edit own), `DELETE` (own or recipe author) |
+| Route File                                   | Endpoints                                         |
+| -------------------------------------------- | ------------------------------------------------- |
+| `src/app/api/recipes/[id]/rating/route.ts`   | `POST` (upsert 1-5 rating)                        |
+| `src/app/api/recipes/[id]/comments/route.ts` | `GET` (list), `POST` (add comment)                |
+| `src/app/api/comments/[id]/route.ts`         | `PUT` (edit own), `DELETE` (own or recipe author) |
 
 **Rating logic:**
+
 ```typescript
 // On rating upsert:
 // 1. Upsert Rating record
@@ -307,11 +331,13 @@ For ingredient search, use a subquery joining through `RecipeIngredient` → `In
 ```
 
 **Rating UI:**
+
 - Star rating component (1-5, clickable stars)
 - Show current user's rating + average rating
 - Optimistic update on click
 
 **Comments UI:**
+
 - Flat comment list below recipe detail
 - Comment card: avatar, username, timestamp, content, edit/delete buttons
 - "Add comment" form: textarea + submit
@@ -321,16 +347,19 @@ For ingredient search, use a subquery joining through `RecipeIngredient` → `In
 #### 5c. Guest Access
 
 **Public pages (no auth required):**
+
 - `/` — landing page with featured public recipes (summary cards)
 - `/community` — browse all public recipes (summary cards)
 - `/share/[token]` — share link page (summary for guest, full for auth)
 
 **Summary card (guest view):**
+
 - Shows: image, title, prep time, cuisine, difficulty, average rating
 - Click → login prompt modal: "Log in to see the full recipe"
 - No tag buttons, no comments, no ingredients/steps visible
 
 **Middleware approach:**
+
 ```typescript
 // src/middleware.ts
 // Protected routes: /recipes/new, /recipes/*/edit, /my-collection, /ai/*
@@ -341,6 +370,7 @@ For ingredient search, use a subquery joining through `RecipeIngredient` → `In
 #### 5d. Community Page
 
 `/community` page:
+
 - Pinterest grid of all public recipes (summary view for guests, full cards for auth)
 - Search bar + filters (reuse search components from Phase 4)
 - "Shared with me" tab: recipes specifically shared with the current user
@@ -351,6 +381,7 @@ For ingredient search, use a subquery joining through `RecipeIngredient` → `In
 ---
 
 ### Phase 6: AI Features
+
 **Goal:** Must-have AI features (generator, substitution, nutrition) + on-demand DALL-E image generation.
 **Estimated scope:** ~15 files
 
@@ -373,6 +404,7 @@ export const openai = new OpenAI({
 ```
 
 **AI Error Handling — Silent Retry + Fallback (Locked):**
+
 ```typescript
 // src/lib/ai-error-handler.ts
 // Pattern used across ALL AI endpoints:
@@ -385,7 +417,10 @@ export const openai = new OpenAI({
 // 4. Never expose internal errors, rate limit details, or OpenAI error codes to the user
 // 5. Log detailed errors server-side for debugging (console.error with context)
 
-async function withAIRetry<T>(fn: () => Promise<T>, fallbackMessage: string): Promise<T> {
+async function withAIRetry<T>(
+  fn: () => Promise<T>,
+  fallbackMessage: string
+): Promise<T> {
   try {
     return await fn();
   } catch (firstError) {
@@ -440,6 +475,7 @@ ${preferences?.dietary ? `Dietary requirements: ${preferences.dietary}` : ''}`,
 ```
 
 **UI: "What's in your fridge?" page** (`/ai/generate`):
+
 - Ingredient input: chip/tag input where user types ingredient names and presses Enter
 - Optional preference selectors: cuisine, dietary, difficulty
 - "Generate Recipe" button
@@ -457,10 +493,11 @@ ${preferences?.dietary ? `Dietary requirements: ${preferences.dietary}` : ''}`,
 // Prompt includes the full recipe context for accurate substitutions
 system: `You are a culinary expert. Suggest 2-3 ingredient substitutions.
 Consider the recipe context, flavor profile, and cooking method.
-Return JSON: { "substitutions": [{ "name": "...", "ratio": "...", "notes": "..." }] }`
+Return JSON: { "substitutions": [{ "name": "...", "ratio": "...", "notes": "..." }] }`;
 ```
 
 **UI:** "Substitute" button next to each ingredient on recipe detail page:
+
 - Click → popover/modal showing AI substitution suggestions
 - Each suggestion shows: ingredient name, ratio (e.g., "1:1"), notes
 - Loading state while AI processes
@@ -482,6 +519,7 @@ if (recipe.nutritionData) return Response.json(recipe.nutritionData);
 ```
 
 **UI:** Nutrition card on recipe detail page:
+
 - Compact card below ingredients showing: calories, protein, carbs, fat per serving
 - "Estimate Nutrition" button (if not yet calculated)
 - Disclaimer: "AI-estimated values. Actual nutrition may vary."
@@ -501,6 +539,7 @@ if (recipe.nutritionData) return Response.json(recipe.nutritionData);
 ```
 
 **UI:** "Generate Image" button in recipe edit form and recipe detail page:
+
 - Button with sparkle/AI icon
 - Loading state with progress indicator
 - Preview of generated image
@@ -509,11 +548,13 @@ if (recipe.nutritionData) return Response.json(recipe.nutritionData);
 #### 6f. Nice-to-Have AI Features (if time permits)
 
 **Smart Tagging** (`POST /api/ai/suggest-tags`):
+
 - Called during recipe creation after user fills in name + ingredients
 - Returns suggested: cuisine type, dietary tags, difficulty
 - UI: suggestion pills that user can accept/dismiss
 
 **Meal Plan** (`POST /api/ai/meal-plan`):
+
 - Input: user's recipe collection + dietary preferences + days
 - Returns: 7-day plan with breakfast/lunch/dinner slots
 - UI: weekly calendar grid with recipe cards in slots
@@ -523,10 +564,12 @@ if (recipe.nutritionData) return Response.json(recipe.nutritionData);
 ---
 
 ### Phase 7: Extra Features & Polish
+
 **Goal:** Creative features, responsive design, dark mode.
 **Estimated scope:** ~15 files
 
 #### 7a. Recipe Scaling
+
 - Scaling UI: servings adjuster (increment/decrement buttons) on recipe detail
 - Logic: `newQuantity = originalQuantity * (newServings / originalServings)`
 - Parse quantity strings: "2 cups" → `{ value: 2, unit: "cups" }` → scale → "4 cups"
@@ -536,6 +579,7 @@ if (recipe.nutritionData) return Response.json(recipe.nutritionData);
 #### 7b. Shopping List Generator (Database-Persisted)
 
 **Data model (added to Prisma schema):**
+
 ```prisma
 model ShoppingList {
   id        String             @id @default(cuid())
@@ -569,6 +613,7 @@ model ShoppingListItem {
 | `src/app/api/me/shopping-lists/[id]/items/[itemId]/route.ts` | `PUT` (toggle checked, edit) |
 
 **UI flow:**
+
 - Checkbox selection on "My Collection" page to select recipes
 - "Generate Shopping List" button → aggregates all ingredients across selected recipes
 - Combine duplicates: "2 cups flour" + "1 cup flour" = "3 cups flour"
@@ -579,6 +624,7 @@ model ShoppingListItem {
 - "My Shopping Lists" page showing saved lists with dates
 
 #### 7c. Cooking Timer
+
 - Timer component on recipe detail page, tied to steps with `duration` field
 - Start/pause/reset controls
 - Audio alert when timer completes
@@ -586,6 +632,7 @@ model ShoppingListItem {
 - Persist across tab switches using `requestAnimationFrame` or Web Workers
 
 #### 7d. Step-by-Step Cooking Mode (Mobile)
+
 - Full-screen overlay on recipe detail
 - One step at a time, large text
 - Swipe left/right or next/prev buttons to navigate steps
@@ -593,18 +640,21 @@ model ShoppingListItem {
 - Keep screen awake using Wake Lock API
 
 #### 7e. Dark Mode
+
 - shadcn/ui `ThemeProvider` with system/light/dark options
 - Toggle in header
 - Persist preference in localStorage
 - All components already support dark mode via Tailwind `dark:` classes
 
 #### 7f. Print-Friendly View
+
 - CSS `@media print` styles
 - Hide navigation, sidebar, buttons
 - Clean recipe layout: title, metadata, ingredients, steps
 - Trigger via "Print" button on recipe detail
 
 #### 7g. Responsive Design Pass
+
 - Mobile-first breakpoints: `sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`
 - Recipe grid: 1 column (mobile) → 2 columns (tablet) → 3-4 columns (desktop)
 - Collapsible sidebar filters on mobile (drawer pattern)
@@ -616,6 +666,7 @@ model ShoppingListItem {
 ---
 
 ### Phase 8: Seed Data
+
 **Goal:** 15-20 pre-loaded recipes for a populated-feeling app.
 **Estimated scope:** ~2 files
 
@@ -647,6 +698,7 @@ Run with: `npx prisma db seed`
 ---
 
 ### Phase 9: Deployment & Ship
+
 **Goal:** Production deployment on Vercel.
 **Estimated scope:** ~5 files (config + README)
 
@@ -903,6 +955,7 @@ RecipeManagementSystem/
 Uses the **locked schema from CTO specs** exactly. See [CTO_SPECS.md](CTO_SPECS.md) for the full Prisma schema with all models, enums, and indexes.
 
 Key additions vs the seed schema:
+
 - `User.username` field (unique, alphanumeric + underscores, 3-20 chars, case-sensitive, not changeable)
 - `RecipeImage` model (multiple images per recipe, source tracking)
 - `RecipeDietaryTag` join table
@@ -926,6 +979,7 @@ Uses the **locked API contract from CTO specs** exactly. See [CTO_SPECS.md](CTO_
 ## Key Implementation Patterns
 
 ### Authorization Middleware
+
 ```typescript
 // Pattern used across all API routes
 export async function requireAuth(req: Request) {
@@ -941,13 +995,18 @@ export async function requireRecipeOwner(recipeId: string, userId: string) {
   return recipe;
 }
 
-export async function canViewRecipe(recipeId: string, userId?: string, shareToken?: string) {
+export async function canViewRecipe(
+  recipeId: string,
+  userId?: string,
+  shareToken?: string
+) {
   // Returns recipe if: owner, public, shared with user, or valid share link
   // Throws 404 if no access
 }
 ```
 
 ### Optimistic Updates Pattern
+
 ```typescript
 // Used for tags, ratings, saves — instant UI feedback
 const tagMutation = useMutation({
@@ -971,6 +1030,7 @@ const tagMutation = useMutation({
 ```
 
 ### AI Streaming Pattern
+
 ```typescript
 // Used for recipe generation and meal planning
 // Frontend: useChat() or useCompletion() from Vercel AI SDK
@@ -981,6 +1041,7 @@ const { messages, input, handleSubmit, isLoading } = useChat({
 ```
 
 ### Recipe Quantity Scaling
+
 ```typescript
 // src/lib/scaling.ts
 // Parse: "2 1/2 cups" → { value: 2.5, unit: "cups", original: "2 1/2 cups" }
@@ -993,16 +1054,16 @@ const { messages, input, handleSubmit, isLoading } = useChat({
 
 ## Differences from Library Project
 
-| Aspect | Library | Recipe |
-|--------|---------|--------|
-| Data complexity | Simple (Book entity) | Complex (Recipe → Ingredients → Steps → Images) |
-| Auth model | RBAC (Admin/Librarian/Member) | Ownership-based + three-tier visibility + share links |
-| Main interaction | Borrow/Return | Create/Tag/Share/Rate/Comment |
-| AI focus | Recommendations & search | Generation, substitution, nutrition, image gen |
-| Form complexity | Simple (single form) | Complex (dynamic lists, multi-step, image upload) |
-| Social features | None | Ratings (1-5), comments, share-by-username, share links |
-| Guest access | None | Summary-only browsing with login prompts |
-| AI provider | — | OpenAI (GPT-4o-mini + DALL-E 3) |
+| Aspect           | Library                       | Recipe                                                  |
+| ---------------- | ----------------------------- | ------------------------------------------------------- |
+| Data complexity  | Simple (Book entity)          | Complex (Recipe → Ingredients → Steps → Images)         |
+| Auth model       | RBAC (Admin/Librarian/Member) | Ownership-based + three-tier visibility + share links   |
+| Main interaction | Borrow/Return                 | Create/Tag/Share/Rate/Comment                           |
+| AI focus         | Recommendations & search      | Generation, substitution, nutrition, image gen          |
+| Form complexity  | Simple (single form)          | Complex (dynamic lists, multi-step, image upload)       |
+| Social features  | None                          | Ratings (1-5), comments, share-by-username, share links |
+| Guest access     | None                          | Summary-only browsing with login prompts                |
+| AI provider      | —                             | OpenAI (GPT-4o-mini + DALL-E 3)                         |
 
 ---
 
@@ -1011,20 +1072,24 @@ const { messages, input, handleSubmit, isLoading } = useChat({
 All implementation-level questions have been answered and locked in.
 
 ### 1. Username Rules (Locked)
+
 - **Format:** Alphanumeric + underscores only (`/^[a-zA-Z0-9_]{3,20}$/`)
 - **Length:** 3-20 characters
 - **Case-sensitive:** `JohnDoe` and `johndoe` are different usernames
 - **No hyphens** or special characters
 - **Not changeable** after initial setup — locked permanently
 - **Validation:** Zod schema enforced on both frontend form and API endpoint
+
 ```typescript
-const usernameSchema = z.string()
+const usernameSchema = z
+  .string()
   .min(3, 'Username must be at least 3 characters')
   .max(20, 'Username must be at most 20 characters')
   .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores allowed');
 ```
 
 ### 2. Recipe Form — Multi-Step Wizard (Locked)
+
 - **5-step guided wizard** with progress bar and back/next navigation
 - Steps: Basic Info → Ingredients → Steps → Tags → Images → Review & Submit
 - Per-step Zod validation before proceeding to next step
@@ -1033,6 +1098,7 @@ const usernameSchema = z.string()
 - See Phase 2 for full component details
 
 ### 3. Landing Page — Dashboard for Authenticated Users (Locked)
+
 - **Guests** see: hero section, featured public recipe cards, sign-up CTA
 - **Authenticated users** see: dashboard with:
   - Quick stats cards: total recipes, favorites count, recipes shared, average rating
@@ -1041,6 +1107,7 @@ const usernameSchema = z.string()
   - Activity feed: recent comments on your recipes, new shares received
 
 ### 4. AI Error Handling — Silent Retry + Fallback (Locked)
+
 - All AI calls wrapped in `withAIRetry()` helper (see Phase 6a)
 - On first failure: silent retry (same request, no user notification)
 - On second failure: generic user-friendly toast message
@@ -1053,6 +1120,7 @@ const usernameSchema = z.string()
   - Image gen: "Could not generate image. Please try again."
 
 ### 5. Shopping Lists — Database-Persisted (Locked)
+
 - Shopping lists are stored in the database (not localStorage)
 - Two new Prisma models: `ShoppingList` + `ShoppingListItem`
 - Full CRUD API: create from selected recipes, view, edit, delete, toggle items

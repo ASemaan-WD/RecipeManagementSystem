@@ -11,11 +11,13 @@ task-<phase_number>.<task_number>-<hyphen-separated-task-brief-description>.md
 ```
 
 **Examples:**
+
 - `task-1.1-initialize-nextjs-project-with-typescript.md`
 - `task-1.3-configure-prisma-schema-and-database.md`
 - `task-2.5-implement-recipe-search-api-endpoint.md`
 
 **Rules:**
+
 - Phase number matches the phase from `docs/ROADMAP.md`.
 - Task number is sequential within the phase.
 - Description is lowercase, hyphen-separated, and brief (3-8 words).
@@ -45,19 +47,19 @@ Markdown with YAML frontmatter. The frontmatter provides machine-readable metada
 
 ## Complete Task File Template
 
-````markdown
+```markdown
 ---
-task_id: "task-<phase>.<number>"
-title: "<Clear, concise task title>"
+task_id: 'task-<phase>.<number>'
+title: '<Clear, concise task title>'
 phase: <phase_number>
 task_number: <task_number>
-status: "pending"
-priority: "<high | medium | low>"
+status: 'pending'
+priority: '<high | medium | low>'
 dependencies:
-  - "<task_id of any prerequisite task>"
+  - '<task_id of any prerequisite task>'
 blocks:
-  - "<task_id of any task that depends on this one>"
-created_at: "<YYYY-MM-DD>"
+  - '<task_id of any task that depends on this one>'
+created_at: '<YYYY-MM-DD>'
 ---
 
 # <Task Title>
@@ -85,14 +87,17 @@ created_at: "<YYYY-MM-DD>"
 ## Scope & Boundaries
 
 ### In Scope
+
 - <Specific thing this task WILL do>
 - <Another specific thing>
 
 ### Out of Scope
+
 - <Specific thing this task will NOT do, even if related>
 - <Another specific thing — reference the future task that will handle it if applicable>
 
 ### Dependencies
+
 - <What must exist or be completed before this task can start>
 
 ---
@@ -104,14 +109,17 @@ created_at: "<YYYY-MM-DD>"
 **What to do**: <Clear description of the change>
 
 **Where to find context**:
+
 - <File path or documentation section that informs this change>
 - <Another reference>
 
 **Specific requirements**:
+
 - <Requirement 1>
 - <Requirement 2>
 
 **Patterns to follow**:
+
 - <Reference to existing code patterns, conventions from docs/SENIOR_DEVELOPER.md, or docs/CTO_SPECS.md>
 
 ---
@@ -121,33 +129,39 @@ created_at: "<YYYY-MM-DD>"
 **What to do**: <Clear description of the change>
 
 **Where to find context**:
+
 - <File path or documentation section>
 
 **Specific requirements**:
+
 - <Requirement 1>
 
 **Patterns to follow**:
+
 - <Reference>
 
 ---
 
-*(Add as many sections as needed to fully describe every aspect of the change. Each section should be independently understandable.)*
+_(Add as many sections as needed to fully describe every aspect of the change. Each section should be independently understandable.)_
 
 ---
 
 ## Verification & Acceptance Criteria
 
 ### Build Verification
+
 - [ ] Project builds without errors (`npm run build` or equivalent)
 - [ ] No new TypeScript/linting errors introduced
 - [ ] No new console warnings or errors
 
 ### Functional Verification
+
 - [ ] <Specific testable behavior 1>
 - [ ] <Specific testable behavior 2>
 - [ ] <Specific testable behavior 3>
 
 ### Code Quality Checks
+
 - [ ] New code follows patterns established in `docs/SENIOR_DEVELOPER.md`
 - [ ] No hardcoded values that should be configuration
 - [ ] No TODO/FIXME comments left unresolved within this task's scope
@@ -170,31 +184,36 @@ created_at: "<YYYY-MM-DD>"
 
 > Use this section during execution to log anything discovered that is relevant but out of scope. These notes feed into future task definitions.
 
-- *(Empty until task execution begins)*
-````
+- _(Empty until task execution begins)_
+```
 
 ---
 
 ## Guidelines for Writing Task Files
 
 ### On Current State
+
 - Be factual. Reference actual file paths and existing code.
 - If the project is brand new and nothing exists yet, say so explicitly: "No implementation exists. The project has only specification documents."
 
 ### On Desired Outcome
+
 - Must be **verifiable** — someone should be able to look at the codebase and confirm whether the outcome was achieved.
 - Avoid vague language like "improve", "enhance", or "optimize" unless paired with measurable criteria.
 
 ### On Implementation Details
+
 - Each section should map to a **logical unit of change** (e.g., a database schema change, a new API route, a UI component).
 - Always point to **where context lives** — don't expect the executor to search for it.
 - Reference specific patterns from `docs/SENIOR_DEVELOPER.md` or `docs/CTO_SPECS.md` when dictating how something should be built.
 
 ### On Verification
+
 - Always include build verification — the project must compile and run after the task.
 - Functional checks should be specific enough to test manually or programmatically.
 - If the project has tests, include a check that existing tests still pass.
 
 ### On Boundaries
+
 - The boundary checklist is non-negotiable. It exists to prevent scope creep during execution.
 - The "Notes & Discoveries" section is the pressure valve — anything out of scope goes there, not into the implementation.

@@ -13,12 +13,14 @@ A web-based recipe management system that allows users to manage recipes, tag an
 ## Required Features (from Assessment)
 
 ### Core Features
+
 - **Recipe Management:** Add, edit, and delete recipes (name, ingredients, instructions, and metadata)
 - **Status Tagging:** Mark recipes as "favorite," "to try," or "made before"
 - **Search:** Find recipes by name, ingredient, cuisine type, or preparation time
 - **AI Features:** Implement AI-powered features (open-ended, creativity encouraged)
 
 ### Required Extras
+
 - **Multi-user Support:** User accounts with sharing capabilities
 - **Deployment:** App must be deployed and accessible via a live URL
 - **Source Code:** GitHub repository with a README explaining how to run
@@ -26,13 +28,13 @@ A web-based recipe management system that allows users to manage recipes, tag an
 
 ## Evaluation Criteria
 
-| Criterion | Description |
-|-----------|-------------|
-| Completeness | Does the product work and cover the core features? |
-| Creativity | Are extra features and creative ideas incorporated? |
-| Product Quality | Is the product clean and organized? |
-| Usability | Is the app intuitive? |
-| AI Implementation | Was the application purely implemented with AI? |
+| Criterion         | Description                                         |
+| ----------------- | --------------------------------------------------- |
+| Completeness      | Does the product work and cover the core features?  |
+| Creativity        | Are extra features and creative ideas incorporated? |
+| Product Quality   | Is the product clean and organized?                 |
+| Usability         | Is the app intuitive?                               |
+| AI Implementation | Was the application purely implemented with AI?     |
 
 ## Constraints
 
@@ -43,6 +45,7 @@ A web-based recipe management system that allows users to manage recipes, tag an
 ## Development Approach
 
 This project follows a structured role-based planning approach:
+
 1. **Product Manager** defines what to build and user-facing requirements
 2. **CTO** defines the technology stack, architecture, and infrastructure
 3. **Senior Developer** defines the implementation plan, code structure, and execution details

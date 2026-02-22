@@ -1,20 +1,20 @@
 ---
-task_id: "task-1.1"
-title: "Initialize Next.js Project with TypeScript and App Router"
+task_id: 'task-1.1'
+title: 'Initialize Next.js Project with TypeScript and App Router'
 phase: 1
 task_number: 1
-status: "pending"
-priority: "high"
+status: 'pending'
+priority: 'high'
 dependencies: []
 blocks:
-  - "task-1.2"
-  - "task-1.3"
-  - "task-1.4"
-  - "task-1.5"
-  - "task-1.6"
-  - "task-1.7"
-  - "task-1.8"
-created_at: "2026-02-17"
+  - 'task-1.2'
+  - 'task-1.3'
+  - 'task-1.4'
+  - 'task-1.5'
+  - 'task-1.6'
+  - 'task-1.7'
+  - 'task-1.8'
+created_at: '2026-02-17'
 ---
 
 # Initialize Next.js Project with TypeScript and App Router
@@ -42,6 +42,7 @@ created_at: "2026-02-17"
 ## Scope & Boundaries
 
 ### In Scope
+
 - Run `npx create-next-app@latest` with the correct flags to initialize the project
 - Verify the project starts with `npm run dev`
 - Remove boilerplate content from `src/app/page.tsx` (replace with a minimal placeholder)
@@ -49,6 +50,7 @@ created_at: "2026-02-17"
 - Update `.gitignore` to include standard Next.js ignores (`.next/`, `node_modules/`, etc.)
 
 ### Out of Scope
+
 - Installing additional dependencies beyond what `create-next-app` provides (handled by task-1.2)
 - Configuring shadcn/ui (handled by task-1.3)
 - Setting up environment variables (handled by task-1.4)
@@ -58,6 +60,7 @@ created_at: "2026-02-17"
 - ESLint/Prettier configuration (handled by task-1.8)
 
 ### Dependencies
+
 - None — this is the first task.
 
 ---
@@ -69,11 +72,13 @@ created_at: "2026-02-17"
 **What to do**: Run `create-next-app` to scaffold the project in the current directory.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.1 specifies the flags
 - `docs/CTO_SPECS.md` — Frontend stack section confirms Next.js 14+ with App Router
 - `docs/SENIOR_DEVELOPER.md` — Phase 1, step 1 confirms the exact command
 
 **Specific requirements**:
+
 - Use `npx create-next-app@latest .` to scaffold in the current directory (the repo root)
 - Flags/options to enable: TypeScript, Tailwind CSS, ESLint, App Router, `src/` directory, import alias `@/*`
 - The command as specified: `npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir`
@@ -81,6 +86,7 @@ created_at: "2026-02-17"
 - Do NOT use `--use-pnpm` or `--use-yarn` — the project uses `npm` per the docs
 
 **Patterns to follow**:
+
 - `docs/CTO_SPECS.md` architecture overview defines the top-level structure
 
 ---
@@ -90,9 +96,11 @@ created_at: "2026-02-17"
 **What to do**: Start the development server and confirm the app renders without errors.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.1 specifies "Verify the project boots with `npm run dev` and renders the default page"
 
 **Specific requirements**:
+
 - Run `npm run dev` and verify the server starts on `http://localhost:3000`
 - Confirm no TypeScript errors, no build warnings, no runtime errors in the console
 - The default Next.js page should render in the browser
@@ -104,9 +112,11 @@ created_at: "2026-02-17"
 **What to do**: Clean up the auto-generated boilerplate in `src/app/page.tsx` and `src/app/layout.tsx`.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.1: "Remove boilerplate content from `src/app/page.tsx` and `src/app/layout.tsx`"
 
 **Specific requirements**:
+
 - `src/app/page.tsx`: Replace the entire default content with a minimal placeholder page (e.g., a centered heading "Recipe Management System" or similar). Keep the file as a valid React component.
 - `src/app/layout.tsx`: Keep the essential RootLayout structure (html, body, metadata export), but remove any boilerplate comments, extra imports, or default font configurations that are not needed. Keep the Inter font or whatever default font is used — font customization is out of scope.
 - `src/app/globals.css`: Keep the Tailwind directives (`@tailwind base; @tailwind components; @tailwind utilities;`) and remove any boilerplate CSS rules that were auto-generated.
@@ -118,9 +128,11 @@ created_at: "2026-02-17"
 **What to do**: Ensure `.gitignore` covers standard Next.js entries.
 
 **Where to find context**:
+
 - Current `.gitignore` only contains `.claude/settings.local.json`
 
 **Specific requirements**:
+
 - `create-next-app` should generate a proper `.gitignore` — verify it includes at minimum: `.next/`, `node_modules/`, `.env.local`, `.env*.local`, `out/`, `build/`, `*.tsbuildinfo`, `next-env.d.ts`
 - Ensure the existing `.claude/settings.local.json` entry is preserved (merge if necessary)
 - Add `.env.local` to `.gitignore` if not already present (per `docs/ROADMAP.md` Task 1.4)
@@ -130,12 +142,14 @@ created_at: "2026-02-17"
 ## Verification & Acceptance Criteria
 
 ### Build Verification
+
 - [ ] `npm run dev` starts the development server without errors
 - [ ] `npm run build` completes without errors
 - [ ] No TypeScript compilation errors
 - [ ] No ESLint errors or warnings
 
 ### Functional Verification
+
 - [ ] The app renders at `http://localhost:3000` showing a clean placeholder page (no default Next.js boilerplate)
 - [ ] The `src/app/` directory exists with `page.tsx`, `layout.tsx`, and `globals.css`
 - [ ] `package.json` exists with Next.js, React, TypeScript, and Tailwind CSS as dependencies
@@ -144,6 +158,7 @@ created_at: "2026-02-17"
 - [ ] `.gitignore` includes standard Next.js entries plus `.claude/settings.local.json`
 
 ### Code Quality Checks
+
 - [ ] No leftover boilerplate code in `src/app/page.tsx` or `src/app/layout.tsx`
 - [ ] `globals.css` contains only Tailwind directives (no boilerplate CSS)
 - [ ] No TODO/FIXME comments left unresolved

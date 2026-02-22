@@ -1,15 +1,15 @@
 ---
-task_id: "task-1.2"
-title: "Install Core Dependencies"
+task_id: 'task-1.2'
+title: 'Install Core Dependencies'
 phase: 1
 task_number: 2
-status: "pending"
-priority: "high"
+status: 'pending'
+priority: 'high'
 dependencies:
-  - "task-1.1"
+  - 'task-1.1'
 blocks:
-  - "task-1.3"
-created_at: "2026-02-17"
+  - 'task-1.3'
+created_at: '2026-02-17'
 ---
 
 # Install Core Dependencies
@@ -37,11 +37,13 @@ created_at: "2026-02-17"
 ## Scope & Boundaries
 
 ### In Scope
+
 - Install all production dependencies listed in the roadmap and senior developer specs
 - Install all dev dependencies listed in the roadmap and senior developer specs
 - Verify the project still builds after installation
 
 ### Out of Scope
+
 - Configuring any of the installed packages (configuration happens in subsequent tasks)
 - Installing shadcn/ui components (handled by task-1.3)
 - Setting up Prisma schema or running `prisma init` (handled by Phase 2)
@@ -49,6 +51,7 @@ created_at: "2026-02-17"
 - Installing testing libraries (handled by Phase 11 per the roadmap)
 
 ### Dependencies
+
 - task-1.1 must be complete (project initialized with `package.json`)
 
 ---
@@ -60,11 +63,13 @@ created_at: "2026-02-17"
 **What to do**: Install all required production packages.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.2 lists all production dependencies
 - `docs/SENIOR_DEVELOPER.md` — Phase 1, step 2 lists the install commands
 - `docs/CTO_SPECS.md` — Technology Stack section confirms each technology choice
 
 **Specific requirements**:
+
 - Install the following production dependencies:
   - `prisma` — ORM CLI tool
   - `@prisma/client` — Prisma client runtime
@@ -82,6 +87,7 @@ created_at: "2026-02-17"
 - Command: `npm install prisma @prisma/client next-auth@beta @auth/prisma-adapter @tanstack/react-query @tanstack/react-query-devtools react-hook-form @hookform/resolvers zod ai @ai-sdk/openai next-cloudinary nanoid`
 
 **Patterns to follow**:
+
 - `docs/SENIOR_DEVELOPER.md` Phase 1 step 2 specifies the exact packages
 
 ---
@@ -91,10 +97,12 @@ created_at: "2026-02-17"
 **What to do**: Install development-only packages.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.2 lists dev dependencies
 - `docs/SENIOR_DEVELOPER.md` — Phase 1 step 2
 
 **Specific requirements**:
+
 - Install the following dev dependencies:
   - `prettier` — Code formatter
   - `prettier-plugin-tailwindcss` — Tailwind CSS class sorting for Prettier
@@ -109,6 +117,7 @@ created_at: "2026-02-17"
 **What to do**: Confirm the project builds and runs after dependency installation.
 
 **Specific requirements**:
+
 - Run `npm run build` — should complete without errors
 - Run `npm run dev` — should start without errors
 - No new TypeScript errors introduced by the installed packages
@@ -118,17 +127,20 @@ created_at: "2026-02-17"
 ## Verification & Acceptance Criteria
 
 ### Build Verification
+
 - [ ] `npm run build` completes without errors
 - [ ] `npm run dev` starts without errors
 - [ ] No new TypeScript compilation errors
 
 ### Functional Verification
+
 - [ ] `package.json` lists all production dependencies: `prisma`, `@prisma/client`, `next-auth`, `@auth/prisma-adapter`, `@tanstack/react-query`, `@tanstack/react-query-devtools`, `react-hook-form`, `@hookform/resolvers`, `zod`, `ai`, `@ai-sdk/openai`, `next-cloudinary`, `nanoid`
 - [ ] `package.json` lists dev dependencies: `prettier`, `prettier-plugin-tailwindcss`
 - [ ] `node_modules/` contains all installed packages
 - [ ] No peer dependency warnings that indicate missing required packages
 
 ### Code Quality Checks
+
 - [ ] No modifications to any source files — only `package.json` and `package-lock.json` changed
 - [ ] No TODO/FIXME comments left unresolved
 

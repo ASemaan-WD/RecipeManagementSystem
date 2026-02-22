@@ -1,15 +1,15 @@
 ---
-task_id: "task-1.3"
-title: "Install and Configure shadcn/ui"
+task_id: 'task-1.3'
+title: 'Install and Configure shadcn/ui'
 phase: 1
 task_number: 3
-status: "pending"
-priority: "high"
+status: 'pending'
+priority: 'high'
 dependencies:
-  - "task-1.1"
-  - "task-1.2"
+  - 'task-1.1'
+  - 'task-1.2'
 blocks: []
-created_at: "2026-02-17"
+created_at: '2026-02-17'
 ---
 
 # Install and Configure shadcn/ui
@@ -37,16 +37,19 @@ created_at: "2026-02-17"
 ## Scope & Boundaries
 
 ### In Scope
+
 - Run `npx shadcn-ui@latest init` with the specified configuration
 - Install all shadcn/ui components listed in the roadmap
 - Verify components are importable and the project builds
 
 ### Out of Scope
+
 - Customizing component styles beyond what shadcn/ui provides (handled as needed in later phases)
 - Building application-level components (layout, recipes, etc.) — these are in Phases 3-10
 - Customizing the Tailwind theme beyond what shadcn/ui configures (handled by task-1.6)
 
 ### Dependencies
+
 - task-1.1 must be complete (Tailwind CSS configured)
 - task-1.2 must be complete (all dependencies available)
 
@@ -59,11 +62,13 @@ created_at: "2026-02-17"
 **What to do**: Run the shadcn/ui init command with project-specific configuration.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.3 specifies: "New York style, slate base color, CSS variables enabled"
 - `docs/CTO_SPECS.md` — UI Library section confirms shadcn/ui + Tailwind CSS
 - `docs/SENIOR_DEVELOPER.md` — File structure shows `src/components/ui/` directory
 
 **Specific requirements**:
+
 - Run `npx shadcn-ui@latest init`
 - When prompted, select:
   - Style: **New York**
@@ -73,6 +78,7 @@ created_at: "2026-02-17"
 - Verify the `components.json` file is created with correct settings
 
 **Patterns to follow**:
+
 - `docs/SENIOR_DEVELOPER.md` file structure: components live under `src/components/ui/`
 
 ---
@@ -82,10 +88,12 @@ created_at: "2026-02-17"
 **What to do**: Install all shadcn/ui components that will be needed across the application.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.3 lists the full component set
 - `docs/SENIOR_DEVELOPER.md` — File structure lists specific components: `button.tsx`, `card.tsx`, `dialog.tsx`, `input.tsx`, `select.tsx`, `tabs.tsx`, `badge.tsx`, `avatar.tsx`, `dropdown-menu.tsx`, `slider.tsx`, `textarea.tsx`, `popover.tsx`, `command.tsx`, `skeleton.tsx`, `toast.tsx`
 
 **Specific requirements**:
+
 - Install the following components (per `docs/ROADMAP.md` Task 1.3):
   - `button`, `input`, `label`, `card`, `dialog`, `dropdown-menu`, `avatar`, `badge`, `tabs`, `separator`, `skeleton`, `toast`, `sonner`, `sheet`, `select`, `textarea`, `command`, `popover`, `tooltip`, `slider`, `switch`, `checkbox`, `form`, `progress`, `scroll-area`, `alert`, `alert-dialog`
 - Command: `npx shadcn-ui@latest add button input label card dialog dropdown-menu avatar badge tabs separator skeleton toast sonner sheet select textarea command popover tooltip slider switch checkbox form progress scroll-area alert alert-dialog`
@@ -98,6 +106,7 @@ created_at: "2026-02-17"
 **What to do**: Confirm all components are installed and the project still builds.
 
 **Specific requirements**:
+
 - Verify the `src/components/ui/` directory contains files for all installed components
 - Run `npm run build` to ensure no TypeScript errors from the installed components
 - Verify that component imports work (e.g., `import { Button } from "@/components/ui/button"` resolves correctly)
@@ -107,11 +116,13 @@ created_at: "2026-02-17"
 ## Verification & Acceptance Criteria
 
 ### Build Verification
+
 - [ ] `npm run build` completes without errors
 - [ ] No new TypeScript compilation errors from installed components
 - [ ] No new console warnings or errors
 
 ### Functional Verification
+
 - [ ] `components.json` exists at project root with New York style, slate base color, CSS variables enabled
 - [ ] `src/components/ui/` directory contains all 27 listed component files
 - [ ] `globals.css` includes shadcn/ui CSS variable definitions
@@ -119,6 +130,7 @@ created_at: "2026-02-17"
 - [ ] Components are importable using the `@/components/ui/*` path alias
 
 ### Code Quality Checks
+
 - [ ] No hardcoded values that should be configuration
 - [ ] No TODO/FIXME comments left unresolved
 

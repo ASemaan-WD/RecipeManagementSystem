@@ -1,14 +1,14 @@
 ---
-task_id: "task-1.4"
-title: "Configure Environment Variables"
+task_id: 'task-1.4'
+title: 'Configure Environment Variables'
 phase: 1
 task_number: 4
-status: "pending"
-priority: "high"
+status: 'pending'
+priority: 'high'
 dependencies:
-  - "task-1.1"
+  - 'task-1.1'
 blocks: []
-created_at: "2026-02-17"
+created_at: '2026-02-17'
 ---
 
 # Configure Environment Variables
@@ -36,16 +36,19 @@ created_at: "2026-02-17"
 ## Scope & Boundaries
 
 ### In Scope
+
 - Create `.env.example` with all required variable names and empty values
 - Create `.env.local` with placeholder/example values (for local development)
 - Verify `.env.local` is in `.gitignore`
 
 ### Out of Scope
+
 - Providing actual API keys or secrets (developers must obtain their own)
 - Configuring the services that use these variables (NextAuth, Prisma, Cloudinary, OpenAI) — those are in Phases 2-9
 - Setting up Neon database or obtaining OAuth credentials — those are prerequisites the developer handles externally
 
 ### Dependencies
+
 - task-1.1 must be complete (`.gitignore` exists)
 
 ---
@@ -57,12 +60,15 @@ created_at: "2026-02-17"
 **What to do**: Create `.env.example` at the project root with all required environment variable names.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.4 lists all variables
 - `docs/CTO_SPECS.md` — Environment Variables section provides the definitive list
 - `docs/SENIOR_DEVELOPER.md` — References `.env.example` in the file structure
 
 **Specific requirements**:
+
 - Create `.env.example` with the following variables (no real values, just empty or descriptive placeholders):
+
   ```
   # Database (Neon PostgreSQL)
   DATABASE_URL=
@@ -87,6 +93,7 @@ created_at: "2026-02-17"
   CLOUDINARY_API_KEY=
   CLOUDINARY_API_SECRET=
   ```
+
 - This matches the variable list from `docs/CTO_SPECS.md` exactly
 - Include section comments for clarity
 
@@ -97,11 +104,14 @@ created_at: "2026-02-17"
 **What to do**: Create `.env.local` with the same variables and placeholder values for local development.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.4: "Create `.env.local` (git-ignored) with actual development values"
 
 **Specific requirements**:
+
 - Create `.env.local` with the same variable names as `.env.example`
 - Use descriptive placeholder values that make it clear what needs to be filled in:
+
   ```
   # Database (Neon PostgreSQL)
   DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
@@ -126,6 +136,7 @@ created_at: "2026-02-17"
   CLOUDINARY_API_KEY=your-cloudinary-api-key
   CLOUDINARY_API_SECRET=your-cloudinary-api-secret
   ```
+
 - This file MUST NOT be committed to git
 
 ---
@@ -135,9 +146,11 @@ created_at: "2026-02-17"
 **What to do**: Confirm `.env.local` and related env files are git-ignored.
 
 **Where to find context**:
+
 - `docs/ROADMAP.md` — Task 1.4: "Add `.env.local` to `.gitignore` (confirm it's present)"
 
 **Specific requirements**:
+
 - Verify `.gitignore` includes `.env.local` and `.env*.local`
 - These entries should already exist from `create-next-app` — confirm, do not duplicate
 - Run `git status` to verify `.env.local` does NOT appear as an untracked file
@@ -147,10 +160,12 @@ created_at: "2026-02-17"
 ## Verification & Acceptance Criteria
 
 ### Build Verification
+
 - [ ] Project still builds without errors (`npm run build`)
 - [ ] No new TypeScript/linting errors introduced
 
 ### Functional Verification
+
 - [ ] `.env.example` exists at project root with all 11 environment variables
 - [ ] `.env.example` contains NO real API keys or secrets
 - [ ] `.env.local` exists at project root with placeholder values
@@ -158,6 +173,7 @@ created_at: "2026-02-17"
 - [ ] `.gitignore` includes `.env.local` and/or `.env*.local`
 
 ### Code Quality Checks
+
 - [ ] Variables in `.env.example` match the definitive list in `docs/CTO_SPECS.md`
 - [ ] Comments in `.env.example` clearly identify each section
 - [ ] No TODO/FIXME comments left unresolved

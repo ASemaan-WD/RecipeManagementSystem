@@ -7,6 +7,7 @@
 ## Architecture Overview
 
 ### Approach: Full-Stack Monorepo (Next.js)
+
 Same architectural philosophy as the Library project for consistency and speed. Single Next.js app with API routes — no separate backend service.
 
 ```
@@ -35,69 +36,78 @@ RecipeManagementSystem/
 ## Technology Stack (Locked)
 
 ### Frontend
-| Choice | Technology | Rationale |
-|--------|-----------|-----------|
-| Framework | **Next.js 14+ (App Router)** | Same as Library project, SSR for SEO on public recipes, consistent DX |
-| UI Library | **shadcn/ui + Tailwind CSS** | Pinterest-style recipe cards, dark mode support built-in |
-| State Management | **React Query (TanStack Query)** | Caching for recipe lists, optimistic updates for tags/ratings |
-| Forms | **React Hook Form + Zod** | Complex recipe forms with dynamic ingredient/step lists |
-| Image Handling | **next/image** | Optimized image loading, blur placeholders, responsive sizes |
-| Layout | **CSS Grid / Masonry** | Pinterest-style card layout per PM decision |
+
+| Choice           | Technology                       | Rationale                                                             |
+| ---------------- | -------------------------------- | --------------------------------------------------------------------- |
+| Framework        | **Next.js 14+ (App Router)**     | Same as Library project, SSR for SEO on public recipes, consistent DX |
+| UI Library       | **shadcn/ui + Tailwind CSS**     | Pinterest-style recipe cards, dark mode support built-in              |
+| State Management | **React Query (TanStack Query)** | Caching for recipe lists, optimistic updates for tags/ratings         |
+| Forms            | **React Hook Form + Zod**        | Complex recipe forms with dynamic ingredient/step lists               |
+| Image Handling   | **next/image**                   | Optimized image loading, blur placeholders, responsive sizes          |
+| Layout           | **CSS Grid / Masonry**           | Pinterest-style card layout per PM decision                           |
 
 ### Backend
-| Choice | Technology | Rationale |
-|--------|-----------|-----------|
-| Runtime | **Node.js** | Consistent with Library project |
-| Framework | **Next.js API Routes (Route Handlers)** | Unified deployment, no separate server |
-| ORM | **Prisma** | Handles complex recipe relationships (many-to-many), type-safe |
-| Validation | **Zod** | Shared schemas between frontend forms and API validation |
-| Streaming | **Vercel AI SDK** | Streaming AI responses for recipe generation UX |
+
+| Choice     | Technology                              | Rationale                                                      |
+| ---------- | --------------------------------------- | -------------------------------------------------------------- |
+| Runtime    | **Node.js**                             | Consistent with Library project                                |
+| Framework  | **Next.js API Routes (Route Handlers)** | Unified deployment, no separate server                         |
+| ORM        | **Prisma**                              | Handles complex recipe relationships (many-to-many), type-safe |
+| Validation | **Zod**                                 | Shared schemas between frontend forms and API validation       |
+| Streaming  | **Vercel AI SDK**                       | Streaming AI responses for recipe generation UX                |
 
 ### Database
-| Choice | Technology | Rationale |
-|--------|-----------|-----------|
-| Primary DB | **PostgreSQL** | Relational model suits recipes (many-to-many with ingredients), full-text search |
-| Hosting | **Neon** | Free tier (0.5 GB), serverless driver for Vercel, same as Library project |
-| Full-text Search | **PostgreSQL tsvector/tsquery** | Native search across recipe names + ingredients, no external service |
-| Caching | **Prisma query-level + React Query client-side** | No dedicated cache needed at this scale |
+
+| Choice           | Technology                                       | Rationale                                                                        |
+| ---------------- | ------------------------------------------------ | -------------------------------------------------------------------------------- |
+| Primary DB       | **PostgreSQL**                                   | Relational model suits recipes (many-to-many with ingredients), full-text search |
+| Hosting          | **Neon**                                         | Free tier (0.5 GB), serverless driver for Vercel, same as Library project        |
+| Full-text Search | **PostgreSQL tsvector/tsquery**                  | Native search across recipe names + ingredients, no external service             |
+| Caching          | **Prisma query-level + React Query client-side** | No dedicated cache needed at this scale                                          |
 
 ### Authentication
-| Choice | Technology | Rationale |
-|--------|-----------|-----------|
-| Auth Provider | **NextAuth.js v5 (Auth.js)** | Same as Library project, supports multiple providers |
-| SSO Providers | **Google OAuth + GitHub OAuth** | Quick setup, broad user coverage |
-| Session Strategy | **JWT** | Stateless, works well with Vercel serverless |
+
+| Choice           | Technology                      | Rationale                                            |
+| ---------------- | ------------------------------- | ---------------------------------------------------- |
+| Auth Provider    | **NextAuth.js v5 (Auth.js)**    | Same as Library project, supports multiple providers |
+| SSO Providers    | **Google OAuth + GitHub OAuth** | Quick setup, broad user coverage                     |
+| Session Strategy | **JWT**                         | Stateless, works well with Vercel serverless         |
 
 ### AI Integration
-| Choice | Technology | Rationale |
-|--------|-----------|-----------|
-| AI Provider | **OpenAI API (GPT-4o-mini)** | Single provider for both text and image generation, cost-efficient |
-| SDK | **Vercel AI SDK** | Streaming support, provider-agnostic, works natively with Next.js |
-| Image Generation | **OpenAI DALL-E 3** | High-quality food images, on-demand only (user-triggered) |
+
+| Choice           | Technology                   | Rationale                                                          |
+| ---------------- | ---------------------------- | ------------------------------------------------------------------ |
+| AI Provider      | **OpenAI API (GPT-4o-mini)** | Single provider for both text and image generation, cost-efficient |
+| SDK              | **Vercel AI SDK**            | Streaming support, provider-agnostic, works natively with Next.js  |
+| Image Generation | **OpenAI DALL-E 3**          | High-quality food images, on-demand only (user-triggered)          |
 
 ### File Storage
-| Choice | Technology | Rationale |
-|--------|-----------|-----------|
-| Image Uploads | **Cloudinary** | Free tier (25 GB), CDN, auto-optimization, upload widget, same as Library project |
-| Upload Strategy | **Direct client-side upload** via Cloudinary widget | No server-side file handling needed |
+
+| Choice          | Technology                                          | Rationale                                                                         |
+| --------------- | --------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Image Uploads   | **Cloudinary**                                      | Free tier (25 GB), CDN, auto-optimization, upload widget, same as Library project |
+| Upload Strategy | **Direct client-side upload** via Cloudinary widget | No server-side file handling needed                                               |
 
 ### Deployment
-| Choice | Technology | Rationale |
-|--------|-----------|-----------|
-| Platform | **Vercel** | Best free tier for Next.js, supports multiple projects per account |
-| CI/CD | **Vercel auto-deploy from GitHub** | Push to `main` → auto build + deploy, preview on PRs |
-| Domain | **`*.vercel.app`** | Free subdomain with HTTPS |
+
+| Choice   | Technology                         | Rationale                                                          |
+| -------- | ---------------------------------- | ------------------------------------------------------------------ |
+| Platform | **Vercel**                         | Best free tier for Next.js, supports multiple projects per account |
+| CI/CD    | **Vercel auto-deploy from GitHub** | Push to `main` → auto build + deploy, preview on PRs               |
+| Domain   | **`*.vercel.app`**                 | Free subdomain with HTTPS                                          |
 
 ---
 
 ## Finalized Decisions
 
 ### Decision 1: Same Stack as Library Project — Confirmed
+
 - Mirror the Library project stack for consistency and faster development
 - Same patterns, same deployment pipeline, same developer experience
 - Reuse auth setup, Prisma patterns, and component library
 
 ### Decision 2: Normalized Relational Data Model
+
 Recipes have complex relationships that require a normalized schema:
 
 ```
@@ -127,18 +137,20 @@ Based on PM decision for Google Docs-style sharing, plus share-by-link:
 
 **Two sharing mechanisms (both available when visibility = SHARED or PUBLIC):**
 
-| Mechanism | How it works |
-|-----------|-------------|
-| **By username** | Author searches for a registered user by username → creates a `RecipeShare` entry → recipe appears in recipient's "Shared with me" section |
-| **By link** | Author generates a share link → system creates a `ShareLink` with a unique token → anyone with the link can view the recipe (even if not in `RecipeShare`) |
+| Mechanism       | How it works                                                                                                                                               |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **By username** | Author searches for a registered user by username → creates a `RecipeShare` entry → recipe appears in recipient's "Shared with me" section                 |
+| **By link**     | Author generates a share link → system creates a `ShareLink` with a unique token → anyone with the link can view the recipe (even if not in `RecipeShare`) |
 
 **Share link architecture:**
+
 - Each share link has a unique token (e.g., `https://app.vercel.app/recipes/share/abc123def`)
 - Links can be revoked by the author (delete the `ShareLink` record)
 - Accessing a share link as an authenticated user shows full recipe detail
 - Accessing as a guest shows the summary with a "Log in to see full recipe" prompt
 
 **Query pattern for recipe access:**
+
 ```
 WHERE recipe.authorId = currentUser              -- always see own recipes
 OR recipe.visibility = 'PUBLIC'                  -- see all public recipes
@@ -168,14 +180,14 @@ OR (shareToken IS PROVIDED                       -- accessed via share link
                                           └──────────────────┘
 ```
 
-| AI Feature | Model | Pattern | Caching |
-|-----------|-------|---------|---------|
-| Recipe Generator | GPT-4o-mini | Streaming response | No cache (unique per request) |
-| Ingredient Substitution | GPT-4o-mini | Request-response | Optional cache per ingredient-recipe pair |
-| Nutritional Estimates | GPT-4o-mini | Request-response | Cache in `Recipe.nutritionData` JSON field |
-| Smart Tagging (nice-to-have) | GPT-4o-mini | Request-response | No cache |
-| Meal Plan (nice-to-have) | GPT-4o-mini | Streaming response | No cache |
-| Image Generation | DALL-E 3 | Async request, on-demand only | Store generated URL in `RecipeImage` |
+| AI Feature                   | Model       | Pattern                       | Caching                                    |
+| ---------------------------- | ----------- | ----------------------------- | ------------------------------------------ |
+| Recipe Generator             | GPT-4o-mini | Streaming response            | No cache (unique per request)              |
+| Ingredient Substitution      | GPT-4o-mini | Request-response              | Optional cache per ingredient-recipe pair  |
+| Nutritional Estimates        | GPT-4o-mini | Request-response              | Cache in `Recipe.nutritionData` JSON field |
+| Smart Tagging (nice-to-have) | GPT-4o-mini | Request-response              | No cache                                   |
+| Meal Plan (nice-to-have)     | GPT-4o-mini | Streaming response            | No cache                                   |
+| Image Generation             | DALL-E 3    | Async request, on-demand only | Store generated URL in `RecipeImage`       |
 
 **Rate limiting:** All AI endpoints rate-limited per user (e.g., 20 requests/hour for generation, 50/hour for substitution, 10/hour for DALL-E).
 
@@ -209,10 +221,12 @@ Example: A recipe can be both "Favorite" AND "Made Before" for the same user
 ### Decision 7: Sharing Notifications — "Shared With Me" Section (Extensible)
 
 **V1 (launch):** "Shared with me" section in the user's collection page.
+
 - When a recipe is shared with a user, it appears in their "Shared with me" tab
 - No active notification — user discovers shared recipes when they visit the section
 
 **Architecture for future in-app notifications:**
+
 ```prisma
 // Ready to add when needed — NOT implemented in V1
 model Notification {
@@ -253,11 +267,13 @@ Middleware checks auth status and strips fields accordingly. Guest-visible pages
 ### Decision 9: Social Features — Ratings & Comments
 
 **Ratings:**
+
 - One rating per user per recipe (upsert pattern)
 - Average rating calculated and stored as a denormalized field on Recipe for query performance
 - Recalculated on each new rating via a simple `AVG()` query
 
 **Comments:**
+
 - Standard CRUD with ownership checks
 - Author of recipe can delete any comment on their recipe
 - Users can edit/delete their own comments
@@ -529,67 +545,74 @@ model Comment {
 ## API Contract (Locked)
 
 ### Recipes
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/recipes` | Required | List my recipes (with search/filters/pagination) |
-| GET | `/api/recipes/public` | Optional | Browse public recipes (summary only for guests) |
-| GET | `/api/recipes/shared-with-me` | Required | Recipes shared specifically with me |
-| GET | `/api/recipes/[id]` | Required | Get full recipe detail (if authorized) |
-| GET | `/api/recipes/[id]/summary` | None | Public recipe summary (for guests/SEO) |
-| POST | `/api/recipes` | Required | Create recipe |
-| PUT | `/api/recipes/[id]` | Required | Update recipe (owner only) |
-| DELETE | `/api/recipes/[id]` | Required | Delete recipe (owner only) |
-| POST | `/api/recipes/[id]/duplicate` | Required | Fork/duplicate a recipe |
+
+| Method | Endpoint                      | Auth     | Description                                      |
+| ------ | ----------------------------- | -------- | ------------------------------------------------ |
+| GET    | `/api/recipes`                | Required | List my recipes (with search/filters/pagination) |
+| GET    | `/api/recipes/public`         | Optional | Browse public recipes (summary only for guests)  |
+| GET    | `/api/recipes/shared-with-me` | Required | Recipes shared specifically with me              |
+| GET    | `/api/recipes/[id]`           | Required | Get full recipe detail (if authorized)           |
+| GET    | `/api/recipes/[id]/summary`   | None     | Public recipe summary (for guests/SEO)           |
+| POST   | `/api/recipes`                | Required | Create recipe                                    |
+| PUT    | `/api/recipes/[id]`           | Required | Update recipe (owner only)                       |
+| DELETE | `/api/recipes/[id]`           | Required | Delete recipe (owner only)                       |
+| POST   | `/api/recipes/[id]/duplicate` | Required | Fork/duplicate a recipe                          |
 
 ### Visibility & Sharing
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| PUT | `/api/recipes/[id]/visibility` | Required | Set visibility: PRIVATE/SHARED/PUBLIC (owner only) |
-| POST | `/api/recipes/[id]/share` | Required | Share with user by username (owner only) |
-| DELETE | `/api/recipes/[id]/share/[userId]` | Required | Revoke share for a user (owner only) |
-| GET | `/api/recipes/[id]/shares` | Required | List users this recipe is shared with (owner only) |
-| POST | `/api/recipes/[id]/share-link` | Required | Generate a share link (owner only) |
-| DELETE | `/api/recipes/[id]/share-link/[linkId]` | Required | Revoke a share link (owner only) |
-| GET | `/api/share/[token]` | Optional | Access recipe via share link (auth: full detail; guest: summary) |
+
+| Method | Endpoint                                | Auth     | Description                                                      |
+| ------ | --------------------------------------- | -------- | ---------------------------------------------------------------- |
+| PUT    | `/api/recipes/[id]/visibility`          | Required | Set visibility: PRIVATE/SHARED/PUBLIC (owner only)               |
+| POST   | `/api/recipes/[id]/share`               | Required | Share with user by username (owner only)                         |
+| DELETE | `/api/recipes/[id]/share/[userId]`      | Required | Revoke share for a user (owner only)                             |
+| GET    | `/api/recipes/[id]/shares`              | Required | List users this recipe is shared with (owner only)               |
+| POST   | `/api/recipes/[id]/share-link`          | Required | Generate a share link (owner only)                               |
+| DELETE | `/api/recipes/[id]/share-link/[linkId]` | Required | Revoke a share link (owner only)                                 |
+| GET    | `/api/share/[token]`                    | Optional | Access recipe via share link (auth: full detail; guest: summary) |
 
 ### User Lookup
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/users/search?q=username` | Required | Search users by username (for share dialog) |
+
+| Method | Endpoint                       | Auth     | Description                                 |
+| ------ | ------------------------------ | -------- | ------------------------------------------- |
+| GET    | `/api/users/search?q=username` | Required | Search users by username (for share dialog) |
 
 ### Tags & Collections
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/recipes/[id]/tag` | Required | Add tag (favorite/to-try/made-before) — multiple allowed |
-| DELETE | `/api/recipes/[id]/tag/[status]` | Required | Remove specific tag |
-| POST | `/api/recipes/[id]/save` | Required | Save a public/shared recipe to my collection |
-| DELETE | `/api/recipes/[id]/save` | Required | Remove from my saved collection |
-| GET | `/api/me/collection` | Required | My recipes + saved + tagged (with filters) |
+
+| Method | Endpoint                         | Auth     | Description                                              |
+| ------ | -------------------------------- | -------- | -------------------------------------------------------- |
+| POST   | `/api/recipes/[id]/tag`          | Required | Add tag (favorite/to-try/made-before) — multiple allowed |
+| DELETE | `/api/recipes/[id]/tag/[status]` | Required | Remove specific tag                                      |
+| POST   | `/api/recipes/[id]/save`         | Required | Save a public/shared recipe to my collection             |
+| DELETE | `/api/recipes/[id]/save`         | Required | Remove from my saved collection                          |
+| GET    | `/api/me/collection`             | Required | My recipes + saved + tagged (with filters)               |
 
 ### Social
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/recipes/[id]/rating` | Required | Rate recipe 1-5 (upsert) |
-| GET | `/api/recipes/[id]/comments` | Required | List comments on a recipe |
-| POST | `/api/recipes/[id]/comments` | Required | Add comment |
-| PUT | `/api/comments/[id]` | Required | Edit own comment |
-| DELETE | `/api/comments/[id]` | Required | Delete comment (own or recipe author) |
+
+| Method | Endpoint                     | Auth     | Description                           |
+| ------ | ---------------------------- | -------- | ------------------------------------- |
+| POST   | `/api/recipes/[id]/rating`   | Required | Rate recipe 1-5 (upsert)              |
+| GET    | `/api/recipes/[id]/comments` | Required | List comments on a recipe             |
+| POST   | `/api/recipes/[id]/comments` | Required | Add comment                           |
+| PUT    | `/api/comments/[id]`         | Required | Edit own comment                      |
+| DELETE | `/api/comments/[id]`         | Required | Delete comment (own or recipe author) |
 
 ### AI
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/ai/generate` | Required | Generate recipe from ingredients (streaming, GPT-4o-mini) |
-| POST | `/api/ai/substitute` | Required | Suggest ingredient substitutions (GPT-4o-mini) |
-| POST | `/api/ai/nutrition/[recipeId]` | Required | Estimate nutritional info, cached (GPT-4o-mini) |
-| POST | `/api/ai/suggest-tags` | Required | AI-suggest cuisine/dietary/difficulty (nice-to-have, GPT-4o-mini) |
-| POST | `/api/ai/meal-plan` | Required | Generate weekly meal plan (nice-to-have, GPT-4o-mini) |
-| POST | `/api/ai/generate-image/[recipeId]` | Required | Generate image on user request (DALL-E 3) |
+
+| Method | Endpoint                            | Auth     | Description                                                       |
+| ------ | ----------------------------------- | -------- | ----------------------------------------------------------------- |
+| POST   | `/api/ai/generate`                  | Required | Generate recipe from ingredients (streaming, GPT-4o-mini)         |
+| POST   | `/api/ai/substitute`                | Required | Suggest ingredient substitutions (GPT-4o-mini)                    |
+| POST   | `/api/ai/nutrition/[recipeId]`      | Required | Estimate nutritional info, cached (GPT-4o-mini)                   |
+| POST   | `/api/ai/suggest-tags`              | Required | AI-suggest cuisine/dietary/difficulty (nice-to-have, GPT-4o-mini) |
+| POST   | `/api/ai/meal-plan`                 | Required | Generate weekly meal plan (nice-to-have, GPT-4o-mini)             |
+| POST   | `/api/ai/generate-image/[recipeId]` | Required | Generate image on user request (DALL-E 3)                         |
 
 ### Images
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/upload/image` | Required | Get Cloudinary upload signature |
-| DELETE | `/api/recipes/[id]/images/[imageId]` | Required | Remove image from recipe |
+
+| Method | Endpoint                             | Auth     | Description                     |
+| ------ | ------------------------------------ | -------- | ------------------------------- |
+| POST   | `/api/upload/image`                  | Required | Get Cloudinary upload signature |
+| DELETE | `/api/recipes/[id]/images/[imageId]` | Required | Remove image from recipe        |
 
 ---
 
@@ -650,11 +673,11 @@ CLOUDINARY_API_SECRET=...
 
 ## Cost Estimates (Free Tier Usage)
 
-| Service | Free Tier | Expected Usage | Within Free Tier? |
-|---------|-----------|----------------|-------------------|
-| **Vercel** | 100 GB bandwidth, serverless functions | Low-moderate traffic | Yes |
-| **Neon** | 0.5 GB storage, autoscaling | ~15-20 seed recipes + user data | Yes |
-| **Cloudinary** | 25 GB storage, 25 GB bandwidth | User-uploaded recipe images | Yes |
-| **OpenAI GPT-4o-mini** | Pay-per-use (~$0.15/1M input tokens) | ~$1-5/month for moderate usage | Minimal cost |
-| **OpenAI DALL-E 3** | Pay-per-use (~$0.04/image) | On-demand only, ~$1-2/month | Minimal cost |
-| **Google/GitHub OAuth** | Free | Unlimited | Yes |
+| Service                 | Free Tier                              | Expected Usage                  | Within Free Tier? |
+| ----------------------- | -------------------------------------- | ------------------------------- | ----------------- |
+| **Vercel**              | 100 GB bandwidth, serverless functions | Low-moderate traffic            | Yes               |
+| **Neon**                | 0.5 GB storage, autoscaling            | ~15-20 seed recipes + user data | Yes               |
+| **Cloudinary**          | 25 GB storage, 25 GB bandwidth         | User-uploaded recipe images     | Yes               |
+| **OpenAI GPT-4o-mini**  | Pay-per-use (~$0.15/1M input tokens)   | ~$1-5/month for moderate usage  | Minimal cost      |
+| **OpenAI DALL-E 3**     | Pay-per-use (~$0.04/image)             | On-demand only, ~$1-2/month     | Minimal cost      |
+| **Google/GitHub OAuth** | Free                                   | Unlimited                       | Yes               |
