@@ -46,7 +46,6 @@ describe('ServingAdjuster', () => {
   });
 
   it('disables minus button at minimum (1)', async () => {
-    const user = userEvent.setup();
     const onChange = vi.fn();
     render(
       <ServingAdjuster originalServings={1} onScaleFactorChange={onChange} />

@@ -43,8 +43,6 @@ test.describe('Guest Access', () => {
 
       // Guest should not see comment form or should see a login prompt
       const commentBox = page.getByLabel(/write a comment/i);
-      const signInLink = page.getByRole('link', { name: /sign in/i });
-
       // Either the comment box is hidden or there's a sign-in prompt
       const isCommentVisible = await commentBox.isVisible().catch(() => false);
       if (!isCommentVisible) {

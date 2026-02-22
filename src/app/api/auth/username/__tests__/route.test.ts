@@ -199,16 +199,16 @@ describe('POST /api/auth/username', () => {
     expect(body.username).toBe('newuser');
   });
 
-  it('returns 409 on P2002 unique constraint violation (race condition)', async () => {
+  it('returns 409 on unique constraint violation (race condition)', async () => {
     mockRequireAuth.mockResolvedValueOnce(createMockSession({ id: 'user-1' }));
     mockUserFindUnique.mockResolvedValueOnce({ username: null } as never);
     mockUserFindUnique.mockResolvedValueOnce(null);
 
-    const p2002Error = new MockPrismaClientKnownRequestError(
+    const uniqueError = new MockPrismaClientKnownRequestError(
       'Unique constraint failed',
-      { code: 'P2002' }
+      { code: '23505' }
     );
-    mockUserUpdate.mockRejectedValueOnce(p2002Error);
+    mockUserUpdate.mockRejectedValueOnce(uniqueError);
 
     const req = new NextRequest('http://localhost/api/auth/username', {
       method: 'POST',
@@ -221,7 +221,7 @@ describe('POST /api/auth/username', () => {
     expect(body.error).toBe('Username is already taken');
   });
 
-  it('re-throws non-P2002 errors', async () => {
+  it('re-throws non-unique-constraint errors', async () => {
     mockRequireAuth.mockResolvedValueOnce(createMockSession({ id: 'user-1' }));
     mockUserFindUnique.mockResolvedValueOnce({ username: null } as never);
     mockUserFindUnique.mockResolvedValueOnce(null);

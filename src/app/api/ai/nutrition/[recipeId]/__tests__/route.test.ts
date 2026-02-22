@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 import { POST } from '@/app/api/ai/nutrition/[recipeId]/route';
 import { requireAuth } from '@/lib/auth-utils';
-import { nutritionLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/db';
 import { createMockSession } from '@/test/factories';
 

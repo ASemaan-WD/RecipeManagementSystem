@@ -184,16 +184,17 @@ export async function GET(request: NextRequest) {
   ]);
 
   // Transform the response
-  const data = recipes.map((recipe) => {
-    const { images, dietaryTags, savedBy, ...rest } =
-      recipe as typeof recipe & {
-        savedBy?: { id: string }[];
-      };
+  type RecipeRow = (typeof recipes)[number];
+  const data = recipes.map((recipe: RecipeRow) => {
+    const { images, dietaryTags, savedBy, ...rest } = recipe as RecipeRow & {
+      savedBy?: { id: string }[];
+    };
+    type DietaryTagRow = (typeof dietaryTags)[number];
     return {
       ...rest,
       createdAt: rest.createdAt.toISOString(),
       primaryImage: images[0] ? { url: images[0].url } : null,
-      dietaryTags: dietaryTags.map((dt) => dt.dietaryTag),
+      dietaryTags: dietaryTags.map((dt: DietaryTagRow) => dt.dietaryTag),
       ...(savedBy !== undefined ? { isSaved: savedBy.length > 0 } : {}),
     };
   });
@@ -437,14 +438,18 @@ export async function POST(request: NextRequest) {
     createdAt: recipe.createdAt.toISOString(),
     updatedAt: recipe.updatedAt.toISOString(),
     primaryImage: primaryImage ? { url: primaryImage.url } : null,
-    dietaryTags: recipe.dietaryTags.map((dt) => dt.dietaryTag),
-    ingredients: recipe.ingredients.map((ri) => ({
-      id: ri.id,
-      name: ri.ingredient.name,
-      quantity: ri.quantity,
-      notes: ri.notes,
-      order: ri.order,
-    })),
+    dietaryTags: recipe.dietaryTags.map(
+      (dt: (typeof recipe.dietaryTags)[number]) => dt.dietaryTag
+    ),
+    ingredients: recipe.ingredients.map(
+      (ri: (typeof recipe.ingredients)[number]) => ({
+        id: ri.id,
+        name: ri.ingredient.name,
+        quantity: ri.quantity,
+        notes: ri.notes,
+        order: ri.order,
+      })
+    ),
   };
 
   return NextResponse.json(response, { status: 201 });

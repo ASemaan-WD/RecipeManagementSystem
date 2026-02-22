@@ -62,13 +62,15 @@ export async function GET(request: NextRequest) {
     prisma.recipeShare.count({ where: { userId } }),
   ]);
 
-  const data = shares.map((share) => {
+  type ShareRow = (typeof shares)[number];
+  const data = shares.map((share: ShareRow) => {
     const { images, dietaryTags, ...rest } = share.recipe;
+    type DietaryTagRow = (typeof dietaryTags)[number];
     return {
       ...rest,
       createdAt: rest.createdAt.toISOString(),
       primaryImage: images[0] ? { url: images[0].url } : null,
-      dietaryTags: dietaryTags.map((dt) => dt.dietaryTag),
+      dietaryTags: dietaryTags.map((dt: DietaryTagRow) => dt.dietaryTag),
       sharedAt: share.sharedAt.toISOString(),
     };
   });

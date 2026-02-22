@@ -28,8 +28,6 @@ vi.mock('@/generated/prisma/client', () => ({
 }));
 
 import { requireRecipeOwner, canViewRecipe } from '@/lib/auth-utils';
-import { createMockSession } from '@/test/factories';
-
 const mockRequireRecipeOwner = vi.mocked(requireRecipeOwner);
 const mockCanViewRecipe = vi.mocked(canViewRecipe);
 

@@ -179,14 +179,18 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       createdAt: recipe.createdAt.toISOString(),
       updatedAt: recipe.updatedAt.toISOString(),
       primaryImage: primaryImage ? { url: primaryImage.url } : null,
-      dietaryTags: recipe.dietaryTags.map((dt) => dt.dietaryTag),
-      ingredients: recipe.ingredients.map((ri) => ({
-        id: ri.id,
-        name: ri.ingredient.name,
-        quantity: ri.quantity,
-        notes: ri.notes,
-        order: ri.order,
-      })),
+      dietaryTags: recipe.dietaryTags.map(
+        (dt: (typeof recipe.dietaryTags)[number]) => dt.dietaryTag
+      ),
+      ingredients: recipe.ingredients.map(
+        (ri: (typeof recipe.ingredients)[number]) => ({
+          id: ri.id,
+          name: ri.ingredient.name,
+          quantity: ri.quantity,
+          notes: ri.notes,
+          order: ri.order,
+        })
+      ),
     },
     { status: 201 }
   );

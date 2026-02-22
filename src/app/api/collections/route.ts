@@ -150,13 +150,15 @@ export async function GET(request: NextRequest) {
   ]);
 
   // Transform the response
-  const data = recipes.map((recipe) => {
+  type RecipeRow = (typeof recipes)[number];
+  const data = recipes.map((recipe: RecipeRow) => {
     const { images, dietaryTags, savedBy, ...rest } = recipe;
+    type DietaryTagRow = (typeof dietaryTags)[number];
     return {
       ...rest,
       createdAt: rest.createdAt.toISOString(),
       primaryImage: images[0] ? { url: images[0].url } : null,
-      dietaryTags: dietaryTags.map((dt) => dt.dietaryTag),
+      dietaryTags: dietaryTags.map((dt: DietaryTagRow) => dt.dietaryTag),
       isSaved: savedBy.length > 0,
     };
   });

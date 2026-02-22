@@ -4,7 +4,7 @@ import { BOUNDARY_VALUES } from './helpers/test-data';
 
 test.describe('Edge Cases & Error Handling', () => {
   test('non-existent recipe shows 404', async ({ page }) => {
-    const response = await page.goto('/recipes/nonexistent-id-12345');
+    await page.goto('/recipes/nonexistent-id-12345');
 
     // Should show 404 page
     await expect(page.getByText(/not found/i)).toBeVisible();

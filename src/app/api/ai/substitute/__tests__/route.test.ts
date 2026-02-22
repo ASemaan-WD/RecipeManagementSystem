@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 import { POST } from '@/app/api/ai/substitute/route';
 import { requireAuth } from '@/lib/auth-utils';
-import { substitutionLimiter, checkRateLimit } from '@/lib/rate-limit';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { createMockSession } from '@/test/factories';
 
 vi.mock('@/lib/auth-utils', () => ({

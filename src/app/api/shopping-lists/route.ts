@@ -34,11 +34,13 @@ export async function GET() {
     },
   });
 
-  const data = lists.map((list) => ({
+  type ListRow = (typeof lists)[number];
+  const data = lists.map((list: ListRow) => ({
     id: list.id,
     name: list.name,
     itemCount: list._count.items,
-    checkedCount: list.items.filter((i) => i.checked).length,
+    checkedCount: list.items.filter((i: { checked: boolean }) => i.checked)
+      .length,
     createdAt: list.createdAt.toISOString(),
     updatedAt: list.updatedAt.toISOString(),
   }));

@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardContent,
 } from '@/components/ui/card';
 
 const FEATURES = [

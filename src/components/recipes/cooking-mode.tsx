@@ -19,7 +19,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { CookingTimer } from '@/components/recipes/cooking-timer';
 import { scaleQuantity } from '@/lib/scaling';
-import { cn } from '@/lib/utils';
 import type { RecipeDetail } from '@/types/recipe';
 
 interface CookingModeProps {

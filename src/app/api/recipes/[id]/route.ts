@@ -52,14 +52,18 @@ function transformRecipeDetail(
     author: recipe.author,
     primaryImage: primaryImage ? { url: primaryImage.url } : null,
     images: recipe.images,
-    dietaryTags: recipe.dietaryTags.map((dt) => dt.dietaryTag),
-    ingredients: recipe.ingredients.map((ri) => ({
-      id: ri.id,
-      name: ri.ingredient.name,
-      quantity: ri.quantity,
-      notes: ri.notes,
-      order: ri.order,
-    })),
+    dietaryTags: recipe.dietaryTags.map(
+      (dt: (typeof recipe.dietaryTags)[number]) => dt.dietaryTag
+    ),
+    ingredients: recipe.ingredients.map(
+      (ri: (typeof recipe.ingredients)[number]) => ({
+        id: ri.id,
+        name: ri.ingredient.name,
+        quantity: ri.quantity,
+        notes: ri.notes,
+        order: ri.order,
+      })
+    ),
     steps: recipe.steps,
     ...extras,
   };
