@@ -106,6 +106,10 @@ export function RecipeFormWizard({
     await onSubmit(data);
   }
 
+  function handleValidationError() {
+    toast.error('Please fix the errors before submitting.');
+  }
+
   return (
     <FormProvider {...form}>
       <div className="space-y-8">
@@ -147,7 +151,10 @@ export function RecipeFormWizard({
               <Button
                 type="button"
                 disabled={isSubmitting}
-                onClick={form.handleSubmit(handleFormSubmit)}
+                onClick={form.handleSubmit(
+                  handleFormSubmit,
+                  handleValidationError
+                )}
               >
                 {isSubmitting && <Loader2 className="size-4 animate-spin" />}
                 {mode === 'create' ? 'Create Recipe' : 'Save Changes'}

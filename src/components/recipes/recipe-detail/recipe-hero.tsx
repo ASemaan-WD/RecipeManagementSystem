@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { ChefHat } from 'lucide-react';
 
+import { getImageSrc } from '@/lib/image-url';
 import type { RecipeDetail } from '@/types/recipe';
 
 interface RecipeHeroProps {
@@ -16,7 +17,7 @@ export function RecipeHero({ images, recipeName }: RecipeHeroProps) {
       {heroImage ? (
         <>
           <Image
-            src={heroImage.url}
+            src={getImageSrc(heroImage.url)}
             alt={recipeName}
             fill
             className="object-cover"

@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/tooltip';
 import { ImageUploadWidget } from '@/components/recipes/image-upload-widget';
 import { useGenerateImage } from '@/hooks/use-ai';
+import { getImageSrc } from '@/lib/image-url';
 import { cn } from '@/lib/utils';
 import type { RecipeFormData } from '@/types/recipe';
 
@@ -203,7 +204,7 @@ export function ImagesStep({ recipeId }: ImagesStepProps) {
                 <div className="bg-muted aspect-square">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={form.getValues(`images.${index}.url`)}
+                    src={getImageSrc(form.getValues(`images.${index}.url`))}
                     alt={`Recipe image ${index + 1}`}
                     className="size-full object-cover"
                   />

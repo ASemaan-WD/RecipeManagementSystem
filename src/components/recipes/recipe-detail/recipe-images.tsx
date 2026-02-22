@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { getImageSrc } from '@/lib/image-url';
 import { cn } from '@/lib/utils';
 import type { RecipeDetail } from '@/types/recipe';
 
@@ -34,10 +35,10 @@ export function RecipeImages({ images }: RecipeImagesProps) {
                   ? 'border-primary'
                   : 'hover:border-muted-foreground/40 border-transparent'
               )}
-              onClick={() => setSelectedImage(image.url)}
+              onClick={() => setSelectedImage(getImageSrc(image.url))}
             >
               <Image
-                src={image.url}
+                src={getImageSrc(image.url)}
                 alt="Recipe image"
                 fill
                 className="object-cover"

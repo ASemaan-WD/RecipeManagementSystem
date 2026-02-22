@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 import { prisma } from '@/lib/db';
@@ -6,7 +6,6 @@ import { requireRecipeOwner } from '@/lib/auth-utils';
 import { imageLimiter, checkRateLimit } from '@/lib/rate-limit';
 import { uploadImageFromUrl } from '@/lib/blob-storage';
 import { formatAIError, withAIRetry } from '@/lib/ai-utils';
-import { validateContentType } from '@/lib/api-utils';
 
 interface RouteParams {
   params: Promise<{ recipeId: string }>;
@@ -16,7 +15,7 @@ const openaiClient = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(request: NextRequest, { params }: RouteParams) {
+export async function POST(_request: Request, { params }: RouteParams) {
   const { recipeId } = await params;
 
   const ownerResult = await requireRecipeOwner(recipeId);
@@ -26,9 +25,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   const rateLimitResponse = checkRateLimit(imageLimiter, userId);
   if (rateLimitResponse) return rateLimitResponse;
-
-  const contentTypeError = validateContentType(request);
-  if (contentTypeError) return contentTypeError;
 
   // Fetch recipe name and description for the prompt
   const recipe = await prisma.recipe.findUnique({
@@ -88,11 +84,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       { status: 201 }
     );
   } catch (err) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('AI generate-image error:', err);
-    }
+    console.error('AI generate-image error:', err);
+
+    const detail = err instanceof Error ? err.message : 'Unknown error';
+
     return NextResponse.json(
-      { error: formatAIError('image') },
+      { error: formatAIError('image'), detail },
       { status: 500 }
     );
   }

@@ -241,7 +241,6 @@ async function fetchGenerateImage(
 ): Promise<GenerateImageResponse> {
   const res = await fetch(`/api/ai/generate-image/${recipeId}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
   });
 
   if (!res.ok) {

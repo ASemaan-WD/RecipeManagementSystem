@@ -5,7 +5,7 @@ const BLOB_FOLDER = 'recipes';
 
 /**
  * Upload a file (Buffer or Blob) to Vercel Blob storage.
- * Returns the public blob URL.
+ * Returns the blob URL.
  */
 export async function uploadImageFromFile(
   file: Blob,
@@ -14,7 +14,7 @@ export async function uploadImageFromFile(
   const ext = filename.split('.').pop() ?? 'jpg';
   const pathname = `${BLOB_FOLDER}/${nanoid()}.${ext}`;
 
-  const blob = await put(pathname, file, { access: 'public' });
+  const blob = await put(pathname, file, { access: 'private' });
 
   return blob.url;
 }
@@ -22,7 +22,7 @@ export async function uploadImageFromFile(
 /**
  * Upload an image from a URL to Vercel Blob storage (server-side).
  * Used for AI-generated images that need to be persisted.
- * Returns the public blob URL.
+ * Returns the blob URL.
  */
 export async function uploadImageFromUrl(imageUrl: string): Promise<string> {
   const response = await fetch(imageUrl);
@@ -37,7 +37,7 @@ export async function uploadImageFromUrl(imageUrl: string): Promise<string> {
   const body = await response.blob();
 
   const blob = await put(pathname, body, {
-    access: 'public',
+    access: 'private',
     contentType,
   });
 

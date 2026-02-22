@@ -93,7 +93,8 @@ function isTrustedImageUrl(url: string): boolean {
     const parsed = new URL(url);
     return (
       TRUSTED_IMAGE_DOMAINS.some((domain) => parsed.hostname === domain) ||
-      parsed.hostname.endsWith('.public.blob.vercel-storage.com')
+      parsed.hostname.endsWith('.public.blob.vercel-storage.com') ||
+      parsed.hostname.endsWith('.private.blob.vercel-storage.com')
     );
   } catch {
     return false;

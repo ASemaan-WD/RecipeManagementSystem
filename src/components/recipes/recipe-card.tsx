@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { getImageSrc } from '@/lib/image-url';
 import { cn } from '@/lib/utils';
 import { RecipeCardLink } from '@/components/recipes/recipe-card-link';
 import { TagToggles } from '@/components/recipes/tag-toggles';
@@ -65,7 +66,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
         <div className="bg-muted relative aspect-[4/3] overflow-hidden">
           {recipe.primaryImage ? (
             <Image
-              src={recipe.primaryImage.url}
+              src={getImageSrc(recipe.primaryImage.url)}
               alt={recipe.name}
               fill
               className="object-cover transition-transform group-hover:scale-105"
