@@ -1,145 +1,114 @@
-# Recipe Management System
+# Recipe Management System — AI-Enhanced Recipe Platform
 
-A web-based recipe management platform with AI-powered features for organizing, discovering, and sharing recipes. Built with Next.js, PostgreSQL, and OpenAI.
+A full-stack recipe management platform for organizing, discovering, and sharing recipes with AI-powered features. Built with Next.js, TypeScript, and OpenAI GPT-4o-mini.
 
-## Features
+## Live App
 
-- **Recipe Management** — Create, read, update, and delete recipes with images, ingredients, and step-by-step instructions
-- **Status Tagging** — Tag recipes as Favorite, To Try, or Made Before
-- **Search & Discovery** — Search by name, ingredient, cuisine type, or prep time
-- **AI Recipe Generation** — Generate new recipes from a text prompt using GPT-4o-mini
-- **AI Ingredient Substitution** — Get smart ingredient alternatives
-- **AI Nutrition Estimation** — Estimate nutritional information for any recipe
-- **Sharing** — Three-tier visibility (private, shared, public) with share-by-username and share-by-link
-- **Social** — Rate and comment on public recipes
+**[recipe-management-system-mu.vercel.app](https://recipe-management-system-mu.vercel.app/)**
 
 ## Tech Stack
 
-| Layer          | Technology                                    |
-| -------------- | --------------------------------------------- |
-| Framework      | Next.js 14+ (App Router)                      |
-| UI             | shadcn/ui + Tailwind CSS                      |
-| Database       | PostgreSQL (Neon) + Prisma ORM                |
-| Authentication | NextAuth.js v5 (Google + GitHub OAuth)        |
-| AI             | OpenAI GPT-4o-mini + DALL-E 3 (Vercel AI SDK) |
-| Images         | Cloudinary                                    |
-| Deployment     | Vercel                                        |
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)
+![NextAuth](https://img.shields.io/badge/NextAuth-v5-7C3AED)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-412991?logo=openai&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?logo=vercel)
 
-## Prerequisites
+| Layer         | Technology                                    |
+| ------------- | --------------------------------------------- |
+| Framework     | Next.js 16 (App Router)                       |
+| Language      | TypeScript (strict mode)                      |
+| Database      | PostgreSQL via Neon                           |
+| ORM           | Prisma 7 with `@prisma/adapter-neon`          |
+| Auth          | NextAuth.js v5 — Google & GitHub OAuth        |
+| AI            | OpenAI GPT-4o-mini + DALL-E 3 (Vercel AI SDK) |
+| UI            | shadcn/ui, Tailwind CSS 4                     |
+| Data Fetching | TanStack React Query                          |
+| Image Storage | Vercel Blob                                   |
+| Testing       | Vitest (unit) + Playwright (E2E)              |
 
-- [Node.js](https://nodejs.org/) 18.17 or later
-- npm (included with Node.js)
-- A [Neon](https://neon.tech/) PostgreSQL database
-- [Google OAuth](https://console.cloud.google.com/) app credentials
-- [GitHub OAuth](https://github.com/settings/developers) app credentials
-- An [OpenAI](https://platform.openai.com/) API key
-- A [Cloudinary](https://cloudinary.com/) account
+## Features
+
+- Recipe CRUD with multi-step form wizard, image uploads, and detailed ingredients/instructions
+- Full-text search with filters for cuisine, difficulty, prep time, and dietary tags
+- Star ratings, comments, and three-tier visibility (private/shared/public)
+- Collections — tag recipes as Favorite, To Try, or Made Before; save and browse by tab
+- AI recipe generation from ingredients (GPT-4o-mini)
+- AI ingredient substitution suggestions and nutritional estimates
+- AI image generation for recipes (DALL-E 3)
+- Recipe scaling and unit conversion
+- Step-by-step cooking mode with timers
+- Shopping list generation
+- Share recipes by username or link
+- Dark mode with system preference detection
+- Fully responsive design (mobile, tablet, desktop)
+- Print-friendly recipe view
 
 ## Getting Started
 
-1. **Clone the repository**
+### Prerequisites
 
-   ```bash
-   git clone <repository-url>
-   cd recipe-management-system
-   ```
+- **Node.js** 18+ and **npm**
+- A **[Neon](https://neon.tech/)** PostgreSQL database
+- **Google** OAuth credentials — [create here](https://console.cloud.google.com/apis/credentials)
+- **GitHub** OAuth credentials — [create here](https://github.com/settings/developers)
+- **OpenAI** API key — [get one here](https://platform.openai.com/api-keys)
+- A **[Vercel](https://vercel.com/)** account (for Blob storage token)
 
-2. **Install dependencies**
+### Setup
 
-   ```bash
-   npm install
-   ```
+```bash
+# 1. Clone the repository
+git clone https://github.com/ASemaan-WD/RecipeManagementSystem.git
+cd RecipeManagementSystem
 
-3. **Set up environment variables**
+# 2. Install dependencies
+npm install
 
-   ```bash
-   cp .env.example .env.local
-   ```
+# 3. Configure environment variables
+cp .env.example .env.local
+# Fill in all values in .env.local (see table below)
 
-   Open `.env.local` and fill in the values. See [Environment Variables](#environment-variables) below for details.
+# 4. Run database migrations
+npm run db:migrate
 
-4. **Set up the database** _(available after Phase 2)_
+# 5. Seed the database with sample data
+npm run db:seed
 
-   ```bash
-   npm run db:push
-   npm run db:seed
-   ```
-
-5. **Start the development server**
-
-   ```bash
-   npm run dev
-   ```
-
-6. **Open the app**
-
-   Visit [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Available Scripts
-
-| Script       | Command                | Description                  |
-| ------------ | ---------------------- | ---------------------------- |
-| Dev server   | `npm run dev`          | Start the development server |
-| Build        | `npm run build`        | Build for production         |
-| Start        | `npm run start`        | Start the production server  |
-| Lint         | `npm run lint`         | Run ESLint                   |
-| Format       | `npm run format`       | Format code with Prettier    |
-| Format check | `npm run format:check` | Check code formatting        |
-
-### Database Scripts _(coming in Phase 2)_
-
-| Script      | Command              | Description                        |
-| ----------- | -------------------- | ---------------------------------- |
-| Push schema | `npm run db:push`    | Push Prisma schema to the database |
-| Migrate     | `npm run db:migrate` | Run database migrations            |
-| Seed        | `npm run db:seed`    | Seed the database with sample data |
-| Studio      | `npm run db:studio`  | Open Prisma Studio                 |
-| Reset       | `npm run db:reset`   | Reset the database                 |
-
-## Project Structure
-
+# 6. Start the dev server
+npm run dev
 ```
-src/
-├── app/                  # Pages and API routes (App Router)
-│   ├── (auth)/           # Authentication pages
-│   ├── (main)/           # Authenticated app pages
-│   └── api/              # API route handlers
-├── components/
-│   ├── ui/               # shadcn/ui primitives
-│   ├── layout/           # Header, navigation, footer
-│   ├── recipes/          # Recipe-specific components
-│   ├── search/           # Search bar, filters
-│   ├── social/           # Ratings, comments, sharing
-│   ├── ai/               # AI feature components
-│   └── shared/           # Reusable cross-cutting components
-├── hooks/                # Custom React hooks
-├── lib/                  # Utility modules
-├── types/                # TypeScript type definitions
-└── providers/            # React context providers
-```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Environment Variables
 
-Copy `.env.example` to `.env.local` and provide values for each variable:
+Copy `.env.example` to `.env.local` and fill in the values:
 
-| Variable                            | Description                                      |
-| ----------------------------------- | ------------------------------------------------ |
-| `DATABASE_URL`                      | Neon PostgreSQL connection string                |
-| `NEXTAUTH_SECRET`                   | Random secret for NextAuth.js session encryption |
-| `NEXTAUTH_URL`                      | App URL (default: `http://localhost:3000`)       |
-| `GOOGLE_CLIENT_ID`                  | Google OAuth app client ID                       |
-| `GOOGLE_CLIENT_SECRET`              | Google OAuth app client secret                   |
-| `GITHUB_CLIENT_ID`                  | GitHub OAuth app client ID                       |
-| `GITHUB_CLIENT_SECRET`              | GitHub OAuth app client secret                   |
-| `OPENAI_API_KEY`                    | OpenAI API key for GPT-4o-mini and DALL-E 3      |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name (public)                   |
-| `CLOUDINARY_API_KEY`                | Cloudinary API key                               |
-| `CLOUDINARY_API_SECRET`             | Cloudinary API secret                            |
+| Variable                | Required | Description                                                  |
+| ----------------------- | -------- | ------------------------------------------------------------ |
+| `DATABASE_URL`          | Yes      | Neon PostgreSQL connection string                            |
+| `NEXTAUTH_URL`          | Yes      | App URL (`http://localhost:3000` for dev)                    |
+| `NEXTAUTH_SECRET`       | Yes      | JWT signing secret — generate with `openssl rand -base64 32` |
+| `GOOGLE_CLIENT_ID`      | Yes      | Google OAuth client ID                                       |
+| `GOOGLE_CLIENT_SECRET`  | Yes      | Google OAuth client secret                                   |
+| `GITHUB_CLIENT_ID`      | Yes      | GitHub OAuth client ID                                       |
+| `GITHUB_CLIENT_SECRET`  | Yes      | GitHub OAuth client secret                                   |
+| `OPENAI_API_KEY`        | Yes      | OpenAI API key (GPT-4o-mini + DALL-E 3)                      |
+| `BLOB_READ_WRITE_TOKEN` | Yes      | Vercel Blob storage token                                    |
 
-## Deployment
+## Scripts
 
-Deployed on Vercel. Deployment instructions will be added in Phase 15.
-
-## License
-
-MIT
+| Command            | Description                |
+| ------------------ | -------------------------- |
+| `npm run dev`      | Start development server   |
+| `npm run build`    | Production build           |
+| `npm start`        | Start production server    |
+| `npm run lint`     | Run ESLint                 |
+| `npm run format`   | Format with Prettier       |
+| `npm run test`     | Run unit tests (Vitest)    |
+| `npm run test:e2e` | Run E2E tests (Playwright) |
+| `npm run analyze`  | Bundle size analysis       |
