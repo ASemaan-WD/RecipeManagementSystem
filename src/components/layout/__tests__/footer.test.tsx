@@ -10,22 +10,16 @@ describe('Footer', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders About link', () => {
+  it('renders Privacy Policy link', () => {
     render(<Footer />);
-    const link = screen.getByRole('link', { name: 'About' });
-    expect(link).toHaveAttribute('href', '#');
+    const link = screen.getByRole('link', { name: 'Privacy Policy' });
+    expect(link).toHaveAttribute('href', '/privacy');
   });
 
-  it('renders Privacy link', () => {
+  it('renders Terms of Service link', () => {
     render(<Footer />);
-    const link = screen.getByRole('link', { name: 'Privacy' });
-    expect(link).toHaveAttribute('href', '#');
-  });
-
-  it('renders Terms link', () => {
-    render(<Footer />);
-    const link = screen.getByRole('link', { name: 'Terms' });
-    expect(link).toHaveAttribute('href', '#');
+    const link = screen.getByRole('link', { name: 'Terms of Service' });
+    expect(link).toHaveAttribute('href', '/terms');
   });
 
   it('renders attribution text', () => {

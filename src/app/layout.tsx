@@ -23,6 +23,9 @@ export const metadata: Metadata = {
     template: '%s | Recipe Management System',
   },
   description: 'AI-Enhanced Recipe Management Platform',
+  verification: {
+    google: 'RZy1AAybIqEYkko9JygCF6ReubfnbhIT0iJ0a9wW3lQ',
+  },
 };
 
 export default function RootLayout({

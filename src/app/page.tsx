@@ -102,7 +102,23 @@ export default async function HomePage() {
       </section>
 
       <footer className="text-muted-foreground border-t py-6 text-center text-sm">
-        <p>&copy; {new Date().getFullYear()} Recipe Management System</p>
+        <div className="flex flex-col items-center gap-2">
+          <p>&copy; {new Date().getFullYear()} Recipe Management System</p>
+          <nav className="flex gap-4" aria-label="Footer navigation">
+            <Link
+              href="/privacy"
+              className="hover:text-foreground transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/terms"
+              className="hover:text-foreground transition-colors"
+            >
+              Terms of Service
+            </Link>
+          </nav>
+        </div>
       </footer>
     </div>
   );
