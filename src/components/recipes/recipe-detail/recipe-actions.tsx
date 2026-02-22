@@ -71,77 +71,75 @@ export function RecipeActions({
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
-        {isOwner && (
-          <>
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/recipes/${recipeId}/edit`}>
-                <Pencil className="size-4" />
-                Edit
-              </Link>
-            </Button>
+      {isOwner && (
+        <>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/recipes/${recipeId}/edit`}>
+              <Pencil className="size-4" />
+              Edit
+            </Link>
+          </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsDeleteOpen(true)}
-              className="text-destructive hover:text-destructive"
-            >
-              <Trash2 className="size-4" />
-              Delete
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsShareOpen(true)}
-            >
-              <Share2 className="size-4" />
-              Share
-            </Button>
-          </>
-        )}
-
-        {isOwner && !hasImage && (
           <Button
             variant="outline"
             size="sm"
-            onClick={() =>
-              generateImage.mutate(
-                { recipeId },
-                { onSuccess: () => router.refresh() }
-              )
-            }
-            disabled={generateImage.isPending}
+            onClick={() => setIsDeleteOpen(true)}
+            className="text-destructive hover:text-destructive"
           >
-            {generateImage.isPending ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <ImagePlus className="size-4" />
-            )}
-            Generate Image
+            <Trash2 className="size-4" />
+            Delete
           </Button>
-        )}
 
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsShareOpen(true)}
+          >
+            <Share2 className="size-4" />
+            Share
+          </Button>
+        </>
+      )}
+
+      {isOwner && !hasImage && (
         <Button
           variant="outline"
           size="sm"
-          onClick={handleDuplicate}
-          disabled={isDuplicating}
+          onClick={() =>
+            generateImage.mutate(
+              { recipeId },
+              { onSuccess: () => router.refresh() }
+            )
+          }
+          disabled={generateImage.isPending}
         >
-          {isDuplicating ? (
+          {generateImage.isPending ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
-            <Copy className="size-4" />
+            <ImagePlus className="size-4" />
           )}
-          Duplicate
+          Generate Image
         </Button>
+      )}
 
-        <Button variant="outline" size="sm" onClick={handlePrint}>
-          <Printer className="size-4" />
-          Print
-        </Button>
-      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleDuplicate}
+        disabled={isDuplicating}
+      >
+        {isDuplicating ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <Copy className="size-4" />
+        )}
+        Duplicate
+      </Button>
+
+      <Button variant="outline" size="sm" onClick={handlePrint}>
+        <Printer className="size-4" />
+        Print
+      </Button>
 
       {isOwner && (
         <>
