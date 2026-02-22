@@ -116,7 +116,7 @@ export function RecipeFormWizard({
         />
 
         <form
-          onSubmit={form.handleSubmit(handleFormSubmit)}
+          onSubmit={(e) => e.preventDefault()}
           onKeyDown={(e) => {
             if (
               e.key === 'Enter' &&
@@ -144,7 +144,11 @@ export function RecipeFormWizard({
             </Button>
 
             {isLastStep ? (
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="button"
+                disabled={isSubmitting}
+                onClick={form.handleSubmit(handleFormSubmit)}
+              >
                 {isSubmitting && <Loader2 className="size-4 animate-spin" />}
                 {mode === 'create' ? 'Create Recipe' : 'Save Changes'}
               </Button>
