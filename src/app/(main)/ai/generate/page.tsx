@@ -1,6 +1,22 @@
 import type { Metadata } from 'next';
 
-import { RecipeGenerator } from '@/components/ai/recipe-generator';
+import dynamic from 'next/dynamic';
+
+import { Skeleton } from '@/components/ui/skeleton';
+
+const RecipeGenerator = dynamic(
+  () =>
+    import('@/components/ai/recipe-generator').then((m) => m.RecipeGenerator),
+  {
+    loading: () => (
+      <div className="space-y-4">
+        <Skeleton className="h-32 w-full rounded-lg" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-32" />
+      </div>
+    ),
+  }
+);
 
 export const metadata: Metadata = {
   title: 'AI Recipe Generator',

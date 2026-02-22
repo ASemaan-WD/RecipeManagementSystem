@@ -13,6 +13,10 @@ vi.mock('next/link', () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ prefetch: vi.fn() }),
+}));
+
 vi.mock('next/image', () => ({
   default: ({
     alt,

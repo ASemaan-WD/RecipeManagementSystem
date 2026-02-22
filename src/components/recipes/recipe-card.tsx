@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import {
   Clock,
@@ -14,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import { RecipeCardLink } from '@/components/recipes/recipe-card-link';
 import { TagToggles } from '@/components/recipes/tag-toggles';
 import { SaveButton } from '@/components/recipes/save-button';
 import type { TagStatus } from '@/generated/prisma/client';
@@ -59,7 +59,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
   const totalTime = (recipe.prepTime ?? 0) + (recipe.cookTime ?? 0) || null;
 
   return (
-    <Link href={`/recipes/${recipe.id}`} className="group block">
+    <RecipeCardLink href={`/recipes/${recipe.id}`} className="group block">
       <Card className="h-full overflow-hidden transition-all group-hover:scale-[1.02] group-hover:shadow-lg">
         {/* Image */}
         <div className="bg-muted relative aspect-[4/3] overflow-hidden">
@@ -186,6 +186,6 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
           )}
         </CardContent>
       </Card>
-    </Link>
+    </RecipeCardLink>
   );
 }

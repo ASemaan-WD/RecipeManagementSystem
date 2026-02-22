@@ -2,14 +2,19 @@
 
 import { useState } from 'react';
 
+import dynamic from 'next/dynamic';
 import { ChefHat } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { ServingAdjuster } from '@/components/recipes/serving-adjuster';
-import { CookingMode } from '@/components/recipes/cooking-mode';
 import { RecipeIngredients } from '@/components/recipes/recipe-detail/recipe-ingredients';
 import { RecipeSteps } from '@/components/recipes/recipe-detail/recipe-steps';
 import type { RecipeDetail } from '@/types/recipe';
+
+const CookingMode = dynamic(
+  () => import('@/components/recipes/cooking-mode').then((m) => m.CookingMode),
+  { ssr: false }
+);
 
 interface RecipeDetailClientProps {
   recipe: RecipeDetail;
